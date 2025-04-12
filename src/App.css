@@ -147,9 +147,28 @@ body {
   position: relative; /* For positioning the plus button */
 }
 
+/* Placed Action */
+.placed-action {
+  /* Inherits flex from style prop now */
+  /* display: flex; */
+  /* flex-direction: column; */
+  /* align-items: center; */
+  /* justify-content: center; */ /* Use style prop for centering */
+  /* padding: 5px; */ /* Use style prop */
+  width: 100%;
+  height: 100%;
+  box-sizing: border-box;
+  position: relative; /* Still relative for its own children if needed */
+  /* Remove overflow hidden if it was ever added */
+}
+
 .placed-action .icon {
   font-size: 1.8em;
   margin-bottom: 5px;
+  user-select: none; /* Prevent text selection on icon */
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
 }
 
 .placed-action .label-input {
@@ -158,55 +177,148 @@ body {
   text-align: center;
   border: 1px solid #eee;
   padding: 3px;
-  margin-bottom: 5px;
+  /* margin-bottom: 5px; */ /* Removed, handled by flex gap or direct style */
   box-sizing: border-box;
+  background-color: #fff; /* Ensure it has background */
+  z-index: 1; /* Above icon potentially */
 }
 
-.add-mini-box-button {
+/* --- NEW Mini Boxes Container Styling --- */
+.mini-boxes-container {
   position: absolute;
-  bottom: 2px;
-  right: 2px;
+  top: 50%;
+  right: 0;
+  transform: translate(50%, -50%);
+  background-color: rgba(240, 240, 240, 0.95);
+  border: 1px solid #bbb;
+  padding: 8px;
+  border-radius: 6px;
+  box-shadow: 2px 2px 6px rgba(0, 0, 0, 0.2);
+  z-index: 10;
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  align-items: stretch;
+  width: 100px; /* Make container narrower */
+  max-height: 150px; /* Adjust height if needed */
+  overflow-y: auto;
+  overflow-x: hidden;
+  user-select: none;
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+}
+
+/* --- ADJUSTED Add Mini Box Button Styling --- */
+.add-mini-box-button {
+  /* Remove absolute positioning */
+  /* position: absolute; */
+  /* bottom: 2px; */
+  /* right: 2px; */
+
+  /* Standard button styling */
   background-color: #4caf50;
   color: white;
   border: none;
-  border-radius: 50%;
-  width: 18px;
-  height: 18px;
+  border-radius: 4px; /* Can be square or round */
+  /* width: 18px; */ /* Let width be determined by padding */
+  /* height: 18px; */
+  padding: 3px 6px; /* Adjust padding */
   font-size: 14px;
-  line-height: 16px; /* Center the plus */
+  /* line-height: 16px; */
   cursor: pointer;
   text-align: center;
-  padding: 0;
-  z-index: 10; /* Ensure it's above other elements */
+  margin-top: 5px; /* Add some space above it if needed */
+  align-self: center; /* Center button within the flex container */
+  /* z-index: 10; */ /* No longer needed here, handled by container */
+
+  background-color: #4caf50;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  padding: 3px 6px;
+  font-size: 14px;
+  cursor: pointer;
+  text-align: center;
+  margin-top: 5px;
+  align-self: center;
 }
 
 .add-mini-box-button:hover {
   background-color: #45a049;
 }
 
-.mini-boxes-container {
-  font-size: 0.7em;
-  margin-top: 5px;
-  width: 100%;
-  max-height: 30px; /* Limit height */
-  overflow-y: auto; /* Add scroll if needed */
-  display: flex;
-  flex-direction: column;
-  gap: 2px;
-}
-
-/* Mini Box */
+/* Mini Box (Individual) */
 .mini-box {
   display: flex;
   align-items: center;
+  justify-content: space-between; /* Space out content and button */
+  border: 1px dashed #ccc; /* Dashed border for empty slots */
+  border-radius: 4px;
+  padding: 4px;
+  background-color: #fff;
+  min-height: 30px; /* Ensure a minimum height */
+  transition: background-color 0.2s ease, border-color 0.2s ease;
+}
+
+.mini-box.empty {
+  /* Optional: different background for empty */
+  background-color: #f8f8f8;
+}
+
+.mini-box:not(.empty) {
+  border-style: solid; /* Solid border when filled */
+  border-color: #bbb;
+}
+
+/* Highlight when dragging over */
+.mini-box.over {
+  background-color: #d3e3fd;
+  border-color: #9ecaed;
+  border-style: solid;
+}
+
+.mini-box-content {
+  flex-grow: 1; /* Take available space */
+  text-align: center; /* Center icon or placeholder */
+}
+
+.mini-box-icon {
+  font-size: 1.2em; /* Adjust icon size */
+  cursor: default; /* Indicate non-interactive icon */
+}
+
+.mini-box-placeholder {
+  font-size: 0.7em;
+  color: #888;
+  font-style: italic;
+}
+
+.mini-box-delete-button {
+  background: #ff4d4d;
+  color: white;
+  border: none;
+  border-radius: 3px;
+  cursor: pointer;
+  font-size: 0.9em; /* Make slightly larger */
+  padding: 1px 4px;
+  line-height: 1;
+  margin-left: 4px; /* Space between content and button */
+  opacity: 0.6; /* Make slightly transparent until hover */
+  transition: opacity 0.2s ease;
+}
+
+.mini-box:hover .mini-box-delete-button {
+  opacity: 1; /* Fully visible on hover */
 }
 
 .mini-box input {
   flex-grow: 1;
   font-size: 0.9em; /* Relative to container */
-  border: 1px solid #ddd;
-  padding: 2px;
-  margin-right: 3px; /* Space before delete button */
+  border: 1px solid #ccc;
+  padding: 3px 4px;
+  border-radius: 3px;
+  /* margin-right: 3px; */ /* Use gap instead */
 }
 
 .mini-box button {
@@ -216,7 +328,8 @@ body {
   border-radius: 3px;
   cursor: pointer;
   font-size: 0.8em;
-  padding: 1px 3px;
+  padding: 2px 5px; /* Slightly adjust padding */
+  line-height: 1; /* Ensure text fits */
 }
 
 /* Drag Overlay */
@@ -354,11 +467,39 @@ body {
     page-break-inside: avoid; /* Try to keep grid on one page */
   }
   .grid-square {
+    background-color: #fff;
     border: 1px solid #ccc;
-    box-shadow: none;
+    border-radius: 4px;
+    display: flex; /* Keep flex for centering empty state text */
+    justify-content: center;
+    align-items: center;
+    position: relative; /* CRUCIAL: Parent for absolute positioning */
+    min-height: 80px;
+    transition: background-color 0.2s ease;
+    overflow: visible; /* Allow absolutely positioned children to show outside */
   }
+  /* Hide the floating mini-box container during print */
+  .mini-boxes-container {
+    display: none !important;
+  }
+  /* Hide mini-box delete button in print */
+  .mini-box-delete-button {
+    display: none !important;
+  }
+
+  /* Optional: Style the mini-box content for print if needed */
+  .mini-box {
+    border: 1px solid #eee; /* Lighter border for print */
+    padding: 2px;
+  }
+  .mini-box-placeholder {
+    display: none; /* Don't print placeholders */
+  }
+
+  /* Ensure the original add button is also hidden if separate */
   .add-mini-box-button {
-    display: none !important; /* Hide the plus button specifically */
+    /* This might hide the one in the container too, which is fine for print */
+    display: none !important;
   }
   .placed-action .label-input,
   .mini-box input {

@@ -7,7 +7,7 @@ function GridSquare({
   item,
   onLabelChange,
   onAddMiniBox,
-  onMiniBoxChange,
+  // onMiniBoxChange, // REMOVE THIS LINE
   onMiniBoxDelete,
 }) {
   const { isOver, setNodeRef } = useDroppable({
@@ -28,11 +28,10 @@ function GridSquare({
           miniBoxes={item.miniBoxes}
           onLabelChange={onLabelChange}
           onAddMiniBox={onAddMiniBox}
-          onMiniBoxChange={onMiniBoxChange}
+          // onMiniBoxChange={onMiniBoxChange} // REMOVE THIS LINE
           onMiniBoxDelete={onMiniBoxDelete}
         />
       ) : (
-        // Placeholder for empty square if needed
         <span style={{ color: "#ccc", fontSize: "0.8em" }}>Drop here</span>
       )}
     </div>

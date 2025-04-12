@@ -5,7 +5,7 @@ function RecipeGrid({
   items,
   onLabelChange,
   onAddMiniBox,
-  onMiniBoxChange,
+  // onMiniBoxChange, // REMOVE THIS LINE
   onMiniBoxDelete,
 }) {
   return (
@@ -17,7 +17,7 @@ function RecipeGrid({
           item={item}
           onLabelChange={onLabelChange}
           onAddMiniBox={onAddMiniBox}
-          onMiniBoxChange={onMiniBoxChange}
+          // onMiniBoxChange={onMiniBoxChange} // REMOVE THIS LINE
           onMiniBoxDelete={onMiniBoxDelete}
         />
       ))}
