@@ -1,47 +1,74 @@
 // src/MiniBox.js
 import React from "react";
-import { useDroppable } from "@dnd-kit/core"; // Import useDroppable
+import { useDroppable } from "@dnd-kit/core";
+import ActionItem from "./ActionItem"; // Assuming ActionItem can render just the icon/content
 
-// Receive parentSquareId to correctly call onDelete
 function MiniBox({ id, droppableId, action, onDelete, parentSquareId }) {
   const { setNodeRef, isOver } = useDroppable({
-    id: droppableId, // Use the unique droppable ID passed from PlacedAction
+    id: droppableId,
+    data: {
+      type: "minibox",
+      targetId: id,
+      parentSquareId: parentSquareId,
+    },
   });
 
-  const hasAction = action !== null;
-  const miniBoxClasses = `mini-box ${isOver ? "over" : ""} ${
-    !hasAction ? "empty" : ""
-  }`;
+  const hasAction = Boolean(action);
 
-  const handleDelete = (e) => {
-    e.stopPropagation(); // Prevent potential parent interactions
-    onDelete(parentSquareId, id); // Call delete with parent ID and mini-box ID
+  // --- NEW: Context Menu Handler ---
+  const handleContextMenu = (event) => {
+    event.preventDefault(); // Prevent the default browser right-click menu
+    event.stopPropagation(); // Stop event from bubbling up
+    console.log(`Right-clicked MiniBox: ${id}, Parent: ${parentSquareId}`);
+    onDelete(parentSquareId, id); // Call the delete function passed from parent
   };
+  // --- END NEW ---
 
   return (
-    // Apply droppable ref and classes
-    <div ref={setNodeRef} className={miniBoxClasses}>
-      {/* Content Area */}
+    <div
+      ref={setNodeRef}
+      className={`mini-box ${isOver ? "over" : ""} ${
+        !hasAction ? "empty" : ""
+      }`}
+      // --- ADD onContextMenu ---
+      onContextMenu={handleContextMenu}
+      // --- ADD title attribute for user hint ---
+      title={
+        hasAction
+          ? `${action.name} (Right-click to delete)`
+          : "Empty Slot (Right-click to delete)"
+      }
+      // Prevent drag start when interacting with the box itself
+      onPointerDown={(e) => e.stopPropagation()}
+      onClick={(e) => e.stopPropagation()}
+      onTouchStart={(e) => e.stopPropagation()}
+    >
       <div className="mini-box-content">
         {hasAction ? (
-          <span className="mini-box-icon" title={action.name}>
-            {action.icon}
-          </span>
+          // Render the action icon (or minimal representation)
+          // Assuming ActionItem can take just an action prop
+          // Or just display the icon directly:
+          <span className="mini-box-icon">{action.icon}</span>
         ) : (
-          <span className="mini-box-placeholder">Drop Action</span>
+          // Placeholder for empty state
+          <span className="mini-box-placeholder">Slot</span>
         )}
       </div>
-
-      {/* Delete Button - only show if an action is present? Or always? Let's show always for now */}
-      <button
-        className="mini-box-delete-button"
-        onClick={handleDelete}
-        title="Remove item / Clear slot"
-        // Stop pointer down needed if button is sometimes obscured or complex layout
-        onPointerDown={(e) => e.stopPropagation()}
-      >
-        ×
-      </button>
+      {/* --- REMOVED Delete Button ---
+      {hasAction && ( // Only show delete if there's an action? Or always show to delete the slot? Let's assume always for now.
+        <button
+          className="mini-box-delete-button"
+          onClick={(e) => {
+            e.stopPropagation(); // Prevent drag/other clicks
+            onDelete(parentSquareId, id);
+          }}
+          title="Delete Mini-Box"
+          onPointerDown={(e) => e.stopPropagation()} // Prevent drag start on button click
+        >
+          &times;
+        </button>
+      )}
+      --- END REMOVED --- */}
     </div>
   );
 }

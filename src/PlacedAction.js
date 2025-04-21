@@ -1,7 +1,7 @@
 // src/PlacedAction.js
-import React from "react";
+import React, { useState } from "react";
 import MiniBox from "./MiniBox"; // Will be updated next
-import { v4 as uuidv4 } from "uuid";
+// import { v4 as uuidv4 } from "uuid"; // No longer needed here
 import { useDraggable } from "@dnd-kit/core";
 import { CSS } from "@dnd-kit/utilities";
 
@@ -25,9 +25,11 @@ function PlacedAction({
       },
     });
 
-  // ... style definition remains the same ...
+  // --- NEW: State to control mini-box area visibility ---
+  const [showMiniBoxes, setShowMiniBoxes] = useState(miniBoxes.length > 0);
+  // Initialize to true if miniboxes already exist (e.g., loading state)
+
   const style = {
-    // ... (as before)
     transform: CSS.Translate.toString(transform),
     opacity: isDragging ? 0.5 : 1,
     cursor: "grab",
@@ -35,20 +37,29 @@ function PlacedAction({
     width: "100%",
     height: "100%",
     boxSizing: "border-box",
-    position: "relative",
+    position: "relative", // Keep relative for positioning children
     display: "flex",
     flexDirection: "column",
     alignItems: "center",
-    justifyContent: "center",
+    justifyContent: "center", // Adjust if needed for '+' button layout
     padding: "5px",
+    overflow: "visible", // Ensure absolutely positioned children aren't clipped
   };
 
-  if (!action) return null;
-
-  const handleAddClick = (e) => {
-    e.stopPropagation();
-    onAddMiniBox(squareId); // Call with just squareId
+  // --- NEW: Handler for the main '+' button ---
+  const handleRevealMiniBoxClick = (e) => {
+    e.stopPropagation(); // Prevent drag
+    setShowMiniBoxes(true);
+    // Call App.js to add the *first* mini-box data structure if none exist
+    if (miniBoxes.length === 0) {
+      onAddMiniBox(squareId);
+    }
+    // If you want clicking '+' *again* to add *more* boxes, call onAddMiniBox unconditionally:
+    // onAddMiniBox(squareId);
   };
+  // --- END NEW ---
+
+  // --- REMOVED: handleAddClick (was for the old '+' button) ---
 
   return (
     <div
@@ -73,39 +84,47 @@ function PlacedAction({
         style={{ pointerEvents: isDragging ? "none" : "auto", marginBottom: 0 }}
       />
 
-      {/* Absolutely Positioned Mini-Box Container */}
-      {action && (
+      {/* --- NEW: Conditional '+' Button on Main Square --- */}
+      {!showMiniBoxes && !isDragging && (
+        <button
+          className="reveal-mini-box-button"
+          onClick={handleRevealMiniBoxClick}
+          title="Add related action slot"
+          onPointerDown={(e) => e.stopPropagation()} // Prevent drag start on button click
+        >
+          +
+        </button>
+      )}
+      {/* --- END NEW --- */}
+
+      {/* --- UPDATED: Conditionally render the new mini-box area --- */}
+      {/* Render only if showMiniBoxes is true AND there are miniBoxes in the data */}
+      {showMiniBoxes && miniBoxes.length > 0 && (
         <div
-          className="mini-boxes-container"
-          onPointerDown={(e) => e.stopPropagation()}
+          className="mini-box-area" // New container class
+          onPointerDown={(e) => e.stopPropagation()} // Stop propagation on the area
           onClick={(e) => e.stopPropagation()}
           onTouchStart={(e) => e.stopPropagation()}
         >
           {miniBoxes.map((box) => {
-            // Generate the unique ID for the droppable mini-box
             const miniBoxDroppableId = `minibox-${squareId}-${box.id}`;
             return (
               <MiniBox
-                key={box.id} // React key is still the UUID
-                id={box.id} // Pass the UUID for deletion logic
-                droppableId={miniBoxDroppableId} // Pass the full ID for dnd-kit
-                action={box.action} // Pass the action object or null
-                onDelete={onMiniBoxDelete} // Pass the delete handler
-                parentSquareId={squareId} // Pass parent ID for the delete handler
+                key={box.id}
+                id={box.id}
+                droppableId={miniBoxDroppableId}
+                action={box.action}
+                onDelete={onMiniBoxDelete}
+                parentSquareId={squareId}
               />
             );
           })}
-          {/* Add button */}
-          <button
-            className="add-mini-box-button"
-            onClick={handleAddClick}
-            title="Add related action slot"
-            disabled={isDragging}
-          >
-            +
-          </button>
+          {/* --- REMOVED: Old '+' button that was inside the container --- */}
         </div>
       )}
+      {/* --- END UPDATED --- */}
+
+      {/* --- REMOVED: Old .mini-boxes-container div --- */}
     </div>
   );
 }

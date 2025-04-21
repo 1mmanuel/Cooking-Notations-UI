@@ -101,7 +101,7 @@ body {
   display: grid;
   grid-template-columns: repeat(5, 1fr);
   grid-template-rows: repeat(5, 1fr);
-  gap: 10px;
+  gap: 30px;
   width: 100%; /* Adjust as needed */
   max-width: 600px; /* Example max width */
   aspect-ratio: 1 / 1; /* Maintain square aspect ratio */
@@ -183,54 +183,47 @@ body {
   z-index: 1; /* Above icon potentially */
 }
 
-/* --- NEW Mini Boxes Container Styling --- */
+/* --- REMOVE OR COMMENT OUT Styles for the old container --- */
+/*
 .mini-boxes-container {
   position: absolute;
   top: 50%;
   right: 0;
   transform: translate(50%, -50%);
-  background-color: rgba(240, 240, 240, 0.95);
-  border: 1px solid #bbb;
-  padding: 8px;
-  border-radius: 6px;
-  box-shadow: 2px 2px 6px rgba(0, 0, 0, 0.2);
-  z-index: 10;
   display: flex;
   flex-direction: column;
-  gap: 5px;
-  align-items: stretch;
-  width: 100px; /* Make container narrower */
-  max-height: 150px; /* Adjust height if needed */
-  overflow-y: auto;
-  overflow-x: hidden;
-  user-select: none;
-  -webkit-user-select: none;
-  -moz-user-select: none;
-  -ms-user-select: none;
+  gap: 2px;
+  background-color: rgba(255, 255, 255, 0.9);
+  padding: 4px;
+  border-radius: 4px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+  z-index: 10;
+  pointer-events: auto;
 }
 
-/* --- ADJUSTED Add Mini Box Button Styling --- */
-.add-mini-box-button {
-  /* Remove absolute positioning */
-  /* position: absolute; */
-  /* bottom: 2px; */
-  /* right: 2px; */
 
-  /* Standard button styling */
+/* --- ADJUSTED Add Mini Box Button Styling --- */
+/* .add-mini-box-button {
+   Remove absolute positioning 
+   position: absolute; 
+   bottom: 2px; 
+   right: 2px; 
+
+   Standard button styling 
   background-color: #4caf50;
   color: white;
   border: none;
-  border-radius: 4px; /* Can be square or round */
-  /* width: 18px; */ /* Let width be determined by padding */
-  /* height: 18px; */
-  padding: 3px 6px; /* Adjust padding */
+  border-radius: 4px; 
+   width: 18px; 
+   height: 18px;
+  padding: 3px 6px;
   font-size: 14px;
-  /* line-height: 16px; */
+   line-height: 16px; 
   cursor: pointer;
   text-align: center;
-  margin-top: 5px; /* Add some space above it if needed */
-  align-self: center; /* Center button within the flex container */
-  /* z-index: 10; */ /* No longer needed here, handled by container */
+  margin-top: 5px; 
+  align-self: center; 
+   z-index: 10; 
 
   background-color: #4caf50;
   color: white;
@@ -242,6 +235,51 @@ body {
   text-align: center;
   margin-top: 5px;
   align-self: center;
+} */
+
+/* --- ADD Styles for the new '+' button on PlacedAction --- */
+.placed-action .reveal-mini-box-button {
+  position: absolute;
+  bottom: 3px;
+  right: 3px;
+  width: 20px;
+  height: 20px;
+  font-size: 14px;
+  line-height: 18px; /* Center '+' vertically */
+  text-align: center;
+  padding: 0;
+  border-radius: 50%;
+  background-color: #e0e0e0;
+  border: 1px solid #ccc;
+  color: #333;
+  cursor: pointer;
+  z-index: 5; /* Ensure it's above other content but below drag overlay */
+  transition: background-color 0.2s ease;
+}
+
+.placed-action .reveal-mini-box-button:hover {
+  background-color: #d0d0d0;
+}
+
+/* --- ADD Styles for the new mini-box area container --- */
+.placed-action .mini-box-area {
+  position: absolute;
+  /* Positioning for live view - place it overlapping right edge */
+  top: 50%;
+  left: 100%; /* Start at the right edge */
+  transform: translateY(-50%); /* Center vertically */
+  margin-left: -10px; /* Pull back slightly to overlap */
+  /* Or use right: 0; transform: translate(50%, -50%); if preferred */
+
+  display: flex;
+  flex-direction: column;
+  gap: 3px; /* Space between individual mini-boxes */
+  z-index: 10; /* Ensure it's above grid squares */
+  pointer-events: auto; /* Allow interaction within */
+  padding: 3px; /* Optional padding around the boxes */
+  background-color: rgba(240, 240, 240, 0.85); /* Optional subtle background */
+  border-radius: 3px; /* Optional rounded corners */
+  box-shadow: 1px 1px 3px rgba(0, 0, 0, 0.15); /* Optional subtle shadow */
 }
 
 .add-mini-box-button:hover {
@@ -250,67 +288,75 @@ body {
 
 /* Mini Box (Individual) */
 .mini-box {
+  /* Give it visual definition */
+  border: 1px dashed #aaa;
+  background-color: #fff;
+  padding: 4px 6px;
+  min-height: 35px; /* Ensure drop target size */
+  min-width: 40px; /* Ensure drop target size */
   display: flex;
   align-items: center;
-  justify-content: space-between; /* Space out content and button */
-  border: 1px dashed #ccc; /* Dashed border for empty slots */
-  border-radius: 4px;
-  padding: 4px;
-  background-color: #fff;
-  min-height: 30px; /* Ensure a minimum height */
-  transition: background-color 0.2s ease, border-color 0.2s ease;
+  justify-content: space-between; /* Space icon and delete button */
+  border-radius: 3px;
+  position: relative; /* For delete button positioning if needed */
+  box-sizing: border-box;
+  cursor: pointer; /* Indicate it's clickable/interactive */
 }
 
 .mini-box.empty {
-  /* Optional: different background for empty */
-  background-color: #f8f8f8;
+  background-color: #f0f0f5; /* Lighter background when empty */
 }
 
-.mini-box:not(.empty) {
-  border-style: solid; /* Solid border when filled */
-  border-color: #bbb;
+.mini-box.empty .mini-box-placeholder {
+  color: #999;
+  font-size: 0.7em;
+  text-align: center;
+  width: 100%;
 }
+
+/* .mini-box:not(.empty) {
+  border-style: solid; 
+  border-color: #bbb;
+} */
 
 /* Highlight when dragging over */
 .mini-box.over {
-  background-color: #d3e3fd;
-  border-color: #9ecaed;
+  border-color: dodgerblue;
   border-style: solid;
+  background-color: #e0f0ff;
 }
 
 .mini-box-content {
-  flex-grow: 1; /* Take available space */
-  text-align: center; /* Center icon or placeholder */
+  flex-grow: 1; /* Allow content to take space */
+  display: flex;
+  align-items: center;
+  justify-content: center; /* Center icon/placeholder */
 }
 
 .mini-box-icon {
-  font-size: 1.2em; /* Adjust icon size */
-  cursor: default; /* Indicate non-interactive icon */
+  font-size: 1.1em;
 }
 
-.mini-box-placeholder {
+/* .mini-box-placeholder {
   font-size: 0.7em;
   color: #888;
   font-style: italic;
-}
+} */
 
-.mini-box-delete-button {
-  background: #ff4d4d;
-  color: white;
+/* .mini-box-delete-button {
+  background: none;
   border: none;
-  border-radius: 3px;
+  color: #aaa;
   cursor: pointer;
-  font-size: 0.9em; /* Make slightly larger */
-  padding: 1px 4px;
+  font-size: 1.3em;
   line-height: 1;
-  margin-left: 4px; /* Space between content and button */
-  opacity: 0.6; /* Make slightly transparent until hover */
-  transition: opacity 0.2s ease;
+  padding: 0 2px;
+  margin-left: 4px; 
 }
 
-.mini-box:hover .mini-box-delete-button {
-  opacity: 1; /* Fully visible on hover */
-}
+.mini-box-delete-button:hover {
+  color: #f00;
+} */
 
 .mini-box input {
   flex-grow: 1;
@@ -321,16 +367,16 @@ body {
   /* margin-right: 3px; */ /* Use gap instead */
 }
 
-.mini-box button {
+/* .mini-box button {
   background: #ff4d4d;
   color: white;
   border: none;
   border-radius: 3px;
   cursor: pointer;
   font-size: 0.8em;
-  padding: 2px 5px; /* Slightly adjust padding */
-  line-height: 1; /* Ensure text fits */
-}
+  padding: 2px 5px; 
+  line-height: 1; 
+} */
 
 /* Drag Overlay */
 .drag-overlay {

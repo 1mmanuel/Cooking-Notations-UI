@@ -62,6 +62,7 @@ function App() {
   const [pdfError, setPdfError] = useState(null); // Error state
 
   const gridRef = useRef(null); // Create a ref for the RecipeGrid
+  // const pdfCaptureRef = useRef(null); // REMOVE or comment out this ref - no longer needed
 
   const sensors = useSensors(
     useSensor(PointerSensor),
@@ -274,10 +275,11 @@ function App() {
 
   // --- Updated Serve Function ---
   const handleServe = async () => {
+    // --- REVERT: Check the gridRef again ---
     if (!gridRef.current) {
-      console.error("Grid reference is not available.");
-      setPdfError("Could not find the grid element to generate PDF.");
-      setIsSummaryModalOpen(true); // Open modal to show error
+      console.error("Recipe grid reference is not available.");
+      setPdfError("Could not find the grid element to generate PDF from.");
+      setIsSummaryModalOpen(true);
       return;
     }
 
@@ -287,13 +289,49 @@ function App() {
     setIsSummaryModalOpen(true); // Open modal to show loading state
 
     try {
-      // 1. Capture Grid as Canvas using html2canvas
-      // Adjust scale for better resolution if needed
+      // --- REVERT: Capture gridRef.current ---
+      // --- ADD: onclone option ---
       const canvas = await html2canvas(gridRef.current, {
-        scale: 2,
+        scale: 1.5, // Keep or adjust scale (1.5 or 1 is usually good)
         useCORS: true,
         backgroundColor: "#ffffff",
+        logging: true, // Enable html2canvas logging for potential clues in console
+
+        // --- NEW: onclone callback ---
+        onclone: (clonedDoc) => {
+          // --- CHANGE SELECTOR ---
+          const miniBoxAreas = clonedDoc.querySelectorAll(
+            ".mini-box-area" // Target the new container
+          );
+          console.log(
+            `Found ${miniBoxAreas.length} mini-box areas in cloned DOM.`
+          );
+          // --- END CHANGE ---
+
+          // Apply styles to each area found
+          miniBoxAreas.forEach((area, index) => {
+            // Apply temporary styles FOR THE SCREENSHOT ONLY
+            // Use the same positioning logic as before, but apply it to the 'area'
+
+            area.style.position = "absolute";
+            area.style.transform = "none";
+            area.style.top = "10px"; // Adjust as needed for vertical PDF position
+            area.style.bottom = "auto";
+            area.style.left = "100%";
+            area.style.marginLeft = "2px"; // Adjust based on grid gap
+            area.style.right = "auto";
+
+            // Optional Debug Border:
+            // area.style.border = '1px dashed blue';
+
+            console.log(
+              `Applied PDF positioning styles to mini-box area ${index}`
+            );
+          });
+        },
+        // --- End onclone ---
       });
+
       const imgData = canvas.toDataURL("image/jpeg", 0.9);
 
       // 2. Create PDF using jsPDF
