@@ -1,16 +1,19 @@
 // src/RecipeGrid.js
-import React, { forwardRef } from "react"; // Import forwardRef
+import React, { forwardRef } from "react";
 import GridSquare from "./GridSquare";
 
-// Wrap component definition with forwardRef
 const RecipeGrid = forwardRef(
-  // Use forwardRef
   (
-    { items, onLabelChange, onAddMiniBox, onMiniBoxDelete },
-    ref // Receive the ref as the second argument
+    {
+      items,
+      onLabelChange,
+      onAddMiniBox,
+      onMiniBoxDelete,
+      onDeleteAction, // <-- Accept the new prop
+    },
+    ref
   ) => {
     return (
-      // Attach the ref to the outermost div
       <div className="recipe-grid" ref={ref}>
         {Object.entries(items).map(([id, item]) => (
           <GridSquare
@@ -20,11 +23,12 @@ const RecipeGrid = forwardRef(
             onLabelChange={onLabelChange}
             onAddMiniBox={onAddMiniBox}
             onMiniBoxDelete={onMiniBoxDelete}
+            onDeleteAction={onDeleteAction} // <-- Pass it down
           />
         ))}
       </div>
     );
   }
-); // Close forwardRef
+);
 
 export default RecipeGrid;

@@ -1,3 +1,4 @@
+// src/GridSquare.js
 import React from "react";
 import { useDroppable } from "@dnd-kit/core";
 import PlacedAction from "./PlacedAction";
@@ -7,20 +8,27 @@ function GridSquare({
   item,
   onLabelChange,
   onAddMiniBox,
-  // onMiniBoxChange, // REMOVE THIS LINE
   onMiniBoxDelete,
+  onDeleteAction, // <-- Accept the new prop
 }) {
-  const { isOver, setNodeRef } = useDroppable({
+  const { setNodeRef, isOver } = useDroppable({
     id: id,
+    data: {
+      type: "grid-square",
+      accepts: ["palette-item", "grid-item"], // Can accept from palette or other grid squares
+    },
   });
 
-  const squareClasses = `grid-square ${isOver ? "over" : ""} ${
-    !item.action ? "empty" : ""
-  }`;
+  const hasAction = Boolean(item && item.action);
 
   return (
-    <div ref={setNodeRef} className={squareClasses}>
-      {item.action ? (
+    <div
+      ref={setNodeRef}
+      className={`grid-square ${isOver ? "over" : ""} ${
+        !hasAction ? "empty" : ""
+      }`}
+    >
+      {hasAction ? (
         <PlacedAction
           squareId={id}
           action={item.action}
@@ -28,11 +36,11 @@ function GridSquare({
           miniBoxes={item.miniBoxes}
           onLabelChange={onLabelChange}
           onAddMiniBox={onAddMiniBox}
-          // onMiniBoxChange={onMiniBoxChange} // REMOVE THIS LINE
           onMiniBoxDelete={onMiniBoxDelete}
+          onDeleteAction={onDeleteAction} // <-- Pass it down
         />
       ) : (
-        <span style={{ color: "#ccc", fontSize: "0.8em" }}>Drop here</span>
+        <span className="empty-placeholder">Drop here</span> // Placeholder text
       )}
     </div>
   );

@@ -6,14 +6,14 @@ import { useDraggable } from "@dnd-kit/core";
 import { CSS } from "@dnd-kit/utilities";
 
 function PlacedAction({
-  squareId, // ID of the main square this action is in
+  squareId,
   action,
   label,
-  miniBoxes, // Now array of { id: uuid, action: actionObject | null }
+  miniBoxes,
   onLabelChange,
   onAddMiniBox,
-  // onMiniBoxChange, // Removed
   onMiniBoxDelete,
+  onDeleteAction,
 }) {
   const { attributes, listeners, setNodeRef, transform, isDragging } =
     useDraggable({
@@ -25,41 +25,57 @@ function PlacedAction({
       },
     });
 
-  // --- NEW: State to control mini-box area visibility ---
-  const [showMiniBoxes, setShowMiniBoxes] = useState(miniBoxes.length > 0);
-  // Initialize to true if miniboxes already exist (e.g., loading state)
+  // --- REMOVE showMiniBoxes state ---
+  // const [showMiniBoxes, setShowMiniBoxes] = useState(miniBoxes.length > 0);
+  // --- END REMOVE ---
 
   const style = {
     transform: CSS.Translate.toString(transform),
     opacity: isDragging ? 0.5 : 1,
-    cursor: "grab",
+    // cursor: "grab", // Let CSS handle cursor now
     touchAction: "none",
     width: "100%",
     height: "100%",
     boxSizing: "border-box",
-    position: "relative", // Keep relative for positioning children
+    position: "relative",
     display: "flex",
     flexDirection: "column",
     alignItems: "center",
-    justifyContent: "center", // Adjust if needed for '+' button layout
+    justifyContent: "center",
     padding: "5px",
-    overflow: "visible", // Ensure absolutely positioned children aren't clipped
+    overflow: "visible",
   };
 
-  // --- NEW: Handler for the main '+' button ---
+  if (!action) return null;
+
+  // --- SIMPLIFY Handler for the main '+' button ---
   const handleRevealMiniBoxClick = (e) => {
     e.stopPropagation(); // Prevent drag
-    setShowMiniBoxes(true);
-    // Call App.js to add the *first* mini-box data structure if none exist
-    if (miniBoxes.length === 0) {
-      onAddMiniBox(squareId);
+    // Just call the function to add the data structure in App.js
+    onAddMiniBox(squareId);
+    // No need to setShowMiniBoxes(true) anymore
+  };
+  // --- END SIMPLIFY ---
+
+  // --- REMOVED: handleAddClick (was for the old '+' button) ---
+
+  // --- NEW: Context Menu Handler for deleting the main action ---
+  const handleContextMenu = (event) => {
+    event.preventDefault(); // Prevent browser menu
+    event.stopPropagation(); // Stop bubbling
+    console.log("Right-clicked PlacedAction:", squareId);
+    if (onDeleteAction) {
+      onDeleteAction(squareId); // Call the handler passed from App.js
+    } else {
+      console.warn("onDeleteAction prop not provided to PlacedAction");
     }
-    // If you want clicking '+' *again* to add *more* boxes, call onAddMiniBox unconditionally:
-    // onAddMiniBox(squareId);
   };
   // --- END NEW ---
 
-  // --- REMOVED: handleAddClick (was for the old '+' button) ---
+  // --- DERIVE visibility directly from miniBoxes.length ---
+  const shouldShowMiniBoxArea = miniBoxes.length > 0;
+  const shouldShowAddButton = miniBoxes.length === 0;
+  // --- END DERIVE ---
 
   return (
     <div
@@ -68,63 +84,64 @@ function PlacedAction({
       {...listeners}
       {...attributes}
       className={`placed-action ${isDragging ? "dragging" : ""}`}
-      title={`${action.name}: ${action.description}`}
+      onContextMenu={handleContextMenu}
+      title={`${action.name} (Right-click to delete)`}
     >
       {/* Main content (Icon and Label) */}
       <span className="icon">{action.icon}</span>
       <input
         type="text"
         className="label-input"
+        // --- Ensure these props are present ---
         value={label}
         onChange={(e) => onLabelChange(squareId, e.target.value)}
         placeholder="Label this action"
-        onPointerDown={(e) => e.stopPropagation()}
-        onClick={(e) => e.stopPropagation()}
-        onTouchStart={(e) => e.stopPropagation()}
-        style={{ pointerEvents: isDragging ? "none" : "auto", marginBottom: 0 }}
+        // --- THIS IS THE IMPORTANT PART ---
+        onPointerDown={(e) => {
+          console.log("Input PointerDown - Stopping Propagation"); // Optional: for debugging
+          e.stopPropagation();
+        }}
+        // --- Keep other handlers ---
+        onClick={(e) => e.stopPropagation()} // Good practice for clicks too
+        onTouchStart={(e) => e.stopPropagation()} // For touch devices
+        onContextMenu={(e) => e.stopPropagation()} // Prevent right-click delete
+        style={{ pointerEvents: isDragging ? "none" : "auto" }}
       />
 
-      {/* --- NEW: Conditional '+' Button on Main Square --- */}
-      {!showMiniBoxes && !isDragging && (
+      {/* Conditional '+' Button */}
+      {shouldShowAddButton && !isDragging && (
         <button
           className="reveal-mini-box-button"
           onClick={handleRevealMiniBoxClick}
           title="Add related action slot"
-          onPointerDown={(e) => e.stopPropagation()} // Prevent drag start on button click
+          onPointerDown={(e) => e.stopPropagation()}
+          onContextMenu={(e) => e.stopPropagation()}
         >
           +
         </button>
       )}
-      {/* --- END NEW --- */}
 
-      {/* --- UPDATED: Conditionally render the new mini-box area --- */}
-      {/* Render only if showMiniBoxes is true AND there are miniBoxes in the data */}
-      {showMiniBoxes && miniBoxes.length > 0 && (
+      {/* Conditional Mini-Box Area */}
+      {shouldShowMiniBoxArea && (
         <div
-          className="mini-box-area" // New container class
-          onPointerDown={(e) => e.stopPropagation()} // Stop propagation on the area
+          className="mini-box-area"
+          onPointerDown={(e) => e.stopPropagation()}
           onClick={(e) => e.stopPropagation()}
           onTouchStart={(e) => e.stopPropagation()}
+          onContextMenu={(e) => e.stopPropagation()}
         >
-          {miniBoxes.map((box) => {
-            const miniBoxDroppableId = `minibox-${squareId}-${box.id}`;
-            return (
-              <MiniBox
-                key={box.id}
-                id={box.id}
-                droppableId={miniBoxDroppableId}
-                action={box.action}
-                onDelete={onMiniBoxDelete}
-                parentSquareId={squareId}
-              />
-            );
-          })}
-          {/* --- REMOVED: Old '+' button that was inside the container --- */}
+          {miniBoxes.map((box) => (
+            <MiniBox
+              key={box.id}
+              id={box.id}
+              droppableId={`minibox-${squareId}-${box.id}`}
+              action={box.action}
+              onDelete={onMiniBoxDelete}
+              parentSquareId={squareId}
+            />
+          ))}
         </div>
       )}
-      {/* --- END UPDATED --- */}
-
-      {/* --- REMOVED: Old .mini-boxes-container div --- */}
     </div>
   );
 }

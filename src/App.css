@@ -103,13 +103,14 @@ body {
   grid-template-rows: repeat(5, 1fr);
   gap: 30px;
   width: 100%; /* Adjust as needed */
-  max-width: 600px; /* Example max width */
+  max-width: 650px; /* Example max width */
   aspect-ratio: 1 / 1; /* Maintain square aspect ratio */
   background-color: #e0e0e0;
   padding: 10px;
   border-radius: 8px;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 2px 4px rgba(199, 4, 4, 0.1);
   margin-bottom: 20px;
+  border: 1px solid #ccc;
 }
 
 /* Grid Square */
@@ -145,6 +146,7 @@ body {
   height: 100%;
   box-sizing: border-box; /* Include padding in size */
   position: relative; /* For positioning the plus button */
+  cursor: pointer; /* <-- ADD THIS for visual feedback */
 }
 
 /* Placed Action */
@@ -505,12 +507,29 @@ body {
   .right-panel {
     flex: none; /* Reset flex */
     width: 100%;
+    /* --- ADD: Ensure no extra padding/margin interferes --- */
+    padding: 0;
+    margin: 0;
+    box-sizing: border-box; /* Be explicit */
   }
   .recipe-grid {
     box-shadow: none;
     border: 1px solid #ccc;
-    max-width: 100%;
-    page-break-inside: avoid; /* Try to keep grid on one page */
+    max-width: 100%; /* Keep this */
+    page-break-inside: avoid;
+
+    /* --- ADD/OVERRIDE these properties --- */
+    width: auto; /* Ensure it tries to use full width */
+    gap: 25px; /* Significantly reduce the gap */
+    aspect-ratio: 1 / 1; /* Allow it to be non-square */
+    padding: 5px; /* Reduce padding if needed */
+    margin: 0 auto; /* Center if needed, or just margin: 0; */
+    box-sizing: border-box; /* Be explicit */
+    /* Optional: Adjust min-height if rows become too small */
+    /* grid-template-rows: repeat(5, minmax(80px, auto)); */
+
+    grid-template-columns: repeat(5, 1fr);
+    grid-template-rows: repeat(5, 1fr);
   }
   .grid-square {
     background-color: #fff;
@@ -520,27 +539,86 @@ body {
     justify-content: center;
     align-items: center;
     position: relative; /* CRUCIAL: Parent for absolute positioning */
-    min-height: 80px;
-    transition: background-color 0.2s ease;
+    /* min-height: 80px; */
+    transition: none;
     overflow: visible; /* Allow absolutely positioned children to show outside */
+    box-sizing: border-box; /* Be explicit */
   }
-  /* Hide the floating mini-box container during print */
-  .mini-boxes-container {
+  .placed-action .mini-box-area {
+    display: flex;
+    position: absolute;
+
+    /* --- CHANGE Vertical Positioning to Center --- */
+    top: 50%; /* Position top edge at the middle of parent */
+    transform: translateY(-50%); /* Shift container up by half its own height */
+    /* --- Keep Horizontal Positioning --- */
+    left: 85%; /* Start at the right edge of the parent */
+    margin-left: 2px; /* Push into the grid gap (adjust based on print gap) */
+
+    /* --- Keep other print styles --- */
+    z-index: 5;
+    background-color: transparent;
+    box-shadow: none;
+    padding: 0;
+    gap: 2px;
+    border: none;
+  }
+
+  /* Hide the '+' button on placed actions */
+  .placed-action .reveal-mini-box-button {
     display: none !important;
   }
+
+  .placed-action .label-input {
+    border: none; /* Make inputs look like text */
+    background-color: transparent;
+    padding: 1px; /* Minimal padding */
+    width: 95%; /* Adjust width slightly if needed */
+  }
+
+  /* Ensure icons are visible */
+  .placed-action .icon {
+    display: block; /* Ensure it's displayed */
+  }
+
+  /* Hide placeholders in empty squares */
+  .grid-square.empty .empty-placeholder {
+    display: none;
+  }
+
   /* Hide mini-box delete button in print */
   .mini-box-delete-button {
     display: none !important;
   }
 
-  /* Optional: Style the mini-box content for print if needed */
+  /* --- Adjust Mini-Box itself for Print --- */
   .mini-box {
-    border: 1px solid #eee; /* Lighter border for print */
-    padding: 2px;
+    border: 1px solid #ccc;
+    /* --- INCREASE Padding for Size --- */
+    padding: 3px 5px; /* Increased from 1px 3px */
+    background-color: #fff;
+    /* --- RE-ADD Min Dimensions for Size --- */
+    min-height: 28px; /* Adjust as needed, smaller than live view */
+    min-width: 32px; /* Adjust as needed, smaller than live view */
+    line-height: 1.2; /* Adjust if needed */
+    /* Ensure flex properties for content alignment */
+    display: flex;
+    align-items: center;
+    justify-content: center; /* Center icon */
+    box-sizing: border-box; /* Add for safety */
   }
+
   .mini-box-placeholder {
-    display: none; /* Don't print placeholders */
+    display: none;
   }
+
+  .mini-box-icon {
+    /* --- INCREASE Icon Size --- */
+    font-size: 1.4em; /* Increased from 0.9em, closer to live view */
+    display: inline-block;
+    vertical-align: middle;
+  }
+  /* --- End Mini-Box Adjustments --- */
 
   /* Ensure the original add button is also hidden if separate */
   .add-mini-box-button {

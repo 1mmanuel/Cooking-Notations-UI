@@ -27,6 +27,7 @@ import SummaryModal from "./SummaryModal";
 import ActionItem from "./ActionItem";
 import PlacedAction from "./PlacedAction";
 import { findActionById } from "./actions";
+// import { createEmptySquare } from "./utils"; // Assuming createEmptySquare is in utils or defined here
 
 import "./App.css";
 
@@ -80,6 +81,23 @@ function App() {
       [squareId]: { ...prev[squareId], label: newLabel },
     }));
   }, []);
+
+  // --- NEW: Handler to delete an action from a main grid square ---
+  const handleDeleteAction = useCallback((squareIdToDelete) => {
+    console.log("Deleting action from square:", squareIdToDelete);
+    setGridItems((currentGridItems) => {
+      // Check if the square exists to avoid errors
+      if (!currentGridItems[squareIdToDelete]) {
+        console.warn(`Square ${squareIdToDelete} not found for deletion.`);
+        return currentGridItems;
+      }
+      // Create a copy and update the specific square
+      return {
+        ...currentGridItems,
+        [squareIdToDelete]: createEmptySquare(), // Reset to empty
+      };
+    });
+  }, []); // No dependencies needed if createEmptySquare is stable
 
   const handleAddMiniBox = useCallback((squareId) => {
     // No longer takes newMiniBox object
@@ -460,6 +478,7 @@ function App() {
             onLabelChange={handleLabelChange}
             onAddMiniBox={handleAddMiniBox}
             onMiniBoxDelete={handleMiniBoxDelete}
+            onDeleteAction={handleDeleteAction}
           />
           <div className="action-buttons">
             {/* Disable button while loading */}
