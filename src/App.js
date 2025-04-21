@@ -317,35 +317,67 @@ function App() {
 
         // --- NEW: onclone callback ---
         onclone: (clonedDoc) => {
-          // --- CHANGE SELECTOR ---
+          // Find all mini-box areas within the *cloned* document
           const miniBoxAreas = clonedDoc.querySelectorAll(
-            ".mini-box-area" // Target the new container
+            ".mini-box-area" // Target the correct container
           );
           console.log(
-            `Found ${miniBoxAreas.length} mini-box areas in cloned DOM.`
+            `PDF Clone: Found ${miniBoxAreas.length} mini-box areas in cloned DOM.`
           );
-          // --- END CHANGE ---
 
           // Apply styles to each area found
           miniBoxAreas.forEach((area, index) => {
-            // Apply temporary styles FOR THE SCREENSHOT ONLY
-            // Use the same positioning logic as before, but apply it to the 'area'
+            console.log(`PDF Clone: Styling area ${index}`);
+            // Apply temporary styles FOR THE PDF SCREENSHOT ONLY
 
             area.style.position = "absolute";
-            area.style.transform = "none";
-            area.style.top = "10px"; // Adjust as needed for vertical PDF position
-            area.style.bottom = "auto";
-            area.style.left = "100%";
-            area.style.marginLeft = "2px"; // Adjust based on grid gap
-            area.style.right = "auto";
+
+            // --- ADJUST Vertical Positioning (Move Down) ---
+            // If currently using % + transform:
+            area.style.top = "55%"; // Increase percentage slightly (e.g., from 50%)
+            area.style.transform = "translateY(-50%)"; // Keep this to center around the new top
+            // If currently using fixed pixels (e.g., top: '10px'):
+            // area.style.top = '15px'; // Increase the pixel value
+            // area.style.transform = 'none'; // Ensure no transform if using fixed top
+
+            // --- ADJUST Horizontal Positioning (Move Left) ---
+            area.style.left = "100%"; // Keep starting at parent's right edge
+            area.style.marginLeft = "-5px"; // DECREASE margin (e.g., from 2px to -5px) to pull left
+            // Adjust -5px as needed (e.g., -2px, -8px)
+            area.style.right = "auto"; // Keep disabling right positioning
+            area.style.bottom = "auto"; // Keep disabling bottom positioning
+
+            // --- Keep other print-like styles for PDF ---
+            area.style.zIndex = "5";
+            area.style.backgroundColor = "transparent";
+            area.style.boxShadow = "none";
+            area.style.padding = "0";
+            area.style.gap = "2px";
+            area.style.border = "none";
 
             // Optional Debug Border:
-            // area.style.border = '1px dashed blue';
+            // area.style.border = '1px dashed purple';
 
             console.log(
-              `Applied PDF positioning styles to mini-box area ${index}`
+              `PDF Clone: Applied adjusted positioning styles to mini-box area ${index}`
             );
           });
+
+          // --- Optional: Adjust MiniBox size within PDF if needed ---
+          const miniBoxesInPdf = clonedDoc.querySelectorAll(".mini-box");
+          miniBoxesInPdf.forEach((box) => {
+            // Example: Ensure padding matches print styles if desired
+            box.style.padding = "3px 5px";
+            box.style.minHeight = "28px";
+            box.style.minWidth = "32px";
+            box.style.border = "1px solid #ccc"; // Ensure border visible
+          });
+          const miniBoxIconsInPdf =
+            clonedDoc.querySelectorAll(".mini-box-icon");
+          miniBoxIconsInPdf.forEach((icon) => {
+            icon.style.fontSize = "1.4em"; // Match print icon size
+          });
+          // --- End Optional Size Adjustments ---
         },
         // --- End onclone ---
       });
