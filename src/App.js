@@ -1,5 +1,5 @@
 // src/App.js
-import React, { useState, useCallback } from "react";
+import React, { useState, useCallback, useRef } from "react"; // Import useRef
 import {
   DndContext,
   PointerSensor,
@@ -10,13 +10,22 @@ import {
   closestCenter,
 } from "@dnd-kit/core";
 import { v4 as uuidv4 } from "uuid";
+import jsPDF from "jspdf"; // Import jsPDF
+import html2canvas from "html2canvas"; // Import html2canvas
+import {
+  ref as storageRef,
+  uploadBytes,
+  getDownloadURL,
+} from "firebase/storage"; // Firebase imports
+import { storage } from "./firebase"; // Import configured storage instance
 
+// ... (other imports remain the same)
 import RecipeInfoForm from "./RecipeInfoForm";
 import ActionPalette from "./ActionPalette";
 import RecipeGrid from "./RecipeGrid";
 import SummaryModal from "./SummaryModal";
-import ActionItem from "./ActionItem"; // For DragOverlay (Palette)
-import PlacedAction from "./PlacedAction"; // Import for DragOverlay (Grid Item)
+import ActionItem from "./ActionItem";
+import PlacedAction from "./PlacedAction";
 import { findActionById } from "./actions";
 
 import "./App.css";
@@ -45,11 +54,14 @@ function App() {
     date: "",
   });
   const [gridItems, setGridItems] = useState(initialGridItems);
-  // Store the full active item data for the overlay and logic
   const [activeDragData, setActiveDragData] = useState(null);
   const [isSummaryModalOpen, setIsSummaryModalOpen] = useState(false);
-  const [summaryText, setSummaryText] = useState("");
-  const [qrData, setQrData] = useState("");
+  // const [summaryText, setSummaryText] = useState("");
+  const [qrData, setQrData] = useState(""); // Will hold the PDF URL
+  const [isLoadingPdf, setIsLoadingPdf] = useState(false); // Loading state
+  const [pdfError, setPdfError] = useState(null); // Error state
+
+  const gridRef = useRef(null); // Create a ref for the RecipeGrid
 
   const sensors = useSensors(
     useSensor(PointerSensor),
@@ -260,53 +272,86 @@ function App() {
     setActiveDragData(null); // Clear active item on cancel
   };
 
-  // --- Action Buttons (no changes needed) ---
-  const handleServe = () => {
-    let summary = `Recipe: ${recipeInfo.name || "Untitled Recipe"}\n`;
-    summary += `Author: ${recipeInfo.author || "Unknown"}\n`;
-    summary += `Cook Time: ${recipeInfo.cookTime || "N/A"}\n`;
-    summary += `Date: ${recipeInfo.date || "N/A"}\n\n`;
-    summary += "Instructions:\n";
-    summary += "====================\n";
-
-    let stepNumber = 1;
-    const sortedKeys = Object.keys(gridItems).sort((a, b) => {
-      const [, rA, cA] = a.split("-");
-      const [, rB, cB] = b.split("-");
-      if (rA !== rB) return parseInt(rA) - parseInt(rB);
-      return parseInt(cA) - parseInt(cB);
-    });
-
-    sortedKeys.forEach((key) => {
-      const item = gridItems[key];
-      if (item.action) {
-        summary += `Step ${stepNumber}: [${item.action.name}] ${
-          item.label || ""
-        }\n`;
-        // Add related actions from mini-boxes
-        const relatedActions = item.miniBoxes
-          .map((mb) => mb.action?.name) // Get the name if action exists
-          .filter(Boolean) // Filter out null/undefined actions
-          .join(", "); // Join names with comma
-
-        if (relatedActions) {
-          summary += `  Related Actions: ${relatedActions}\n`;
-        }
-        summary += "\n";
-        stepNumber++;
-      }
-    });
-
-    if (stepNumber === 1) {
-      summary += "(No instructions added)\n";
+  // --- Updated Serve Function ---
+  const handleServe = async () => {
+    if (!gridRef.current) {
+      console.error("Grid reference is not available.");
+      setPdfError("Could not find the grid element to generate PDF.");
+      setIsSummaryModalOpen(true); // Open modal to show error
+      return;
     }
-    setSummaryText(summary);
-    const dataToEncode = JSON.stringify({
-      info: recipeInfo,
-      grid: gridItems, // Grid state now includes actions in miniBoxes
-    });
-    setQrData(dataToEncode);
-    setIsSummaryModalOpen(true);
+
+    setIsLoadingPdf(true);
+    setPdfError(null); // Clear previous errors
+    setQrData(""); // Clear previous QR data
+    setIsSummaryModalOpen(true); // Open modal to show loading state
+
+    try {
+      // 1. Capture Grid as Canvas using html2canvas
+      // Adjust scale for better resolution if needed
+      const canvas = await html2canvas(gridRef.current, {
+        scale: 2,
+        useCORS: true,
+        backgroundColor: "#ffffff",
+      });
+      const imgData = canvas.toDataURL("image/jpeg", 0.9);
+
+      // 2. Create PDF using jsPDF
+      // Calculate dimensions to fit A4 page (210 x 297 mm) with margins
+      const pdf = new jsPDF("p", "mm", "a4");
+      const pdfWidth = pdf.internal.pageSize.getWidth();
+      const pdfHeight = pdf.internal.pageSize.getHeight();
+      const margin = 10; // 10mm margin
+      const imgProps = pdf.getImageProperties(imgData); // jsPDF usually detects JPEG automatically
+      const imgWidth = pdfWidth - margin * 2;
+      const imgHeight = (imgProps.height * imgWidth) / imgProps.width;
+      let positionY = margin;
+
+      // Add Title/Info (Optional but recommended)
+      pdf.setFontSize(16);
+      pdf.text(recipeInfo.name || "Untitled Recipe", margin, positionY);
+      positionY += 8;
+      pdf.setFontSize(10);
+      pdf.text(`Author: ${recipeInfo.author || "N/A"}`, margin, positionY);
+      positionY += 5;
+      pdf.text(`Cook Time: ${recipeInfo.cookTime || "N/A"}`, margin, positionY);
+      positionY += 5;
+      pdf.text(`Date: ${recipeInfo.date || "N/A"}`, margin, positionY);
+      positionY += 10; // Add space before grid image
+
+      // Check if image fits on the current page
+      if (positionY + imgHeight > pdfHeight - margin) {
+        pdf.addPage(); // Add new page if it doesn't fit
+        positionY = margin; // Reset Y position for new page
+      }
+
+      pdf.addImage(imgData, "JPEG", margin, positionY, imgWidth, imgHeight);
+
+      // 3. Get PDF as Blob
+      const pdfBlob = pdf.output("blob");
+
+      // 4. Upload Blob to Firebase Storage
+      const pdfFileName = `recipe-${uuidv4()}.pdf`;
+      const fileRef = storageRef(storage, `recipes/${pdfFileName}`); // Path in storage
+
+      console.log(`Uploading ${pdfFileName} to Firebase Storage...`);
+      const uploadResult = await uploadBytes(fileRef, pdfBlob);
+      console.log("Upload successful:", uploadResult);
+
+      // 5. Get Download URL
+      const downloadURL = await getDownloadURL(uploadResult.ref);
+      console.log("Download URL:", downloadURL);
+
+      // 6. Update State
+      setQrData(downloadURL); // Set QR data to the PDF URL
+      // Keep modal open, loading state will be turned off below
+    } catch (error) {
+      console.error("Error generating or uploading PDF:", error);
+      setPdfError(`Failed to generate/upload PDF: ${error.message}`);
+      // Keep modal open to show error
+    } finally {
+      setIsLoadingPdf(false); // Turn off loading state regardless of success/failure
+    }
   };
 
   const handlePrint = () => {
@@ -370,16 +415,22 @@ function App() {
 
         <div className="right-panel">
           <h2>Cooking Instructions Grid</h2>
+          {/* Pass the ref to RecipeGrid */}
           <RecipeGrid
+            ref={gridRef}
             items={gridItems}
             onLabelChange={handleLabelChange}
-            onAddMiniBox={handleAddMiniBox} // Pass the updated one
-            // onMiniBoxChange is removed
+            onAddMiniBox={handleAddMiniBox}
             onMiniBoxDelete={handleMiniBoxDelete}
           />
           <div className="action-buttons">
-            <button className="serve-button" onClick={handleServe}>
-              Serve (Summary & QR)
+            {/* Disable button while loading */}
+            <button
+              className="serve-button"
+              onClick={handleServe}
+              disabled={isLoadingPdf}
+            >
+              {isLoadingPdf ? "Generating PDF..." : "Generate PDF & QR"}
             </button>
             <button className="print-button" onClick={handlePrint}>
               Print Grid
@@ -388,14 +439,16 @@ function App() {
         </div>
       </div>
 
-      {/* Drag Overlay uses the new render function */}
       <DragOverlay>{renderDragOverlay()}</DragOverlay>
 
+      {/* Update SummaryModal props */}
       <SummaryModal
         isOpen={isSummaryModalOpen}
         onClose={() => setIsSummaryModalOpen(false)}
-        summary={summaryText}
-        qrData={qrData}
+        // summary={summaryText} // Remove or keep if you want text summary too
+        qrData={qrData} // Pass the PDF URL (or empty string)
+        isLoading={isLoadingPdf} // Pass loading state
+        error={pdfError} // Pass error state
       />
     </DndContext>
   );
