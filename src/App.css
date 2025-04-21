@@ -124,6 +124,7 @@ body {
   position: relative; /* Needed for positioning elements inside */
   min-height: 80px; /* Ensure squares have a minimum size */
   transition: background-color 0.2s ease;
+  overflow: visible !important;
 }
 
 .grid-square.over {
@@ -147,6 +148,7 @@ body {
   box-sizing: border-box; /* Include padding in size */
   position: relative; /* For positioning the plus button */
   cursor: pointer; /* <-- ADD THIS for visual feedback */
+  overflow: visible !important; /* Make absolutely sure overflow is visible */
 }
 
 /* Placed Action */
@@ -263,46 +265,76 @@ body {
   background-color: #d0d0d0;
 }
 
-/* --- ADD Styles for the new mini-box area container --- */
-.placed-action .mini-box-area {
+/* --- RENAME/ADJUST Styles for RIGHT mini-box container --- */
+.placed-action .mini-box-container-right {
+  /* Renamed from .mini-box-area */
   position: absolute;
   /* Positioning for live view - place it overlapping right edge */
   top: 50%;
   left: 100%; /* Start at the right edge */
   transform: translateY(-50%); /* Center vertically */
   margin-left: -10px; /* Pull back slightly to overlap */
-  /* Or use right: 0; transform: translate(50%, -50%); if preferred */
 
-  display: flex;
+  display: flex; /* Keep flex if needed, though only one item now */
   flex-direction: column;
-  gap: 3px; /* Space between individual mini-boxes */
-  z-index: 10; /* Ensure it's above grid squares */
-  pointer-events: auto; /* Allow interaction within */
-  padding: 3px; /* Optional padding around the boxes */
-  background-color: rgba(240, 240, 240, 0.85); /* Optional subtle background */
-  border-radius: 3px; /* Optional rounded corners */
-  box-shadow: 1px 1px 3px rgba(0, 0, 0, 0.15); /* Optional subtle shadow */
+  gap: 3px;
+  z-index: 10;
+  pointer-events: auto;
+  padding: 0; /* Remove padding if box has its own */
+  background-color: transparent; /* Remove container background */
+  border-radius: 0; /* Remove container border-radius */
+  box-shadow: none; /* Remove container shadow */
+}
+
+/* --- ADD Styles for TOP mini-box container --- */
+.placed-action .mini-box-container-top {
+  position: absolute;
+  top: 0; /* Align to top edge */
+  left: 50%; /* Center horizontally */
+  transform: translate(
+    -50%,
+    -50%
+  ); /* Shift left by half width, up by half height */
+  margin-top: -10px; /* Pull up slightly to overlap */
+  z-index: 10;
+  pointer-events: auto;
+  /* Add other base styles if needed (display, etc.) */
+}
+
+/* --- ADD Styles for BOTTOM mini-box container --- */
+.placed-action .mini-box-container-bottom {
+  position: absolute;
+  bottom: 0; /* Align to bottom edge */
+  left: 50%; /* Center horizontally */
+  transform: translate(
+    -50%,
+    50%
+  ); /* Shift left by half width, down by half height */
+  margin-bottom: -10px; /* Pull down slightly to overlap */
+  z-index: 10;
+  pointer-events: auto;
+  /* Add other base styles if needed */
 }
 
 .add-mini-box-button:hover {
   background-color: #45a049;
 }
 
-/* Mini Box (Individual) */
+/* --- Styles for the MiniBox itself (apply universally) --- */
 .mini-box {
-  /* Give it visual definition */
   border: 1px dashed #aaa;
   background-color: #fff;
   padding: 4px 6px;
-  min-height: 35px; /* Ensure drop target size */
-  min-width: 40px; /* Ensure drop target size */
+  min-height: 35px;
+  min-width: 40px;
   display: flex;
   align-items: center;
-  justify-content: space-between; /* Space icon and delete button */
+  justify-content: center; /* Center content */
   border-radius: 3px;
-  position: relative; /* For delete button positioning if needed */
+  position: relative;
   box-sizing: border-box;
-  cursor: pointer; /* Indicate it's clickable/interactive */
+  cursor: pointer; /* Keep pointer cursor */
+  box-shadow: 1px 1px 3px rgba(0, 0, 0, 0.15); /* Add shadow to box itself */
 }
 
 .mini-box.empty {
@@ -543,26 +575,45 @@ body {
     transition: none;
     overflow: visible; /* Allow absolutely positioned children to show outside */
     box-sizing: border-box; /* Be explicit */
+    overflow: visible !important;
   }
-  .placed-action .mini-box-area {
-    display: flex;
+  /* --- Style Print Containers by Position --- */
+  .placed-action .mini-box-container-right,
+  .placed-action .mini-box-container-top,
+  .placed-action .mini-box-container-bottom {
+    display: flex; /* Ensure displayed */
     position: absolute;
-
-    /* --- CHANGE Vertical Positioning to Center --- */
-    top: 50%; /* Position top edge at the middle of parent */
-    transform: translateY(-50%); /* Shift container up by half its own height */
-    /* --- Keep Horizontal Positioning --- */
-    left: 85%; /* Start at the right edge of the parent */
-    margin-left: 2px; /* Push into the grid gap (adjust based on print gap) */
-
-    /* --- Keep other print styles --- */
+    transform: none; /* Base reset */
     z-index: 5;
     background-color: transparent;
     box-shadow: none;
     padding: 0;
     gap: 2px;
     border: none;
+    margin: 0; /* Base reset */
   }
+
+  .placed-action .mini-box-container-right {
+    top: 50%;
+    transform: translateY(-50%);
+    left: 100%;
+    margin-left: 2px; /* Adjust for print gap */
+  }
+
+  .placed-action .mini-box-container-top {
+    left: 50%;
+    transform: translateX(-50%);
+    top: 0;
+    margin-top: -5px; /* Adjust for print overlap */
+  }
+
+  .placed-action .mini-box-container-bottom {
+    left: 50%;
+    transform: translateX(-50%);
+    bottom: 0;
+    margin-bottom: -5px; /* Adjust for print overlap */
+  }
+  /* --- End Print Container Styles --- */
 
   /* Hide the '+' button on placed actions */
   .placed-action .reveal-mini-box-button {
@@ -591,21 +642,19 @@ body {
     display: none !important;
   }
 
-  /* --- Adjust Mini-Box itself for Print --- */
+  /* --- Adjust MiniBox itself for Print --- */
   .mini-box {
     border: 1px solid #ccc;
-    /* --- INCREASE Padding for Size --- */
-    padding: 3px 5px; /* Increased from 1px 3px */
+    padding: 3px 5px;
     background-color: #fff;
-    /* --- RE-ADD Min Dimensions for Size --- */
-    min-height: 28px; /* Adjust as needed, smaller than live view */
-    min-width: 32px; /* Adjust as needed, smaller than live view */
-    line-height: 1.2; /* Adjust if needed */
-    /* Ensure flex properties for content alignment */
+    min-height: 28px;
+    min-width: 32px;
+    line-height: 1.2;
     display: flex;
     align-items: center;
-    justify-content: center; /* Center icon */
-    box-sizing: border-box; /* Add for safety */
+    justify-content: center;
+    box-sizing: border-box;
+    box-shadow: none; /* No shadow in print */
   }
 
   .mini-box-placeholder {

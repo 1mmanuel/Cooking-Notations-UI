@@ -99,19 +99,57 @@ function App() {
     });
   }, []); // No dependencies needed if createEmptySquare is stable
 
+  // --- UPDATED: handleAddMiniBox ---
   const handleAddMiniBox = useCallback((squareId) => {
-    // No longer takes newMiniBox object
     setGridItems((prev) => {
-      const newMiniBox = { id: uuidv4(), action: null }; // Initialize with null action
+      const currentSquare = prev[squareId];
+      if (!currentSquare) return prev; // Safety check
+
+      const currentMiniBoxes = currentSquare.miniBoxes;
+
+      // Stop if 3 boxes already exist
+      if (currentMiniBoxes.length >= 3) {
+        console.log("Maximum mini-boxes reached for", squareId);
+        return prev;
+      }
+
+      // Determine the next available position
+      const positions = ["right", "top", "bottom"];
+      const existingPositions = currentMiniBoxes.map((box) => box.position);
+      let nextPosition = null;
+
+      for (const pos of positions) {
+        if (!existingPositions.includes(pos)) {
+          nextPosition = pos;
+          break;
+        }
+      }
+
+      // Should always find a position if length < 3, but safety check
+      if (!nextPosition) {
+        console.error("Could not determine next mini-box position.");
+        return prev;
+      }
+
+      // Create the new mini-box with position
+      const newMiniBox = {
+        id: uuidv4(),
+        action: null,
+        position: nextPosition, // Add position property
+      };
+
+      console.log(`Adding mini-box at position ${nextPosition} to ${squareId}`);
+
       return {
         ...prev,
         [squareId]: {
-          ...prev[squareId],
-          miniBoxes: [...prev[squareId].miniBoxes, newMiniBox],
+          ...currentSquare,
+          miniBoxes: [...currentMiniBoxes, newMiniBox],
         },
       };
     });
   }, []);
+  // --- END UPDATED handleAddMiniBox ---
 
   // const handleMiniBoxChange = useCallback((squareId, miniBoxId, newText) => {
   //   setGridItems((prev) => ({
@@ -126,15 +164,19 @@ function App() {
   // }, []);
 
   const handleMiniBoxDelete = useCallback((squareId, miniBoxId) => {
-    setGridItems((prev) => ({
-      ...prev,
-      [squareId]: {
-        ...prev[squareId],
-        miniBoxes: prev[squareId].miniBoxes.filter(
-          (box) => box.id !== miniBoxId
-        ),
-      },
-    }));
+    setGridItems((prev) => {
+      const currentSquare = prev[squareId];
+      if (!currentSquare) return prev;
+      return {
+        ...prev,
+        [squareId]: {
+          ...currentSquare,
+          miniBoxes: currentSquare.miniBoxes.filter(
+            (box) => box.id !== miniBoxId
+          ),
+        },
+      };
+    });
   }, []);
 
   // --- Dnd Handlers ---
@@ -293,93 +335,85 @@ function App() {
 
   // --- Updated Serve Function ---
   const handleServe = async () => {
-    // --- REVERT: Check the gridRef again ---
     if (!gridRef.current) {
-      console.error("Recipe grid reference is not available.");
-      setPdfError("Could not find the grid element to generate PDF from.");
-      setIsSummaryModalOpen(true);
-      return;
+      /* ... error handling ... */ return;
     }
-
     setIsLoadingPdf(true);
-    setPdfError(null); // Clear previous errors
-    setQrData(""); // Clear previous QR data
-    setIsSummaryModalOpen(true); // Open modal to show loading state
+    setPdfError(null);
+    setQrData("");
+    setIsSummaryModalOpen(true);
 
     try {
-      // --- REVERT: Capture gridRef.current ---
-      // --- ADD: onclone option ---
       const canvas = await html2canvas(gridRef.current, {
-        scale: 1.5, // Keep or adjust scale (1.5 or 1 is usually good)
+        scale: 1.5,
         useCORS: true,
         backgroundColor: "#ffffff",
-        logging: true, // Enable html2canvas logging for potential clues in console
+        logging: true,
 
-        // --- NEW: onclone callback ---
         onclone: (clonedDoc) => {
-          // Find all mini-box areas within the *cloned* document
-          const miniBoxAreas = clonedDoc.querySelectorAll(
-            ".mini-box-area" // Target the correct container
-          );
-          console.log(
-            `PDF Clone: Found ${miniBoxAreas.length} mini-box areas in cloned DOM.`
-          );
+          console.log("PDF Clone: Starting style adjustments.");
 
-          // Apply styles to each area found
-          miniBoxAreas.forEach((area, index) => {
-            console.log(`PDF Clone: Styling area ${index}`);
-            // Apply temporary styles FOR THE PDF SCREENSHOT ONLY
+          // --- Style containers based on position ---
+          const positionClasses = {
+            right: ".mini-box-container-right",
+            top: ".mini-box-container-top",
+            bottom: ".mini-box-container-bottom",
+          };
 
-            area.style.position = "absolute";
-
-            // --- ADJUST Vertical Positioning (Move Down) ---
-            // If currently using % + transform:
-            area.style.top = "55%"; // Increase percentage slightly (e.g., from 50%)
-            area.style.transform = "translateY(-50%)"; // Keep this to center around the new top
-            // If currently using fixed pixels (e.g., top: '10px'):
-            // area.style.top = '15px'; // Increase the pixel value
-            // area.style.transform = 'none'; // Ensure no transform if using fixed top
-
-            // --- ADJUST Horizontal Positioning (Move Left) ---
-            area.style.left = "100%"; // Keep starting at parent's right edge
-            area.style.marginLeft = "-5px"; // DECREASE margin (e.g., from 2px to -5px) to pull left
-            // Adjust -5px as needed (e.g., -2px, -8px)
-            area.style.right = "auto"; // Keep disabling right positioning
-            area.style.bottom = "auto"; // Keep disabling bottom positioning
-
-            // --- Keep other print-like styles for PDF ---
-            area.style.zIndex = "5";
-            area.style.backgroundColor = "transparent";
-            area.style.boxShadow = "none";
-            area.style.padding = "0";
-            area.style.gap = "2px";
-            area.style.border = "none";
-
-            // Optional Debug Border:
-            // area.style.border = '1px dashed purple';
-
+          Object.entries(positionClasses).forEach(([pos, selector]) => {
+            const containers = clonedDoc.querySelectorAll(selector);
             console.log(
-              `PDF Clone: Applied adjusted positioning styles to mini-box area ${index}`
+              `PDF Clone: Found ${containers.length} containers for ${pos}`
             );
-          });
+            containers.forEach((container, index) => {
+              console.log(`PDF Clone: Styling ${pos} container ${index}`);
+              container.style.position = "absolute";
+              container.style.transform = "none"; // Base reset
+              container.style.zIndex = "5";
+              container.style.backgroundColor = "transparent";
+              container.style.boxShadow = "none";
+              container.style.padding = "0";
+              container.style.gap = "2px";
+              container.style.border = "none";
+              container.style.margin = "0"; // Reset margin
 
-          // --- Optional: Adjust MiniBox size within PDF if needed ---
+              // Apply position-specific styles
+              if (pos === "right") {
+                container.style.top = "55%"; // Adjust as needed
+                container.style.transform = "translateY(-50%)";
+                container.style.left = "100%";
+                container.style.marginLeft = "-5px"; // Adjust as needed
+              } else if (pos === "top") {
+                container.style.left = "50%";
+                container.style.transform = "translateX(-50%)";
+                container.style.top = "0";
+                container.style.marginTop = "-5px"; // Pull slightly outside top edge
+              } else if (pos === "bottom") {
+                container.style.left = "50%";
+                container.style.transform = "translateX(-50%)";
+                container.style.bottom = "0";
+                container.style.marginBottom = "-5px"; // Pull slightly outside bottom edge
+              }
+            });
+          });
+          // --- End container styling ---
+
+          // --- Adjust individual MiniBox size/style within PDF ---
           const miniBoxesInPdf = clonedDoc.querySelectorAll(".mini-box");
           miniBoxesInPdf.forEach((box) => {
-            // Example: Ensure padding matches print styles if desired
             box.style.padding = "3px 5px";
             box.style.minHeight = "28px";
             box.style.minWidth = "32px";
-            box.style.border = "1px solid #ccc"; // Ensure border visible
+            box.style.border = "1px solid #ccc";
+            box.style.backgroundColor = "#fff"; // Ensure background
           });
           const miniBoxIconsInPdf =
             clonedDoc.querySelectorAll(".mini-box-icon");
           miniBoxIconsInPdf.forEach((icon) => {
-            icon.style.fontSize = "1.4em"; // Match print icon size
+            icon.style.fontSize = "1em";
           });
-          // --- End Optional Size Adjustments ---
+          // --- End individual MiniBox styling ---
         },
-        // --- End onclone ---
       });
 
       const imgData = canvas.toDataURL("image/jpeg", 0.9);
@@ -508,7 +542,7 @@ function App() {
             ref={gridRef}
             items={gridItems}
             onLabelChange={handleLabelChange}
-            onAddMiniBox={handleAddMiniBox}
+            onAddMiniBox={handleAddMiniBox} // Pass updated handler
             onMiniBoxDelete={handleMiniBoxDelete}
             onDeleteAction={handleDeleteAction}
           />

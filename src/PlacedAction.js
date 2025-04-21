@@ -48,14 +48,10 @@ function PlacedAction({
 
   if (!action) return null;
 
-  // --- SIMPLIFY Handler for the main '+' button ---
   const handleRevealMiniBoxClick = (e) => {
-    e.stopPropagation(); // Prevent drag
-    // Just call the function to add the data structure in App.js
-    onAddMiniBox(squareId);
-    // No need to setShowMiniBoxes(true) anymore
+    e.stopPropagation();
+    onAddMiniBox(squareId); // Call App.js to add next box
   };
-  // --- END SIMPLIFY ---
 
   // --- REMOVED: handleAddClick (was for the old '+' button) ---
 
@@ -74,8 +70,30 @@ function PlacedAction({
 
   // --- DERIVE visibility directly from miniBoxes.length ---
   const shouldShowMiniBoxArea = miniBoxes.length > 0;
-  const shouldShowAddButton = miniBoxes.length === 0;
+  const shouldShowAddButton = miniBoxes.length < 3;
   // --- END DERIVE ---
+
+  // --- Filter miniBoxes by position ---
+  const miniBoxRight = miniBoxes.find((box) => box.position === "right");
+  const miniBoxTop = miniBoxes.find((box) => box.position === "top");
+  const miniBoxBottom = miniBoxes.find((box) => box.position === "bottom");
+  // --- End Filter ---
+
+  // Helper function to render a MiniBox if it exists
+  const renderMiniBox = (boxData) => {
+    if (!boxData) return null;
+    const miniBoxDroppableId = `minibox-${squareId}-${boxData.id}`;
+    return (
+      <MiniBox
+        key={boxData.id}
+        id={boxData.id}
+        droppableId={miniBoxDroppableId}
+        action={boxData.action}
+        onDelete={onMiniBoxDelete}
+        parentSquareId={squareId}
+      />
+    );
+  };
 
   return (
     <div
@@ -92,19 +110,13 @@ function PlacedAction({
       <input
         type="text"
         className="label-input"
-        // --- Ensure these props are present ---
         value={label}
         onChange={(e) => onLabelChange(squareId, e.target.value)}
         placeholder="Label this action"
-        // --- THIS IS THE IMPORTANT PART ---
-        onPointerDown={(e) => {
-          console.log("Input PointerDown - Stopping Propagation"); // Optional: for debugging
-          e.stopPropagation();
-        }}
-        // --- Keep other handlers ---
-        onClick={(e) => e.stopPropagation()} // Good practice for clicks too
-        onTouchStart={(e) => e.stopPropagation()} // For touch devices
-        onContextMenu={(e) => e.stopPropagation()} // Prevent right-click delete
+        onPointerDown={(e) => e.stopPropagation()}
+        onClick={(e) => e.stopPropagation()}
+        onTouchStart={(e) => e.stopPropagation()}
+        onContextMenu={(e) => e.stopPropagation()}
         style={{ pointerEvents: isDragging ? "none" : "auto" }}
       />
 
@@ -121,27 +133,46 @@ function PlacedAction({
         </button>
       )}
 
-      {/* Conditional Mini-Box Area */}
-      {shouldShowMiniBoxArea && (
+      {/* --- RENDER MiniBoxes in Positioned Containers --- */}
+      {/* Right Position */}
+      {miniBoxRight && (
         <div
-          className="mini-box-area"
+          className="mini-box-container-right" // Use specific class
           onPointerDown={(e) => e.stopPropagation()}
           onClick={(e) => e.stopPropagation()}
           onTouchStart={(e) => e.stopPropagation()}
           onContextMenu={(e) => e.stopPropagation()}
         >
-          {miniBoxes.map((box) => (
-            <MiniBox
-              key={box.id}
-              id={box.id}
-              droppableId={`minibox-${squareId}-${box.id}`}
-              action={box.action}
-              onDelete={onMiniBoxDelete}
-              parentSquareId={squareId}
-            />
-          ))}
+          {renderMiniBox(miniBoxRight)}
         </div>
       )}
+
+      {/* Top Position */}
+      {miniBoxTop && (
+        <div
+          className="mini-box-container-top" // Use specific class
+          onPointerDown={(e) => e.stopPropagation()}
+          onClick={(e) => e.stopPropagation()}
+          onTouchStart={(e) => e.stopPropagation()}
+          onContextMenu={(e) => e.stopPropagation()}
+        >
+          {renderMiniBox(miniBoxTop)}
+        </div>
+      )}
+
+      {/* Bottom Position */}
+      {miniBoxBottom && (
+        <div
+          className="mini-box-container-bottom" // Use specific class
+          onPointerDown={(e) => e.stopPropagation()}
+          onClick={(e) => e.stopPropagation()}
+          onTouchStart={(e) => e.stopPropagation()}
+          onContextMenu={(e) => e.stopPropagation()}
+        >
+          {renderMiniBox(miniBoxBottom)}
+        </div>
+      )}
+      {/* --- END RENDER MiniBoxes --- */}
     </div>
   );
 }
