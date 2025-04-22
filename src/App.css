@@ -316,21 +316,54 @@ body {
   margin: 0 10px; /* Space around the text */
 }
 
-/* Recipe Grid */
+/* --- ADD Outer Container for Recipe Grid --- */
+.recipe-grid-outer-container > h2 {
+  /* Target the direct h2 child */
+  text-align: center; /* Center the text */
+  margin-bottom: 15px; /* Add space below the title, before the grid */
+  margin-top: 0; /* Remove default top margin if needed */
+  font-size: 1.4em; /* Optional: Adjust size */
+  color: #333; /* Optional: Adjust color */
+}
+
+.recipe-grid-outer-container {
+  padding: 15px; /* Adjust padding as needed - space between container edge and grid */
+  background-color: #f8f9fa; /* Optional: Subtle background color */
+  border: 1px solid #dcdcdc; /* Optional: Border around the grid area */
+  border-radius: 8px; /* Match other rounded corners */
+  margin-bottom: 20px; /* Keep the space below the grid area */
+  box-shadow: inset 0 2px 5px rgba(0, 0, 0, 0.1);
+  /* Ensures the container properly contains the grid, especially if grid uses max-width */
+  /* You might not need this depending on exact layout, but often helpful */
+  /* display: flow-root; */ /* Alternative: overflow: hidden; */
+}
+.recipe-grid-title {
+  text-align: center; /* Center the title text */
+  margin-bottom: 15px; /* Space between title and grid */
+  font-size: 1.4em; /* Adjust size as needed */
+  color: #333; /* Adjust color as needed */
+  border: 1px solid #000000;
+  box-shadow: inset 0 2px 5px rgba(0, 0, 0, 0.1);
+  border-radius: 8px;
+}
+
+/* --- ADJUST Recipe Grid --- */
 .recipe-grid {
   display: grid;
   grid-template-columns: repeat(5, 1fr);
   grid-template-rows: repeat(5, 1fr);
   gap: 30px;
-  width: 100%; /* Adjust as needed */
-  max-width: 650px; /* Example max width */
+  width: 100%; /* Grid takes full width *of its new container* */
+  max-width: 650px; /* Max width of the grid itself remains */
   aspect-ratio: 1 / 1; /* Maintain square aspect ratio */
-  background-color: #e0e0e0;
-  padding: 10px;
-  border-radius: 8px;
-  box-shadow: 0 2px 4px rgba(199, 4, 4, 0.1);
-  margin-bottom: 20px;
-  border: 1px solid #ccc;
+  background-color: #e0e0e0; /* Background *between* squares */
+  padding: 10px; /* Padding *inside* the grid border, around squares */
+  border-radius: 8px; /* Inner radius for the grid area */
+  /* REMOVE box-shadow: 0 2px 4px rgba(199, 4, 4, 0.1); */ /* Shadow moved to outer container */
+  /* REMOVE margin-bottom: 20px; */ /* Margin now handled by outer container */
+  border: 1px solid #ccc; /* Keep inner border defining grid */
+  box-shadow: inset 0 2px 5px rgba(0, 0, 0, 0.1);
+  margin: 0 auto; /* Center the grid horizontally within the outer container if it's wider */
 }
 
 /* Grid Square */

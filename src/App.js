@@ -538,15 +538,19 @@ function App() {
         </div>
 
         <div className="right-panel">
-          <h2>Cooking Instructions Grid</h2>
-          <RecipeGrid
-            ref={gridRef}
-            items={gridItems}
-            onLabelChange={handleLabelChange}
-            onAddMiniBox={handleAddMiniBox}
-            onMiniBoxDelete={handleMiniBoxDelete}
-            onDeleteAction={handleDeleteAction} // Ensure this is passed
-          />
+          <div className="recipe-grid-outer-container">
+            <div className="recipe-grid-title">
+              <h2>COOKING NOTATIONS UI</h2>
+            </div>
+            <RecipeGrid
+              ref={gridRef}
+              items={gridItems}
+              onLabelChange={handleLabelChange}
+              onAddMiniBox={handleAddMiniBox}
+              onMiniBoxDelete={handleMiniBoxDelete}
+              onDeleteAction={handleDeleteAction} // Ensure this is passed
+            />
+          </div>
           <div className="action-buttons">
             <button
               className="serve-button"
