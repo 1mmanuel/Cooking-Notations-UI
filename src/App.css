@@ -150,77 +150,87 @@ body {
 
 /* Action Palette */
 .action-palette {
-  /* Optional: Add some padding if needed */
-  padding: 10px;
+  /* Optional: Set a fixed height or min-height if desired */
+  /* min-height: 300px; */
+  display: flex;
+  flex-direction: column; /* Stack category nav, list, pagination */
+  background-color: #f9f9f9;
   border: 1px solid #ccc;
   border-radius: 5px;
-  background-color: #f9f9f9;
-  display: flex; /* Use flexbox for layout */
-  flex-direction: column; /* Stack navigation and list vertically */
-  min-height: 200px; /* Ensure it has some minimum height */
+  padding: 10px;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
 }
 
 .category-navigation {
   display: flex;
-  justify-content: space-between; /* Pushes arrows to sides */
+  justify-content: space-between;
   align-items: center;
-  padding: 5px 0 10px 0; /* Add some padding below */
-  border-bottom: 1px solid #eee; /* Separator line */
-  margin-bottom: 10px; /* Space between nav and action list */
+  margin-bottom: 10px;
+  padding-bottom: 5px;
+  border-bottom: 1px solid #eee;
 }
 
 .category-title {
-  margin: 0 10px; /* Space around the title */
+  margin: 0 10px;
   font-size: 1.1em;
+  font-weight: bold;
   text-align: center;
-  flex-grow: 1; /* Allow title to take up space */
-  white-space: nowrap; /* Prevent wrapping */
-  overflow: hidden; /* Hide overflow */
-  text-overflow: ellipsis; /* Add ellipsis if too long */
+  flex-grow: 1;
 }
 
-.category-arrow {
+.category-arrow,
+.pagination-arrow {
+  /* Shared styles for arrow buttons */
   background: none;
   border: 1px solid #ccc;
   border-radius: 4px;
   padding: 2px 8px;
   font-size: 1.2em;
   cursor: pointer;
-  line-height: 1;
-  transition: background-color 0.2s ease;
+  transition: background-color 0.2s;
 }
 
-.category-arrow:hover:not(:disabled) {
+.category-arrow:hover:not(:disabled),
+.pagination-arrow:hover:not(:disabled) {
   background-color: #eee;
 }
 
-.category-arrow:disabled {
+.category-arrow:disabled,
+.pagination-arrow:disabled {
   opacity: 0.5;
   cursor: not-allowed;
 }
 
-.action-list {
-  /* --- REMOVE --- */
-  /* display: flex; */
-  /* flex-wrap: wrap; */
-  /* justify-content: flex-start; */
-
-  /* --- ADD --- */
+/* --- UPDATED Action List Styling --- */
+.action-list.fixed-grid {
+  /* Target the list when it's the fixed grid */
   display: grid;
-  grid-template-columns: repeat(4, 1fr); /* Create 4 equal columns */
-  align-content: start; /* Align rows to the top */
-
-  /* --- KEEP --- */
+  grid-template-columns: repeat(2, 1fr); /* 2 columns */
+  grid-template-rows: repeat(
+    2,
+    80px
+  ); /* 2 rows, 80px height each (adjust as needed) */
   gap: 8px; /* Spacing between action items */
-  flex-grow: 1; /* Allow list to fill remaining vertical space in the flex parent */
-  overflow-y: auto; /* Add scroll if items overflow vertically */
+  /* REMOVE flex-grow and overflow-y */
+  /* flex-grow: 1; */
+  /* overflow-y: auto; */
+  /* Set a fixed height based on rows and gap */
+  height: calc(
+    80px * 2 + 8px
+  ); /* (row_height * num_rows) + (gap * (num_rows - 1)) */
+  align-content: start; /* Align content to the top if fewer than 4 items */
+  margin-bottom: 10px; /* Space before pagination */
 }
 
+/* Style for placeholder divs to maintain grid structure */
+.action-item-placeholder {
+  border: 1px dashed #ddd; /* Optional: visual indication */
+  border-radius: 4px;
+  background-color: #fafafa; /* Slightly different background */
+}
+
+/* --- Action Item Styling (mostly unchanged, ensure it fits 80px height) --- */
 .action-item {
-  /* Adjust styles if needed, e.g., fixed width */
-  /* width: 70px; */
-  /* height: 70px; */
-  /* ... existing action-item styles ... */
   background-color: #fff;
   border: 1px solid #ddd;
   border-radius: 4px;
@@ -230,40 +240,62 @@ body {
   display: flex;
   flex-direction: column;
   align-items: center;
-  justify-content: center; /* Center content vertically within the fixed height */
+  justify-content: center; /* Center content vertically */
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
   transition: box-shadow 0.2s ease;
-  /* --- ADD THIS if text might overflow the fixed height --- */
-  overflow: hidden; /* Prevents content spilling out */
-}
-
-.action-item:hover {
-  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.15);
-}
-
-.action-item span {
-  /* Icon */
-  font-size: 1.5em; /* Adjust icon size */
-  margin-bottom: 3px;
+  overflow: hidden; /* Prevent content spilling out */
+  height: 100%; /* Make item fill the grid cell height (80px) */
+  box-sizing: border-box; /* Include padding/border in height */
 }
 
 .action-item p {
-  /* Name */
-  font-size: 0.75em;
+  font-size: 0.75em; /* May need adjustment based on 80px height */
   margin: 0;
   line-height: 1.2;
   color: #333;
-  /* --- Optional: Prevent text wrapping if needed, use with overflow: hidden --- */
-  /* white-space: nowrap; */
-  /* text-overflow: ellipsis; */ /* Show ... if text is too long */
-  /* width: 100%; */ /* Ensure text takes width for ellipsis */
+  /* Optional text overflow handling */
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  width: 90%; /* Ensure text takes width for ellipsis */
+  overflow: hidden;
+}
+
+.action-item .icon-wrapper {
+  width: 30px; /* Keep icon size consistent */
+  height: 30px;
+  margin-bottom: 4px;
+}
+
+.action-item .svg-icon {
+  max-width: 100%;
+  max-height: 100%;
+  object-fit: contain;
+  display: block;
 }
 
 .no-actions-message {
-  width: 100%;
+  grid-column: 1 / -1; /* Span across all columns */
+  grid-row: 1 / -1; /* Span across all rows */
   text-align: center;
   color: #888;
-  margin-top: 20px;
+  padding: 20px;
+  align-self: center; /* Center message vertically */
+  justify-self: center; /* Center message horizontally */
+}
+
+/* --- NEW Pagination Controls Styling --- */
+.pagination-controls {
+  display: flex;
+  justify-content: space-between; /* Pushes arrows to ends */
+  align-items: center;
+  padding-top: 5px; /* Space above controls */
+  border-top: 1px solid #eee; /* Separator line */
+}
+
+.page-indicator {
+  font-size: 0.9em;
+  color: #555;
+  margin: 0 10px; /* Space around the text */
 }
 
 /* Recipe Grid */
