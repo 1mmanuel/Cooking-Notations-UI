@@ -100,12 +100,18 @@ function PlacedAction({
         type="text"
         className="label-input"
         value={label}
-        onChange={(e) => onLabelChange(squareId, e.target.value)}
+        onChange={(e) => onLabelChange(squareId, e.target.value)} // Handles typing
         placeholder="Label this action"
-        onPointerDown={(e) => e.stopPropagation()}
-        onClick={(e) => e.stopPropagation()}
-        onTouchStart={(e) => e.stopPropagation()}
-        onContextMenu={(e) => e.stopPropagation()}
+        onPointerDown={(e) => e.stopPropagation()} // Prevents drag start on input
+        // --- MODIFICATION HERE ---
+        onClick={(e) => {
+          e.stopPropagation(); // Keep stopping propagation
+          // Call onLabelChange with an empty string to clear the input
+          onLabelChange(squareId, "");
+        }}
+        // --- END MODIFICATION ---
+        onTouchStart={(e) => e.stopPropagation()} // Prevents drag on touch
+        onContextMenu={(e) => e.stopPropagation()} // Prevents context menu interference
         style={{ pointerEvents: isDragging ? "none" : "auto" }}
       />
 

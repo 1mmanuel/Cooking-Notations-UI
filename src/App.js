@@ -208,22 +208,22 @@ function App() {
 
     // --- Scenario 1: Dropping a NEW action from Palette onto the MAIN Grid ---
     if (
-      targetId.startsWith("square-") &&
-      sourceId.startsWith("action-") &&
-      activeData?.action
+      targetId.startsWith("square-") && // Target is a grid square
+      sourceId.startsWith("action-") && // Source is an action from the palette
+      activeData?.action // We have the action data
     ) {
-      const action = activeData.action;
+      const action = activeData.action; // Get the action object { id, name, icon, ... }
+
       setGridItems((prev) => ({
         ...prev,
         [targetId]: {
-          ...createEmptySquare(),
-          action: action,
-          // Keep existing miniBoxes if you want, or reset them:
-          // miniBoxes: prev[targetId]?.miniBoxes || [] // Keep existing
-          miniBoxes: [], // Reset miniBoxes when main action changes
+          // Define the new state for the target square directly:
+          action: action, // Set the action that was dropped
+          label: action.name || "", // *** THIS IS THE KEY CHANGE *** Set label to action's name
+          miniBoxes: [], // Reset miniBoxes for a fresh drop onto the main square
         },
       }));
-      return;
+      return; // Exit after handling this scenario
     }
 
     // --- Scenario 2: Moving an EXISTING item WITHIN the MAIN Grid ---
