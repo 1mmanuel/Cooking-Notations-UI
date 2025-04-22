@@ -1,22 +1,42 @@
 body {
   font-family: sans-serif;
-  margin: 20px;
+  /* margin: 20px; */ /* REMOVE this */
+  padding: 20px 0; /* ADD vertical padding (optional, adjust as needed) */
   background-color: #f4f4f4;
+  margin: 0; /* Ensure no default body margin interferes */
 }
 
 .app-container {
   display: flex;
   gap: 30px;
   flex-wrap: wrap; /* Allow wrapping on smaller screens */
+
+  /* Centering and Sizing */
+  max-width: 1100px; /* Or your preferred max width */
+  margin: 20px auto; /* Center horizontally, add some top/bottom margin */
+  padding: 20px; /* Padding inside the container */
+  box-sizing: border-box; /* Include padding/border in width calculation */
+
+  /* --- ADD --- */
+  border: 1px solid #ccc; /* Adjust color/width as needed (e.g., #bbb, 2px) */
+  border-radius: 8px; /* Optional: Rounded corners */
+  background-color: #ffffff; /* Give the container a solid background */
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08); /* Optional: Subtle shadow */
+  /* --- END ADD --- */
 }
 
+/* Keep the rest of the styles for .left-panel, .right-panel, etc. */
 .left-panel {
   flex: 1;
   min-width: 250px; /* Ensure palette doesn't get too small */
+  /* Add flex-basis for better control if needed, e.g., flex-basis: 300px; */
 }
 
 .right-panel {
   flex: 3;
+  /* Add flex-basis for better control if needed, e.g., flex-basis: 700px; */
+  /* Ensure the grid inside doesn't push the container too wide */
+  min-width: 0; /* Allow shrinking if necessary */
 }
 
 /* Recipe Info Form */
