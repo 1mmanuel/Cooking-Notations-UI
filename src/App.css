@@ -123,7 +123,7 @@ body {
   background-color: #fff;
   padding: 15px;
   border-radius: 8px;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.1);
   margin-bottom: 20px;
 }
 
@@ -149,6 +149,24 @@ body {
 }
 
 /* Action Palette */
+.action-palette-outer-container {
+  border: 1px solid #e0e0e0; /* Example border */
+  border-radius: 8px; /* Optional rounding */
+  padding: 20px; /* This creates the inward indentation for the content below the title */
+  background-color: #f8f9fa; /* Optional subtle background */
+  margin-bottom: 20px; /* Space below the entire palette block */
+  box-shadow: inset 0 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+.palette-title {
+  text-align: center; /* Center the "ICONS" text */
+  margin-top: 0; /* Remove default browser margin */
+  margin-bottom: 15px; /* Space between title and the inner palette */
+  font-size: 1.5em; /* Adjust title size as needed */
+  color: #495057; /* Adjust title color as needed */
+  font-weight: 600;
+}
+
 .action-palette {
   /* Optional: Set a fixed height or min-height if desired */
   /* min-height: 300px; */
@@ -158,7 +176,7 @@ body {
   border: 1px solid #ccc;
   border-radius: 5px;
   padding: 10px;
-  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+  box-shadow: inset 0 2px 5px rgba(0, 0, 0, 0.1);
 }
 
 .category-navigation {
