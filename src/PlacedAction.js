@@ -1,7 +1,6 @@
 // src/PlacedAction.js
-import React, { useState } from "react";
-import MiniBox from "./MiniBox"; // Will be updated next
-// import { v4 as uuidv4 } from "uuid"; // No longer needed here
+import React from "react";
+import MiniBox from "./MiniBox";
 import { useDraggable } from "@dnd-kit/core";
 import { CSS } from "@dnd-kit/utilities";
 
@@ -25,14 +24,9 @@ function PlacedAction({
       },
     });
 
-  // --- REMOVE showMiniBoxes state ---
-  // const [showMiniBoxes, setShowMiniBoxes] = useState(miniBoxes.length > 0);
-  // --- END REMOVE ---
-
   const style = {
     transform: CSS.Translate.toString(transform),
     opacity: isDragging ? 0.5 : 1,
-    // cursor: "grab", // Let CSS handle cursor now
     touchAction: "none",
     width: "100%",
     height: "100%",
@@ -43,43 +37,33 @@ function PlacedAction({
     alignItems: "center",
     justifyContent: "center",
     padding: "5px",
-    overflow: "visible",
+    overflow: "visible", // Keep visible for mini-boxes
   };
 
   if (!action) return null;
 
+  // Get the SVG component for the main action
+  const MainIconComponent = action.icon;
+
   const handleRevealMiniBoxClick = (e) => {
     e.stopPropagation();
-    onAddMiniBox(squareId); // Call App.js to add next box
+    onAddMiniBox(squareId);
   };
 
-  // --- REMOVED: handleAddClick (was for the old '+' button) ---
-
-  // --- NEW: Context Menu Handler for deleting the main action ---
   const handleContextMenu = (event) => {
-    event.preventDefault(); // Prevent browser menu
-    event.stopPropagation(); // Stop bubbling
-    console.log("Right-clicked PlacedAction:", squareId);
+    event.preventDefault();
+    event.stopPropagation();
     if (onDeleteAction) {
-      onDeleteAction(squareId); // Call the handler passed from App.js
-    } else {
-      console.warn("onDeleteAction prop not provided to PlacedAction");
+      onDeleteAction(squareId);
     }
   };
-  // --- END NEW ---
 
-  // --- DERIVE visibility directly from miniBoxes.length ---
-  const shouldShowMiniBoxArea = miniBoxes.length > 0;
   const shouldShowAddButton = miniBoxes.length < 3;
-  // --- END DERIVE ---
 
-  // --- Filter miniBoxes by position ---
   const miniBoxRight = miniBoxes.find((box) => box.position === "right");
   const miniBoxTop = miniBoxes.find((box) => box.position === "top");
   const miniBoxBottom = miniBoxes.find((box) => box.position === "bottom");
-  // --- End Filter ---
 
-  // Helper function to render a MiniBox if it exists
   const renderMiniBox = (boxData) => {
     if (!boxData) return null;
     const miniBoxDroppableId = `minibox-${squareId}-${boxData.id}`;
@@ -88,7 +72,7 @@ function PlacedAction({
         key={boxData.id}
         id={boxData.id}
         droppableId={miniBoxDroppableId}
-        action={boxData.action}
+        action={boxData.action} // Pass the full action object or null
         onDelete={onMiniBoxDelete}
         parentSquareId={squareId}
       />
@@ -106,7 +90,12 @@ function PlacedAction({
       title={`${action.name} (Right-click to delete)`}
     >
       {/* Main content (Icon and Label) */}
-      <span className="icon">{action.icon}</span>
+      {/* Render the SVG component */}
+      {MainIconComponent && (
+        <span className="icon-wrapper">
+          <MainIconComponent className="svg-icon placed-action-icon" />
+        </span>
+      )}
       <input
         type="text"
         className="label-input"
@@ -133,11 +122,10 @@ function PlacedAction({
         </button>
       )}
 
-      {/* --- RENDER MiniBoxes in Positioned Containers --- */}
-      {/* Right Position */}
+      {/* Render MiniBoxes in Positioned Containers */}
       {miniBoxRight && (
         <div
-          className="mini-box-container-right" // Use specific class
+          className="mini-box-container-right"
           onPointerDown={(e) => e.stopPropagation()}
           onClick={(e) => e.stopPropagation()}
           onTouchStart={(e) => e.stopPropagation()}
@@ -146,11 +134,9 @@ function PlacedAction({
           {renderMiniBox(miniBoxRight)}
         </div>
       )}
-
-      {/* Top Position */}
       {miniBoxTop && (
         <div
-          className="mini-box-container-top" // Use specific class
+          className="mini-box-container-top"
           onPointerDown={(e) => e.stopPropagation()}
           onClick={(e) => e.stopPropagation()}
           onTouchStart={(e) => e.stopPropagation()}
@@ -159,11 +145,9 @@ function PlacedAction({
           {renderMiniBox(miniBoxTop)}
         </div>
       )}
-
-      {/* Bottom Position */}
       {miniBoxBottom && (
         <div
-          className="mini-box-container-bottom" // Use specific class
+          className="mini-box-container-bottom"
           onPointerDown={(e) => e.stopPropagation()}
           onClick={(e) => e.stopPropagation()}
           onTouchStart={(e) => e.stopPropagation()}
@@ -172,7 +156,6 @@ function PlacedAction({
           {renderMiniBox(miniBoxBottom)}
         </div>
       )}
-      {/* --- END RENDER MiniBoxes --- */}
     </div>
   );
 }

@@ -1,253 +1,305 @@
 // src/actions.js
+import { ReactComponent as FryIcon } from "./SVG/fry.svg";
+import { ReactComponent as SteamIcon } from "./SVG/steam.svg";
+import { ReactComponent as BoilIcon } from "./SVG/boil.svg";
+import { ReactComponent as GrillIcon } from "./SVG/grill.svg";
+import { ReactComponent as BakingIcon } from "./SVG/baking.svg";
+import { ReactComponent as SauteIcon } from "./SVG/saute.svg";
+import { ReactComponent as TimeIcon } from "./SVG/time.svg";
+import { ReactComponent as MonitorIcon } from "./SVG/monitor.svg";
+import { ReactComponent as SmellIcon } from "./SVG/smell.svg";
+import { ReactComponent as TasteIcon } from "./SVG/taste.svg";
+import { ReactComponent as FreezeIcon } from "./SVG/freeze.svg";
+import { ReactComponent as MarinationIcon } from "./SVG/marination.svg";
+import { ReactComponent as RestingIcon } from "./SVG/resting.svg";
+import { ReactComponent as PlateIcon } from "./SVG/plate.svg";
+import { ReactComponent as GarnishIcon } from "./SVG/garnish.svg";
+import { ReactComponent as ProteinIcon } from "./SVG/protein.svg";
+import { ReactComponent as CarbsIcon } from "./SVG/carbs.svg";
+import { ReactComponent as FishIcon } from "./SVG/fish.svg";
+import { ReactComponent as FruitsIcon } from "./SVG/fruits.svg";
+import { ReactComponent as CarrotIcon } from "./SVG/carrot.svg";
+import { ReactComponent as OilIcon } from "./SVG/oil.svg";
+import { ReactComponent as AnimalFatIcon } from "./SVG/animal-fat.svg";
+import { ReactComponent as SpicesIcon } from "./SVG/spices.svg";
+import { ReactComponent as SaltIcon } from "./SVG/salt.svg";
+import { ReactComponent as PepperIcon } from "./SVG/pepper.svg";
+import { ReactComponent as SugarIcon } from "./SVG/sugar.svg";
+import { ReactComponent as WashingIcon } from "./SVG/washing.svg";
+import { ReactComponent as CuttingIcon } from "./SVG/cutting.svg";
+import { ReactComponent as GratingIcon } from "./SVG/grating.svg";
+import { ReactComponent as PreheatIcon } from "./SVG/preheat.svg";
+import { ReactComponent as KneadingIcon } from "./SVG/kneading.svg";
+import { ReactComponent as StirringIcon } from "./SVG/stirring.svg";
+import { ReactComponent as BlendingIcon } from "./SVG/blending.svg";
+import { ReactComponent as FlippingIcon } from "./SVG/flipping.svg";
+import { ReactComponent as LayeringIcon } from "./SVG/layering.svg";
+import { ReactComponent as HeatLowIcon } from "./SVG/heat-(low).svg";
+import { ReactComponent as HeatMediumIcon } from "./SVG/heat-(medium).svg";
+import { ReactComponent as HeatHighIcon } from "./SVG/heat-(high).svg";
 
-// --- NEW: Categorized Actions Structure ---
+// Helper function to create action objects
+const createAction = (id, name, IconComponent, category, description = "") => ({
+  id: `action-${id}`,
+  name,
+  icon: IconComponent, // Store the component itself
+  category,
+  description: description || `Action: ${name}`, // Default description
+});
+
+// --- UPDATED Categorized Actions Structure ---
 export const CATEGORIZED_ACTIONS = {
+  "Sub-Icons": [
+    createAction("fry", "Fry", FryIcon, "Sub-Icons", "Cook in hot fat or oil."),
+    createAction("steam", "Steam", SteamIcon, "Sub-Icons", "Cook with steam."),
+    createAction(
+      "boil",
+      "Boil",
+      BoilIcon,
+      "Sub-Icons",
+      "Heat liquid until bubbling."
+    ),
+    createAction(
+      "grill",
+      "Grill",
+      GrillIcon,
+      "Sub-Icons",
+      "Cook over direct heat."
+    ),
+    createAction(
+      "baking",
+      "Bake",
+      BakingIcon,
+      "Sub-Icons",
+      "Cook with dry heat in an oven."
+    ),
+    createAction(
+      "saute",
+      "Sauté",
+      SauteIcon,
+      "Sub-Icons",
+      "Fry quickly in a little hot fat."
+    ),
+  ],
+  // --- RENAMED CATEGORY KEY ---
+  Time: [
+    // --- UPDATED CATEGORY PROPERTY in each action ---
+    createAction(
+      "monitor",
+      "Monitor",
+      MonitorIcon,
+      "Time", // <-- Updated
+      "Observe the cooking process."
+    ),
+    createAction(
+      "smell",
+      "Smell",
+      SmellIcon,
+      "Time", // <-- Updated
+      "Check aroma during cooking."
+    ),
+    createAction(
+      "taste",
+      "Taste",
+      TasteIcon,
+      "Time", // <-- Updated
+      "Taste for seasoning or doneness."
+    ),
+    createAction(
+      "freeze",
+      "Freeze",
+      FreezeIcon,
+      "Time", // <-- Updated
+      "Chill rapidly or store below freezing."
+    ),
+    createAction(
+      "marination",
+      "Marinate",
+      MarinationIcon,
+      "Time", // <-- Updated
+      "Soak in seasoning before cooking."
+    ),
+    createAction(
+      "resting",
+      "Rest",
+      RestingIcon,
+      "Time", // <-- Updated
+      "Allow food to sit after cooking."
+    ),
+    createAction(
+      "time",
+      "Time",
+      TimeIcon,
+      "Time", // <-- Updated
+      "Set or check cooking time."
+    ),
+  ],
+  Finishing: [
+    createAction(
+      "plate",
+      "Plate",
+      PlateIcon,
+      "Finishing",
+      "Arrange food on a plate for serving."
+    ),
+    createAction(
+      "garnish",
+      "Garnish",
+      GarnishIcon,
+      "Finishing",
+      "Decorate the dish before serving."
+    ),
+  ],
+  Ingredients: [
+    createAction(
+      "protein",
+      "Protein",
+      ProteinIcon,
+      "Ingredients",
+      "Add or prepare protein (meat, poultry, tofu)."
+    ),
+    createAction(
+      "carbs",
+      "Carbs",
+      CarbsIcon,
+      "Ingredients",
+      "Add or prepare carbohydrates (pasta, rice, potato)."
+    ),
+    createAction(
+      "fish",
+      "Fish",
+      FishIcon,
+      "Ingredients",
+      "Add or prepare fish/seafood."
+    ),
+    createAction(
+      "fruits",
+      "Fruits",
+      FruitsIcon,
+      "Ingredients",
+      "Add or prepare fruits."
+    ),
+    createAction(
+      "vegetables",
+      "Vegetables",
+      CarrotIcon,
+      "Ingredients",
+      "Add or prepare vegetables."
+    ),
+    createAction("oil", "Oil", OilIcon, "Ingredients", "Add cooking oil."),
+    createAction(
+      "animal-fat",
+      "Animal Fat",
+      AnimalFatIcon,
+      "Ingredients",
+      "Add animal fat (butter, lard)."
+    ),
+    createAction("spices", "Spices", SpicesIcon, "Ingredients", "Add spices."),
+    createAction("salt", "Salt", SaltIcon, "Ingredients", "Add salt."),
+    createAction("pepper", "Pepper", PepperIcon, "Ingredients", "Add pepper."),
+    createAction(
+      "sugar",
+      "Sugar",
+      SugarIcon,
+      "Ingredients",
+      "Add sugar or sweetener."
+    ),
+  ],
   Preparation: [
-    {
-      id: "action-chop",
-      name: "Chop",
-      icon: "🔪",
-      description: "Cut ingredients.",
-      category: "Preparation",
-    },
-    {
-      id: "action-slice",
-      name: "Slice",
-      icon: "🥒",
-      description: "Cut into thin slices.",
-      category: "Preparation",
-    },
-    {
-      id: "action-dice",
-      name: "Dice",
-      icon: "🥕",
-      description: "Cut into small cubes.",
-      category: "Preparation",
-    },
-    {
-      id: "action-grate",
-      name: "Grate",
-      icon: "🧀",
-      description: "Shred ingredients.",
-      category: "Preparation",
-    },
-    {
-      id: "action-peel",
-      name: "Peel",
-      icon: "🥔",
-      description: "Remove the skin.",
-      category: "Preparation",
-    },
-    {
-      id: "action-measure",
-      name: "Measure",
-      icon: "⚖️",
-      description: "Obtain exact quantity.",
-      category: "Preparation",
-    },
-    {
-      id: "action-wash",
-      name: "Wash",
-      icon: "🧼",
-      description: "Clean ingredients.",
-      category: "Preparation",
-    },
-    {
-      id: "action-mince",
-      name: "Mince",
-      icon: "🧄",
-      description: "Cut very finely.",
-      category: "Preparation",
-    },
+    createAction(
+      "washing",
+      "Wash",
+      WashingIcon,
+      "Preparation",
+      "Clean ingredients under water."
+    ),
+    createAction(
+      "cutting",
+      "Cut",
+      CuttingIcon,
+      "Preparation",
+      "Cut ingredients (chop, slice, dice)."
+    ),
+    createAction(
+      "grating",
+      "Grate",
+      GratingIcon,
+      "Preparation",
+      "Shred ingredients using a grater."
+    ),
   ],
-  Cooking: [
-    {
-      id: "action-mix",
-      name: "Mix",
-      icon: "🥣",
-      description: "Combine ingredients.",
-      category: "Cooking",
-    },
-    {
-      id: "action-stir",
-      name: "Stir",
-      icon: "🥄",
-      description: "Move utensil round.",
-      category: "Cooking",
-    },
-    {
-      id: "action-whisk",
-      name: "Whisk",
-      icon: "🥚",
-      description: "Beat or stir quickly.",
-      category: "Cooking",
-    },
-    {
-      id: "action-heat",
-      name: "Heat",
-      icon: "🔥",
-      description: "Apply heat.",
-      category: "Cooking",
-    },
-    {
-      id: "action-boil",
-      name: "Boil",
-      icon: "💧",
-      description: "Heat liquid to boiling.",
-      category: "Cooking",
-    },
-    {
-      id: "action-simmer",
-      name: "Simmer",
-      icon: "🍲",
-      description: "Cook below boiling.",
-      category: "Cooking",
-    },
-    {
-      id: "action-fry",
-      name: "Fry",
-      icon: "🍳",
-      description: "Cook in hot fat/oil.",
-      category: "Cooking",
-    },
-    {
-      id: "action-saute",
-      name: "Sauté",
-      icon: "🍄",
-      description: "Fry quickly in little fat.",
-      category: "Cooking",
-    },
-    {
-      id: "action-steam",
-      name: "Steam",
-      icon: "💨",
-      description: "Cook with steam.",
-      category: "Cooking",
-    },
+  "Pre-Cooking": [
+    createAction(
+      "preheat",
+      "Preheat",
+      PreheatIcon,
+      "Pre-Cooking",
+      "Heat oven or pan before cooking."
+    ),
+    createAction(
+      "kneading",
+      "Knead",
+      KneadingIcon,
+      "Pre-Cooking",
+      "Work dough with hands."
+    ),
   ],
-  Baking: [
-    {
-      id: "action-bake",
-      name: "Bake",
-      icon: "🍞",
-      description: "Cook in oven.",
-      category: "Baking",
-    },
-    {
-      id: "action-roast",
-      name: "Roast",
-      icon: "🍗",
-      description: "Cook with dry heat.",
-      category: "Baking",
-    },
-    {
-      id: "action-knead",
-      name: "Knead",
-      icon: "🤏",
-      description: "Work dough.",
-      category: "Baking",
-    },
-    {
-      id: "action-proof",
-      name: "Proof",
-      icon: "⏳",
-      description: "Allow dough to rise.",
-      category: "Baking",
-    },
-    {
-      id: "action-glaze",
-      name: "Glaze",
-      icon: "✨",
-      description: "Apply a glaze.",
-      category: "Baking",
-    },
-    {
-      id: "action-grease",
-      name: "Grease",
-      icon: "🧈",
-      description: "Coat with fat/oil.",
-      category: "Baking",
-    },
+  Mixing: [
+    createAction(
+      "stirring",
+      "Stir",
+      StirringIcon,
+      "Mixing",
+      "Mix ingredients with a circular motion."
+    ),
+    createAction(
+      "blending",
+      "Blend",
+      BlendingIcon,
+      "Mixing",
+      "Mix ingredients using a blender."
+    ),
+    createAction(
+      "flipping",
+      "Flip",
+      FlippingIcon,
+      "Mixing",
+      "Turn food over (e.g., pancakes, patties)."
+    ),
+    createAction(
+      "layering",
+      "Layer",
+      LayeringIcon,
+      "Mixing",
+      "Arrange ingredients in layers."
+    ),
   ],
-  Seasoning: [
-    {
-      id: "action-salt",
-      name: "Salt",
-      icon: "🧂",
-      description: "Add salt.",
-      category: "Seasoning",
-    },
-    {
-      id: "action-pepper",
-      name: "Pepper",
-      icon: "🌶️",
-      description: "Add pepper.",
-      category: "Seasoning",
-    },
-    {
-      id: "action-herb",
-      name: "Herbs",
-      icon: "🌿",
-      description: "Add herbs.",
-      category: "Seasoning",
-    },
-    {
-      id: "action-spice",
-      name: "Spices",
-      icon: "🌶️",
-      description: "Add spices.",
-      category: "Seasoning",
-    }, // Re-using pepper icon, change if needed
-    {
-      id: "action-sweeten",
-      name: "Sweeten",
-      icon: "🍯",
-      description: "Add sweetener.",
-      category: "Seasoning",
-    },
-    {
-      id: "action-sour",
-      name: "Sour",
-      icon: "🍋",
-      description: "Add acidity.",
-      category: "Seasoning",
-    },
+  Execution: [
+    createAction(
+      "heat-low",
+      "Heat (Low)",
+      HeatLowIcon,
+      "Execution",
+      "Apply low heat."
+    ),
+    createAction(
+      "heat-medium",
+      "Heat (Medium)",
+      HeatMediumIcon,
+      "Execution",
+      "Apply medium heat."
+    ),
+    createAction(
+      "heat-high",
+      "Heat (High)",
+      HeatHighIcon,
+      "Execution",
+      "Apply high heat."
+    ),
   ],
-  Serving: [
-    {
-      id: "action-serve",
-      name: "Serve",
-      icon: "🍽️",
-      description: "Present the dish.",
-      category: "Serving",
-    },
-    {
-      id: "action-plate",
-      name: "Plate",
-      icon: "ափ",
-      description: "Arrange food on plate.",
-      category: "Serving",
-    }, // Placeholder icon
-    {
-      id: "action-garnish",
-      name: "Garnish",
-      icon: "🌱",
-      description: "Decorate the dish.",
-      category: "Serving",
-    },
-    {
-      id: "action-rest",
-      name: "Rest",
-      icon: "😴",
-      description: "Allow food to sit.",
-      category: "Serving",
-    },
-  ],
-  // Add more categories like "Ingredients", "Appliances" etc. if needed
 };
-// --- END NEW ---
 
-// --- UPDATED: Helper to find action by ID across all categories ---
+// --- Helper to find action by ID (remains unchanged, still works) ---
 export const findActionById = (id) => {
   for (const category in CATEGORIZED_ACTIONS) {
     const action = CATEGORIZED_ACTIONS[category].find((act) => act.id === id);
@@ -255,10 +307,10 @@ export const findActionById = (id) => {
       return action;
     }
   }
-  return null; // Return null if not found
+  console.warn(`Action with ID "${id}" not found.`);
+  return null;
 };
-// --- END UPDATED ---
 
-// --- REMOVE Old Flat Array ---
-// export const AVAILABLE_ACTIONS = [ ... ];
-// --- END REMOVE ---
+// --- Ensure SVG folder exists ---
+// Make sure you have a folder named 'SVG' inside your 'src' folder,
+// and all the .svg files listed above are present in it.

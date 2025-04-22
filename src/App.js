@@ -484,41 +484,42 @@ function App() {
   const renderDragOverlay = () => {
     if (!activeDragData) return null;
 
-    // If dragging from the palette
-    if (activeDragData.action && activeDragData.type !== "grid-item") {
-      return (
-        <div className="action-item drag-overlay">
-          <span>{activeDragData.action.icon}</span>
-          <p>{activeDragData.action.name}</p>
-        </div>
-      );
-    }
+    const action = activeDragData.action || activeDragData.item?.action;
+    const name = action?.name || "Item";
+    const IconComponent = action?.icon; // Get the SVG component
 
-    // If dragging from the grid
-    if (activeDragData.type === "grid-item" && activeDragData.item?.action) {
-      // Render a simplified version or a full PlacedAction lookalike
-      // For simplicity, let's render something similar to ActionItem
-      const { action } = activeDragData.item;
+    // Common style for overlay items
+    const overlayStyle = {
+      backgroundColor: "#fff",
+      padding: "8px 12px",
+      borderRadius: "4px",
+      boxShadow: "0 2px 8px rgba(0,0,0,0.2)",
+      display: "flex",
+      alignItems: "center",
+      gap: "8px",
+    };
+
+    // If dragging from the palette or grid, render icon and name
+    if (action && IconComponent) {
       return (
-        <div
-          className="placed-action drag-overlay"
-          style={{
-            backgroundColor: "#fff",
-            padding: "10px",
-            borderRadius: "4px",
-          }}
-        >
-          <span className="icon">{action.icon}</span>
-          {/* Optionally show label */}
-          {/* <p style={{fontSize: '0.8em', margin: '2px 0 0', color: '#555'}}>{activeDragData.item.label || action.name}</p> */}
-          <p style={{ fontSize: "0.8em", margin: "2px 0 0", color: "#555" }}>
-            {action.name}
+        <div style={overlayStyle} className="drag-overlay-content">
+          <span
+            className="icon-wrapper"
+            style={{ width: "24px", height: "24px" }}
+          >
+            {" "}
+            {/* Adjust size as needed */}
+            <IconComponent className="svg-icon drag-overlay-icon" />
+          </span>
+          <p style={{ margin: 0, fontSize: "0.9em", fontWeight: "bold" }}>
+            {name}
           </p>
         </div>
       );
     }
 
-    return null;
+    // Fallback if something goes wrong (shouldn't usually happen)
+    return <div style={overlayStyle}>Dragging...</div>;
   };
 
   return (
@@ -532,22 +533,21 @@ function App() {
       <div className="app-container">
         <div className="left-panel">
           <RecipeInfoForm info={recipeInfo} onChange={handleRecipeInfoChange} />
+          {/* ActionPalette uses the new actions.js automatically */}
           <ActionPalette />
         </div>
 
         <div className="right-panel">
           <h2>Cooking Instructions Grid</h2>
-          {/* Pass the ref to RecipeGrid */}
           <RecipeGrid
             ref={gridRef}
             items={gridItems}
             onLabelChange={handleLabelChange}
-            onAddMiniBox={handleAddMiniBox} // Pass updated handler
+            onAddMiniBox={handleAddMiniBox}
             onMiniBoxDelete={handleMiniBoxDelete}
-            onDeleteAction={handleDeleteAction}
+            onDeleteAction={handleDeleteAction} // Ensure this is passed
           />
           <div className="action-buttons">
-            {/* Disable button while loading */}
             <button
               className="serve-button"
               onClick={handleServe}
@@ -562,16 +562,15 @@ function App() {
         </div>
       </div>
 
+      {/* DragOverlay uses the updated render function */}
       <DragOverlay>{renderDragOverlay()}</DragOverlay>
 
-      {/* Update SummaryModal props */}
       <SummaryModal
         isOpen={isSummaryModalOpen}
         onClose={() => setIsSummaryModalOpen(false)}
-        // summary={summaryText} // Remove or keep if you want text summary too
-        qrData={qrData} // Pass the PDF URL (or empty string)
-        isLoading={isLoadingPdf} // Pass loading state
-        error={pdfError} // Pass error state
+        qrData={qrData}
+        isLoading={isLoadingPdf}
+        error={pdfError}
       />
     </DndContext>
   );

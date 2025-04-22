@@ -39,6 +39,85 @@ body {
   min-width: 0; /* Allow shrinking if necessary */
 }
 
+/* Icon Styling */
+.icon-wrapper {
+  display: inline-flex; /* Use flex to center content */
+  justify-content: center;
+  align-items: center;
+  /* Keep dimensions if needed, or let parent control */
+  /* Example: width: 30px; height: 30px; */ /* This is set below specifically for action-item */
+  overflow: hidden; /* Hide any part of SVG that might overflow if not scaled */
+}
+
+.svg-icon {
+  display: block; /* Remove extra space below inline SVGs */
+  /* REMOVE fixed width/height here if you want context-specific sizing */
+  /* width: 100%; */
+  /* height: 100%; */
+  /* Instead, use max-width/max-height in specific contexts */
+}
+
+/* Specific sizes for different contexts (adjust as needed) */
+
+/* --- MODIFICATION START --- */
+
+/* Style the wrapper in the ActionItem for centering AND defining the box */
+.action-item .icon-wrapper {
+  width: 30px; /* Define the container width */
+  height: 30px; /* Define the container height (make it square) */
+  margin-bottom: 4px;
+  /* display: inline-flex, justify-content, align-items are inherited or already set */
+}
+
+/* Style the SVG ICON specifically within the ActionItem */
+.action-item .svg-icon {
+  /* REMOVE fixed dimensions */
+  /* width: 28px; */
+  /* height: 28px; */
+
+  /* ADD max dimensions to scale SVG down to fit the wrapper */
+  max-width: 100%; /* Max width is the wrapper's width (30px) */
+  max-height: 100%; /* Max height is the wrapper's height (30px) */
+
+  /* Ensure it behaves like an image/block for scaling */
+  object-fit: contain; /* Good practice, though max-width/height handles it */
+  display: block;
+}
+
+/* --- MODIFICATION END --- */
+
+.placed-action-icon {
+  /* These can remain fixed as they apply to a different context */
+  width: 36px;
+  height: 36px;
+  /* margin-bottom: 5px; */ /* Handled by wrapper style below */
+}
+
+.mini-box-icon {
+  /* These can remain fixed */
+  width: 20px;
+  height: 20px;
+}
+
+.drag-overlay-icon {
+  /* These can remain fixed */
+  width: 24px;
+  height: 24px;
+}
+
+/* Style the wrapper in PlacedAction */
+.placed-action .icon-wrapper {
+  width: 36px; /* Match the icon size */
+  height: 36px;
+  margin-bottom: 5px;
+}
+
+/* Style the wrapper in MiniBox */
+.mini-box .mini-box-icon-wrapper {
+  width: 20px; /* Match the icon size */
+  height: 20px;
+}
+
 /* Recipe Info Form */
 .recipe-info-form {
   background-color: #fff;
@@ -151,9 +230,11 @@ body {
   display: flex;
   flex-direction: column;
   align-items: center;
-  justify-content: center;
+  justify-content: center; /* Center content vertically within the fixed height */
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
   transition: box-shadow 0.2s ease;
+  /* --- ADD THIS if text might overflow the fixed height --- */
+  overflow: hidden; /* Prevents content spilling out */
 }
 
 .action-item:hover {
@@ -172,6 +253,10 @@ body {
   margin: 0;
   line-height: 1.2;
   color: #333;
+  /* --- Optional: Prevent text wrapping if needed, use with overflow: hidden --- */
+  /* white-space: nowrap; */
+  /* text-overflow: ellipsis; */ /* Show ... if text is too long */
+  /* width: 100%; */ /* Ensure text takes width for ellipsis */
 }
 
 .no-actions-message {
@@ -446,10 +531,11 @@ body {
 }
 
 .mini-box-content {
-  flex-grow: 1; /* Allow content to take space */
   display: flex;
+  justify-content: center;
   align-items: center;
-  justify-content: center; /* Center icon/placeholder */
+  width: 100%;
+  height: 100%;
 }
 
 .mini-box-icon {
