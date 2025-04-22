@@ -8,8 +8,8 @@ function RecipeInfoForm({ info, onChange }) {
 
   return (
     <div className="recipe-info-form">
-      <h2>Recipe Details</h2>
-      <label htmlFor="name">Recipe Name:</label>
+      <h2>DETAILS</h2>
+      <label htmlFor="name">Recipe Name</label>
       <input
         type="text"
         id="name"
@@ -18,7 +18,7 @@ function RecipeInfoForm({ info, onChange }) {
         onChange={handleChange}
       />
 
-      <label htmlFor="author">Author:</label>
+      <label htmlFor="author">Recipe By</label>
       <input
         type="text"
         id="author"
@@ -27,17 +27,16 @@ function RecipeInfoForm({ info, onChange }) {
         onChange={handleChange}
       />
 
-      <label htmlFor="cookTime">Cook Time:</label>
+      <label htmlFor="cookTime">Total Time</label>
       <input
         type="text"
         id="cookTime"
         name="cookTime"
         value={info.cookTime}
         onChange={handleChange}
-        placeholder="e.g., 30 minutes"
       />
 
-      <label htmlFor="date">Date:</label>
+      <label htmlFor="date">Date</label>
       <input
         type="date"
         id="date"

@@ -47,7 +47,7 @@ function MiniBox({ id, droppableId, action, onDelete, parentSquareId }) {
           </span>
         ) : (
           // Placeholder for empty state
-          <span className="mini-box-placeholder">Slot</span>
+          <span className="mini-box-placeholder"></span>
         )}
       </div>
     </div>

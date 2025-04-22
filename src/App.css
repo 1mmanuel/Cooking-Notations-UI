@@ -19,9 +19,13 @@ body {
 
   /* --- ADD --- */
   border: 1px solid #ccc; /* Adjust color/width as needed (e.g., #bbb, 2px) */
-  border-radius: 8px; /* Optional: Rounded corners */
-  background-color: #ffffff; /* Give the container a solid background */
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08); /* Optional: Subtle shadow */
+  border-radius: 15px; /* Optional: Rounded corners */
+  background-color: #f7a541; /* Give the container a solid background */
+  background-image: url("designs/Design-elements-01.png"); /* Your pattern */
+  background-size: 1000px;
+  background-blend-mode: multiply;
+  box-shadow: inset 3px 3px 5px rgba(0, 0, 0, 0.552),
+    inset -3px -3px 5px rgba(0, 0, 0, 0.552);
   /* --- END ADD --- */
 }
 
@@ -120,32 +124,35 @@ body {
 
 /* Recipe Info Form */
 .recipe-info-form {
-  background-color: #fff;
+  background-color: #f9db92;
   padding: 15px;
-  border-radius: 8px;
-  box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.1);
+  border-radius: 15px;
+  box-shadow: inset 3px 3px 5px rgba(0, 0, 0, 0.552),
+    inset -3px -3px 5px rgba(0, 0, 0, 0.552);
   margin-bottom: 20px;
 }
 
 .recipe-info-form h2 {
   margin-top: 0;
   margin-bottom: 15px;
-  color: #333;
+  color: #f7a541;
+  text-shadow: #000000;
 }
 
 .recipe-info-form label {
   display: block;
   margin-bottom: 5px;
   font-weight: bold;
-  color: #555;
+  color: #f7a541;
 }
 
 .recipe-info-form input {
   width: calc(100% - 16px); /* Account for padding */
   padding: 8px;
   margin-bottom: 10px;
-  border: 1px solid #ccc;
-  border-radius: 4px;
+  background-color: #fed373;
+  border: 1px solid #000000;
+  border-radius: 8px;
 }
 
 /* Action Palette */
@@ -153,9 +160,10 @@ body {
   border: 1px solid #e0e0e0; /* Example border */
   border-radius: 8px; /* Optional rounding */
   padding: 20px; /* This creates the inward indentation for the content below the title */
-  background-color: #f8f9fa; /* Optional subtle background */
+  background-color: #f68e3e; /* Optional subtle background */
   margin-bottom: 20px; /* Space below the entire palette block */
-  box-shadow: inset 0 2px 5px rgba(0, 0, 0, 0.1);
+  box-shadow: inset 3px 3px 5px rgba(0, 0, 0, 0.552),
+    inset -3px -3px 5px rgba(0, 0, 0, 0.552);
 }
 
 .palette-title {
@@ -163,7 +171,7 @@ body {
   margin-top: 0; /* Remove default browser margin */
   margin-bottom: 15px; /* Space between title and the inner palette */
   font-size: 1.5em; /* Adjust title size as needed */
-  color: #495057; /* Adjust title color as needed */
+  color: #f9db92; /* Adjust title color as needed */
   font-weight: 600;
 }
 
@@ -172,11 +180,12 @@ body {
   /* min-height: 300px; */
   display: flex;
   flex-direction: column; /* Stack category nav, list, pagination */
-  background-color: #f9f9f9;
-  border: 1px solid #ccc;
+  background-color: #f9db92;
+  border: 1px solid #000000;
   border-radius: 5px;
   padding: 10px;
-  box-shadow: inset 0 2px 5px rgba(0, 0, 0, 0.1);
+  box-shadow: inset 3px 3px 5px rgba(0, 0, 0, 0.552),
+    inset -3px -3px 5px rgba(0, 0, 0, 0.552);
 }
 
 .category-navigation {
@@ -185,7 +194,7 @@ body {
   align-items: center;
   margin-bottom: 10px;
   padding-bottom: 5px;
-  border-bottom: 1px solid #eee;
+  border-bottom: 1px solid #000000;
 }
 
 .category-title {
@@ -200,7 +209,7 @@ body {
 .pagination-arrow {
   /* Shared styles for arrow buttons */
   background: none;
-  border: 1px solid #ccc;
+  border: 1px solid #000000;
   border-radius: 4px;
   padding: 2px 8px;
   font-size: 1.2em;
@@ -242,15 +251,13 @@ body {
 
 /* Style for placeholder divs to maintain grid structure */
 .action-item-placeholder {
-  border: 1px dashed #ddd; /* Optional: visual indication */
-  border-radius: 4px;
-  background-color: #fafafa; /* Slightly different background */
+  background-color: #f9db92; /* Slightly different background */
 }
 
 /* --- Action Item Styling (mostly unchanged, ensure it fits 80px height) --- */
 .action-item {
-  background-color: #fff;
-  border: 1px solid #ddd;
+  background-color: #f9db92;
+  border: 1px solid #000000;
   border-radius: 4px;
   padding: 5px;
   text-align: center;
@@ -259,7 +266,8 @@ body {
   flex-direction: column;
   align-items: center;
   justify-content: center; /* Center content vertically */
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  box-shadow: 1px 1px 5px rgba(0, 0, 0, 0.552),
+    -1px -1px 5px rgba(0, 0, 0, 0.552);
   transition: box-shadow 0.2s ease;
   overflow: hidden; /* Prevent content spilling out */
   height: 100%; /* Make item fill the grid cell height (80px) */
@@ -270,6 +278,7 @@ body {
   font-size: 0.75em; /* May need adjustment based on 80px height */
   margin: 0;
   line-height: 1.2;
+  font-weight: 700;
   color: #333;
   /* Optional text overflow handling */
   white-space: nowrap;
@@ -307,12 +316,12 @@ body {
   justify-content: space-between; /* Pushes arrows to ends */
   align-items: center;
   padding-top: 5px; /* Space above controls */
-  border-top: 1px solid #eee; /* Separator line */
+  border-top: 1px solid #000000; /* Separator line */
 }
 
 .page-indicator {
   font-size: 0.9em;
-  color: #555;
+  color: #000000;
   margin: 0 10px; /* Space around the text */
 }
 
@@ -328,11 +337,12 @@ body {
 
 .recipe-grid-outer-container {
   padding: 15px; /* Adjust padding as needed - space between container edge and grid */
-  background-color: #f8f9fa; /* Optional: Subtle background color */
-  border: 1px solid #dcdcdc; /* Optional: Border around the grid area */
-  border-radius: 8px; /* Match other rounded corners */
+  background-color: #f68e3e; /* Optional: Subtle background color */
+  border: 1px solid #000000; /* Optional: Border around the grid area */
+  border-radius: 15px; /* Match other rounded corners */
   margin-bottom: 20px; /* Keep the space below the grid area */
-  box-shadow: inset 0 2px 5px rgba(0, 0, 0, 0.1);
+  box-shadow: inset 3px 3px 5px rgba(0, 0, 0, 0.552),
+    inset -3px -3px 5px rgba(0, 0, 0, 0.552);
   /* Ensures the container properly contains the grid, especially if grid uses max-width */
   /* You might not need this depending on exact layout, but often helpful */
   /* display: flow-root; */ /* Alternative: overflow: hidden; */
@@ -341,9 +351,10 @@ body {
   text-align: center; /* Center the title text */
   margin-bottom: 15px; /* Space between title and grid */
   font-size: 1.4em; /* Adjust size as needed */
-  color: #333; /* Adjust color as needed */
+  color: #f9db92; /* Adjust color as needed */
   border: 1px solid #000000;
-  box-shadow: inset 0 2px 5px rgba(0, 0, 0, 0.1);
+  box-shadow: inset 3px 3px 5px rgba(0, 0, 0, 0.552),
+    inset -3px -3px 5px rgba(0, 0, 0, 0.552);
   border-radius: 8px;
 }
 
@@ -356,20 +367,23 @@ body {
   width: 100%; /* Grid takes full width *of its new container* */
   max-width: 650px; /* Max width of the grid itself remains */
   aspect-ratio: 1 / 1; /* Maintain square aspect ratio */
-  background-color: #e0e0e0; /* Background *between* squares */
+  background-color: #f9db92; /* Background *between* squares */
   padding: 10px; /* Padding *inside* the grid border, around squares */
-  border-radius: 8px; /* Inner radius for the grid area */
+  border-radius: 15px; /* Inner radius for the grid area */
   /* REMOVE box-shadow: 0 2px 4px rgba(199, 4, 4, 0.1); */ /* Shadow moved to outer container */
   /* REMOVE margin-bottom: 20px; */ /* Margin now handled by outer container */
-  border: 1px solid #ccc; /* Keep inner border defining grid */
-  box-shadow: inset 0 2px 5px rgba(0, 0, 0, 0.1);
+  border: 1px solid #000000; /* Keep inner border defining grid */
+  box-shadow: inset 3px 3px 5px rgba(0, 0, 0, 0.552),
+    inset -3px -3px 5px rgba(0, 0, 0, 0.552);
   margin: 0 auto; /* Center the grid horizontally within the outer container if it's wider */
 }
 
 /* Grid Square */
 .grid-square {
-  background-color: #fff;
-  border: 1px solid #ccc;
+  background-color: #f3c35b;
+  border: 1px solid #000000;
+  box-shadow: inset 1px 1px 5px rgba(0, 0, 0, 0.552),
+    inset -1px -1px 5px rgba(0, 0, 0, 0.552);
   border-radius: 4px;
   display: flex;
   justify-content: center;
@@ -386,8 +400,10 @@ body {
 }
 
 .grid-square.empty {
-  background-color: #f0f0f0;
-  border-style: dashed;
+  background-color: #f3c35b;
+  border: 1px solid #000000;
+  box-shadow: inset 1px 1px 5px rgba(0, 0, 0, 0.552),
+    inset -1px -1px 5px rgba(0, 0, 0, 0.552);
 }
 
 /* Placed Action */
@@ -415,6 +431,7 @@ body {
   width: 100%;
   height: 100%;
   box-sizing: border-box;
+
   position: relative; /* Still relative for its own children if needed */
   /* Remove overflow hidden if it was ever added */
 }
@@ -432,11 +449,12 @@ body {
   width: calc(100% - 10px);
   font-size: 0.8em;
   text-align: center;
-  border: 1px solid #eee;
+  border: 1px solid #000000;
+  border-radius: 5px;
   padding: 3px;
   /* margin-bottom: 5px; */ /* Removed, handled by flex gap or direct style */
   box-sizing: border-box;
-  background-color: #fff; /* Ensure it has background */
+  background-color: #f3c35b; /* Ensure it has background */
   z-index: 1; /* Above icon potentially */
 }
 
@@ -506,8 +524,8 @@ body {
   text-align: center;
   padding: 0;
   border-radius: 50%;
-  background-color: #e0e0e0;
-  border: 1px solid #ccc;
+  background-color: #f3c35b;
+  border: 1px solid #000000;
   color: #333;
   cursor: pointer;
   z-index: 5; /* Ensure it's above other content but below drag overlay */
@@ -515,7 +533,7 @@ body {
 }
 
 .placed-action .reveal-mini-box-button:hover {
-  background-color: #d0d0d0;
+  background-color: #f9db92;
 }
 
 /* --- RENAME/ADJUST Styles for RIGHT mini-box container --- */
@@ -575,8 +593,8 @@ body {
 
 /* --- Styles for the MiniBox itself (apply universally) --- */
 .mini-box {
-  border: 1px dashed #aaa;
-  background-color: #fff;
+  border: 1px solid #000000;
+  background-color: #f3c35b;
   padding: 4px 6px;
   min-height: 35px;
   min-width: 40px;
@@ -587,11 +605,12 @@ body {
   position: relative;
   box-sizing: border-box;
   cursor: pointer; /* Keep pointer cursor */
-  box-shadow: 1px 1px 3px rgba(0, 0, 0, 0.15); /* Add shadow to box itself */
+  box-shadow: inset 1px 1px 5px rgba(0, 0, 0, 0.263),
+    inset -1px -1px 5px rgba(0, 0, 0, 0.263);
 }
 
 .mini-box.empty {
-  background-color: #f0f0f5; /* Lighter background when empty */
+  background-color: #f3c35b; /* Lighter background when empty */
 }
 
 .mini-box.empty .mini-box-placeholder {
@@ -674,11 +693,6 @@ body {
   z-index: 9999; /* Ensure it's on top */
 }
 
-/* Tooltip (Simple browser default) */
-[title] {
-  cursor: help;
-}
-
 /* Buttons */
 .action-buttons {
   margin-top: 20px;
@@ -689,28 +703,34 @@ body {
 .action-buttons button {
   padding: 10px 20px;
   font-size: 1em;
-  border: none;
+
   border-radius: 5px;
   cursor: pointer;
   transition: background-color 0.2s ease;
 }
 
 .serve-button {
-  background-color: #2196f3;
-  color: white;
+  background-color: #f7a541;
+  border: 2px solid #000000;
+  color: #f9db92;
+  box-shadow: inset 1px 1px 5px rgba(0, 0, 0, 0.263),
+    inset -1px -1px 5px rgba(0, 0, 0, 0.263);
 }
 
 .serve-button:hover {
-  background-color: #1976d2;
+  background-color: #f3c35b;
 }
 
 .print-button {
-  background-color: #9e9e9e;
-  color: white;
+  background-color: #f7a541;
+  border: 2px solid #000000;
+  color: #f9db92;
+  box-shadow: inset 1px 1px 5px rgba(0, 0, 0, 0.263),
+    inset -1px -1px 5px rgba(0, 0, 0, 0.263);
 }
 
 .print-button:hover {
-  background-color: #757575;
+  background-color: #f3c35b;
 }
 
 /* Summary Modal */
@@ -728,13 +748,14 @@ body {
 }
 
 .modal-content {
-  background-color: #fff;
+  background-color: #f68e3e;
   padding: 30px;
   border-radius: 8px;
   max-width: 80%;
   max-height: 80%;
   overflow-y: auto;
-  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+  box-shadow: inset 3px 3px 5px rgba(0, 0, 0, 0.552),
+    inset -3px -3px 5px rgba(0, 0, 0, 0.552);
   position: relative;
 }
 
@@ -746,7 +767,7 @@ body {
   border: none;
   font-size: 1.5em;
   cursor: pointer;
-  color: #888;
+  color: #000000;
 }
 .modal-close-button:hover {
   color: #333;
@@ -754,7 +775,7 @@ body {
 
 .modal-content h2 {
   margin-top: 0;
-  color: #333;
+  color: #f9db92;
 }
 
 .summary-text {
@@ -771,7 +792,7 @@ body {
 
 .qr-code-container p {
   margin-bottom: 10px;
-  color: #666;
+  color: #f9db92;
 }
 
 /* Print Styles */

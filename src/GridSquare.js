@@ -40,7 +40,7 @@ function GridSquare({
           onDeleteAction={onDeleteAction} // <-- Pass it down
         />
       ) : (
-        <span className="empty-placeholder">Drop here</span> // Placeholder text
+        <span className="empty-placeholder"></span> // Placeholder text
       )}
     </div>
   );
