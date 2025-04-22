@@ -51,49 +51,114 @@ body {
 
 /* Action Palette */
 .action-palette {
-  background-color: #fff;
-  padding: 15px;
-  border-radius: 8px;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-}
-
-.action-palette h3 {
-  margin-top: 0;
-  margin-bottom: 10px;
-  color: #333;
-}
-
-.action-list {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 10px;
-}
-
-/* Action Item */
-.action-item {
-  border: 1px dashed #ccc;
+  /* Optional: Add some padding if needed */
   padding: 10px;
+  border: 1px solid #ccc;
   border-radius: 5px;
-  cursor: grab;
-  text-align: center;
   background-color: #f9f9f9;
-  transition: background-color 0.2s ease;
-  min-width: 60px; /* Ensure minimum width */
+  display: flex; /* Use flexbox for layout */
+  flex-direction: column; /* Stack navigation and list vertically */
+  min-height: 200px; /* Ensure it has some minimum height */
 }
 
-.action-item:hover {
+.category-navigation {
+  display: flex;
+  justify-content: space-between; /* Pushes arrows to sides */
+  align-items: center;
+  padding: 5px 0 10px 0; /* Add some padding below */
+  border-bottom: 1px solid #eee; /* Separator line */
+  margin-bottom: 10px; /* Space between nav and action list */
+}
+
+.category-title {
+  margin: 0 10px; /* Space around the title */
+  font-size: 1.1em;
+  text-align: center;
+  flex-grow: 1; /* Allow title to take up space */
+  white-space: nowrap; /* Prevent wrapping */
+  overflow: hidden; /* Hide overflow */
+  text-overflow: ellipsis; /* Add ellipsis if too long */
+}
+
+.category-arrow {
+  background: none;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  padding: 2px 8px;
+  font-size: 1.2em;
+  cursor: pointer;
+  line-height: 1;
+  transition: background-color 0.2s ease;
+}
+
+.category-arrow:hover:not(:disabled) {
   background-color: #eee;
 }
 
+.category-arrow:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.action-list {
+  /* --- REMOVE --- */
+  /* display: flex; */
+  /* flex-wrap: wrap; */
+  /* justify-content: flex-start; */
+
+  /* --- ADD --- */
+  display: grid;
+  grid-template-columns: repeat(4, 1fr); /* Create 4 equal columns */
+  align-content: start; /* Align rows to the top */
+
+  /* --- KEEP --- */
+  gap: 8px; /* Spacing between action items */
+  flex-grow: 1; /* Allow list to fill remaining vertical space in the flex parent */
+  overflow-y: auto; /* Add scroll if items overflow vertically */
+}
+
+.action-item {
+  /* Adjust styles if needed, e.g., fixed width */
+  /* width: 70px; */
+  /* height: 70px; */
+  /* ... existing action-item styles ... */
+  background-color: #fff;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  padding: 5px;
+  text-align: center;
+  cursor: grab;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  transition: box-shadow 0.2s ease;
+}
+
+.action-item:hover {
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.15);
+}
+
 .action-item span {
-  font-size: 1.5em; /* Icon size */
-  display: block;
+  /* Icon */
+  font-size: 1.5em; /* Adjust icon size */
+  margin-bottom: 3px;
 }
 
 .action-item p {
-  margin: 5px 0 0;
-  font-size: 0.8em;
-  color: #555;
+  /* Name */
+  font-size: 0.75em;
+  margin: 0;
+  line-height: 1.2;
+  color: #333;
+}
+
+.no-actions-message {
+  width: 100%;
+  text-align: center;
+  color: #888;
+  margin-top: 20px;
 }
 
 /* Recipe Grid */
