@@ -1,5 +1,5 @@
 // src/App.js
-import React, { useState, useCallback, useRef } from "react"; // Import useRef
+import React, { useState, useCallback, useRef, useEffect } from "react"; // Added useEffect
 import {
   DndContext,
   PointerSensor,
@@ -10,14 +10,19 @@ import {
   closestCenter,
 } from "@dnd-kit/core";
 import { v4 as uuidv4 } from "uuid";
-import jsPDF from "jspdf"; // Import jsPDF
-import html2canvas from "html2canvas"; // Import html2canvas
+// REMOVE jsPDF and html2canvas imports
+// import jsPDF from "jspdf";
+// import html2canvas from "html2canvas";
 import {
   ref as storageRef,
   uploadBytes,
   getDownloadURL,
-} from "firebase/storage"; // Firebase imports
-import { storage } from "./firebase"; // Import configured storage instance
+} from "firebase/storage";
+import { storage } from "./firebase";
+
+// --- Import @react-pdf/renderer ---
+import { BlobProvider } from "@react-pdf/renderer";
+import RecipePdfDocument from "./RecipePdfDocument"; // Import the new PDF component
 
 // ... (other imports remain the same)
 import RecipeInfoForm from "./RecipeInfoForm";
@@ -25,9 +30,9 @@ import ActionPalette from "./ActionPalette";
 import RecipeGrid from "./RecipeGrid";
 import SummaryModal from "./SummaryModal";
 import ActionItem from "./ActionItem";
-import PlacedAction from "./PlacedAction";
+// PlacedAction is still needed for the web UI grid
+// import PlacedAction from "./PlacedAction";
 import { findActionById } from "./actions";
-// import { createEmptySquare } from "./utils"; // Assuming createEmptySquare is in utils or defined here
 
 import "./App.css";
 
@@ -35,15 +40,14 @@ import "./App.css";
 const GRID_SIZE = 5;
 
 // Helper to create the empty state for a square
-const createEmptySquare = () => ({ action: null, label: "", miniBoxes: [] }); // miniBoxes is array of {id, action}
+const createEmptySquare = () => ({ action: null, label: "", miniBoxes: [] });
 
-// Initialize Grid State with new miniBox structure (KEEP ONLY THIS ONE)
+// Initialize Grid State
 const initialGridItems = {};
 for (let r = 0; r < GRID_SIZE; r++) {
   for (let c = 0; c < GRID_SIZE; c++) {
     const id = `square-${r}-${c}`;
-    // MiniBoxes now store an action object or null
-    initialGridItems[id] = { action: null, label: "", miniBoxes: [] };
+    initialGridItems[id] = createEmptySquare();
   }
 }
 
@@ -57,24 +61,31 @@ function App() {
   const [gridItems, setGridItems] = useState(initialGridItems);
   const [activeDragData, setActiveDragData] = useState(null);
   const [isSummaryModalOpen, setIsSummaryModalOpen] = useState(false);
-  // const [summaryText, setSummaryText] = useState("");
-  const [qrData, setQrData] = useState(""); // Will hold the PDF URL
-  const [isLoadingPdf, setIsLoadingPdf] = useState(false); // Loading state
-  const [pdfError, setPdfError] = useState(null); // Error state
+  const [qrData, setQrData] = useState("");
+  const [isLoadingPdf, setIsLoadingPdf] = useState(false);
+  const [pdfError, setPdfError] = useState(null);
 
-  const gridRef = useRef(null); // Create a ref for the RecipeGrid
-  // const pdfCaptureRef = useRef(null); // REMOVE or comment out this ref - no longer needed
+  // --- NEW State: PDF Blob ---
+  // Store the generated blob temporarily before upload trigger
+  const [pdfBlob, setPdfBlob] = useState(null);
+  // Flag to indicate if PDF generation is complete (needed by BlobProvider)
+  const [pdfGenerated, setPdfGenerated] = useState(false);
+  // Flag to trigger PDF generation
+  const [triggerPdfGeneration, setTriggerPdfGeneration] = useState(false);
+
+  // Ref for the VISIBLE grid (still needed for print maybe, or just structure)
+  const gridRef = useRef(null);
 
   const sensors = useSensors(
     useSensor(PointerSensor),
     useSensor(KeyboardSensor)
   );
 
+  // --- Callbacks (handleRecipeInfoChange, handleLabelChange, handleDeleteAction, handleAddMiniBox, handleMiniBoxDelete) remain the same ---
   const handleRecipeInfoChange = (newInfo) => {
     setRecipeInfo(newInfo);
   };
 
-  // --- Grid Item Update Callbacks (no changes needed) ---
   const handleLabelChange = useCallback((squareId, newLabel) => {
     setGridItems((prev) => ({
       ...prev,
@@ -82,86 +93,47 @@ function App() {
     }));
   }, []);
 
-  // --- NEW: Handler to delete an action from a main grid square ---
   const handleDeleteAction = useCallback((squareIdToDelete) => {
     console.log("Deleting action from square:", squareIdToDelete);
     setGridItems((currentGridItems) => {
-      // Check if the square exists to avoid errors
       if (!currentGridItems[squareIdToDelete]) {
         console.warn(`Square ${squareIdToDelete} not found for deletion.`);
         return currentGridItems;
       }
-      // Create a copy and update the specific square
       return {
         ...currentGridItems,
-        [squareIdToDelete]: createEmptySquare(), // Reset to empty
+        [squareIdToDelete]: createEmptySquare(),
       };
     });
-  }, []); // No dependencies needed if createEmptySquare is stable
+  }, []);
 
-  // --- UPDATED: handleAddMiniBox ---
   const handleAddMiniBox = useCallback((squareId) => {
     setGridItems((prev) => {
       const currentSquare = prev[squareId];
-      if (!currentSquare) return prev; // Safety check
+      if (!currentSquare || currentSquare.miniBoxes.length >= 3) return prev;
 
-      const currentMiniBoxes = currentSquare.miniBoxes;
-
-      // Stop if 3 boxes already exist
-      if (currentMiniBoxes.length >= 3) {
-        console.log("Maximum mini-boxes reached for", squareId);
-        return prev;
-      }
-
-      // Determine the next available position
       const positions = ["right", "top", "bottom"];
-      const existingPositions = currentMiniBoxes.map((box) => box.position);
-      let nextPosition = null;
+      const existingPositions = currentSquare.miniBoxes.map(
+        (box) => box.position
+      );
+      let nextPosition = positions.find(
+        (pos) => !existingPositions.includes(pos)
+      );
 
-      for (const pos of positions) {
-        if (!existingPositions.includes(pos)) {
-          nextPosition = pos;
-          break;
-        }
-      }
+      if (!nextPosition) return prev;
 
-      // Should always find a position if length < 3, but safety check
-      if (!nextPosition) {
-        console.error("Could not determine next mini-box position.");
-        return prev;
-      }
-
-      // Create the new mini-box with position
-      const newMiniBox = {
-        id: uuidv4(),
-        action: null,
-        position: nextPosition, // Add position property
-      };
-
+      const newMiniBox = { id: uuidv4(), action: null, position: nextPosition };
       console.log(`Adding mini-box at position ${nextPosition} to ${squareId}`);
 
       return {
         ...prev,
         [squareId]: {
           ...currentSquare,
-          miniBoxes: [...currentMiniBoxes, newMiniBox],
+          miniBoxes: [...currentSquare.miniBoxes, newMiniBox],
         },
       };
     });
   }, []);
-  // --- END UPDATED handleAddMiniBox ---
-
-  // const handleMiniBoxChange = useCallback((squareId, miniBoxId, newText) => {
-  //   setGridItems((prev) => ({
-  //     ...prev,
-  //     [squareId]: {
-  //       ...prev[squareId],
-  //       miniBoxes: prev[squareId].miniBoxes.map((box) =>
-  //         box.id === miniBoxId ? { ...box, text: newText } : box
-  //       ),
-  //     },
-  //   }));
-  // }, []);
 
   const handleMiniBoxDelete = useCallback((squareId, miniBoxId) => {
     setGridItems((prev) => {
@@ -179,138 +151,97 @@ function App() {
     });
   }, []);
 
-  // --- Dnd Handlers ---
+  // --- Dnd Handlers (handleDragStart, handleDragEnd, handleDragCancel) remain the same ---
   const handleDragStart = (event) => {
-    const { active } = event;
-    // Store the full data associated with the dragged item
-    // active.data.current should contain what we passed in useDraggable
-    setActiveDragData(active.data.current ?? null);
+    setActiveDragData(event.active.data.current ?? null);
   };
 
   const handleDragEnd = (event) => {
     const { active, over } = event;
-    const activeData = active.data.current;
-
     setActiveDragData(null);
+    if (!over || active.id === over.id) return;
 
-    if (!over) {
-      // No drop target
-      return;
-    }
+    const activeData = active.data.current;
+    const sourceId = active.id;
+    const targetId = over.id;
 
-    const sourceId = active.id; // ID of the draggable (e.g., 'action-chop', 'square-0-1')
-    const targetId = over.id; // ID of the droppable (e.g., 'square-r-c', 'minibox-square-r-c-uuid')
-
-    // Prevent dropping on self (relevant if items could be dragged out of miniboxes later)
-    if (active.id === targetId) {
-      return;
-    }
-
-    // --- Scenario 1: Dropping a NEW action from Palette onto the MAIN Grid ---
+    // Palette -> Grid Square
     if (
-      targetId.startsWith("square-") && // Target is a grid square
-      sourceId.startsWith("action-") && // Source is an action from the palette
-      activeData?.action // We have the action data
+      targetId.startsWith("square-") &&
+      sourceId.startsWith("action-") &&
+      activeData?.action
     ) {
-      const action = activeData.action; // Get the action object { id, name, icon, ... }
-
+      const action = activeData.action;
       setGridItems((prev) => ({
         ...prev,
-        [targetId]: {
-          // Define the new state for the target square directly:
-          action: action, // Set the action that was dropped
-          label: action.name || "", // *** THIS IS THE KEY CHANGE *** Set label to action's name
-          miniBoxes: [], // Reset miniBoxes for a fresh drop onto the main square
-        },
+        [targetId]: { action: action, label: action.name || "", miniBoxes: [] },
       }));
-      return; // Exit after handling this scenario
+      return;
     }
 
-    // --- Scenario 2: Moving an EXISTING item WITHIN the MAIN Grid ---
+    // Grid Square -> Grid Square
     if (
       targetId.startsWith("square-") &&
       sourceId.startsWith("square-") &&
       activeData?.type === "grid-item" &&
       activeData?.item
     ) {
-      const draggedItemData = activeData.item; // { action, label, miniBoxes }
+      const draggedItemData = activeData.item;
       setGridItems((prev) => {
         const newGrid = { ...prev };
-        newGrid[targetId] = {
-          // Place dragged item data
-          action: draggedItemData.action,
-          label: draggedItemData.label,
-          miniBoxes: draggedItemData.miniBoxes, // Move miniBoxes along with the main action
-        };
-        newGrid[sourceId] = createEmptySquare(); // Clear source
+        newGrid[targetId] = { ...draggedItemData };
+        newGrid[sourceId] = createEmptySquare();
         return newGrid;
       });
       return;
     }
 
-    // --- Scenario 3: Dropping an action FROM PALETTE onto a MINI-BOX ---
+    // Palette -> MiniBox
     if (
-      targetId.startsWith("minibox-") && // Target is a mini-box
-      sourceId.startsWith("action-") && // Source is an action from the palette
+      targetId.startsWith("minibox-") &&
+      sourceId.startsWith("action-") &&
       activeData?.action
     ) {
       const droppedAction = activeData.action;
-
-      // --- CORRECTED ID PARSING ---
-      // Format: minibox-${squareId}-${box.id}
-      // Example: minibox-square-1-2-a1b2c3d4-e5f6-7890-abcd-ef1234567890
-
       const prefix = "minibox-";
-      const remainingId = targetId.substring(prefix.length); // e.g., square-1-2-a1b2c3d4-...
-
-      // Find the last hyphen that separates squareId from uuid
-      // Square ID is always square-r-c (3 parts)
-      const squareIdParts = remainingId.split("-").slice(0, 3); // ['square', 'r', 'c']
-      const parentSquareId = squareIdParts.join("-"); // 'square-r-c'
-
-      // The UUID is everything after the squareId and the hyphen following it
-      const uuidStartIndex = squareIdParts.join("-").length + 1; // +1 for the hyphen
+      const remainingId = targetId.substring(prefix.length);
+      const squareIdParts = remainingId.split("-").slice(0, 3);
+      const parentSquareId = squareIdParts.join("-");
+      const uuidStartIndex = parentSquareId.length + 1;
       const miniBoxUuid = remainingId.substring(uuidStartIndex);
 
-      // --- Add console logs for debugging ---
-      console.log("Target ID:", targetId);
-      console.log("Source ID:", sourceId);
-      console.log("Dropped Action:", droppedAction);
-      console.log("Extracted Parent Square ID:", parentSquareId);
-      console.log("Extracted MiniBox UUID:", miniBoxUuid);
-      // --- End Debug Logs ---
+      console.log("Drop on MiniBox:", {
+        targetId,
+        sourceId,
+        parentSquareId,
+        miniBoxUuid,
+      });
 
       setGridItems((prev) => {
-        // Ensure the parent square exists
         if (!prev[parentSquareId]) {
           console.error("Parent square not found:", parentSquareId);
-          return prev; // Return previous state if parent not found
+          return prev;
         }
-
-        // Find the target mini-box and update its action
-        let foundMiniBox = false; // Flag to check if update happened
+        let foundMiniBox = false;
         const updatedMiniBoxes = prev[parentSquareId].miniBoxes.map((mb) => {
           if (mb.id === miniBoxUuid) {
             console.log(
               `Updating MiniBox ${mb.id} in square ${parentSquareId}`
             );
             foundMiniBox = true;
-            return { ...mb, action: droppedAction }; // Update the action
+            return { ...mb, action: droppedAction };
           }
           return mb;
         });
 
-        // If the target mini-box wasn't found (e.g., parsing error), return prev state
         if (!foundMiniBox) {
           console.error(
-            "Target MiniBox UUID not found in parent square:",
+            "Target MiniBox UUID not found:",
             miniBoxUuid,
             parentSquareId
           );
           return prev;
         }
-
-        // Return the updated state
         return {
           ...prev,
           [parentSquareId]: {
@@ -319,248 +250,87 @@ function App() {
           },
         };
       });
-      return; // Handled
+      return;
     }
-
-    // --- Optional: Handle dragging from Grid back to Palette (Remove item) ---
-    // ...
-
-    // --- Optional: Handle dragging from MiniBox (e.g., to clear it or move it) ---
-    // This would require making MiniBox draggable and adding more logic here.
   };
 
   const handleDragCancel = () => {
-    setActiveDragData(null); // Clear active item on cancel
+    setActiveDragData(null);
   };
 
-  // --- Updated Serve Function ---
-  const handleServe = async () => {
-    if (!gridRef.current) {
-      /* ... error handling ... */ return;
-    }
-    setIsLoadingPdf(true);
+  // --- PDF Generation and Upload Logic ---
+
+  // Function to trigger PDF generation via BlobProvider
+  const handleGeneratePdf = () => {
+    console.log("Triggering PDF generation...");
+    setIsLoadingPdf(true); // Show loading state early
     setPdfError(null);
     setQrData("");
-    setIsSummaryModalOpen(true);
+    setPdfBlob(null); // Clear previous blob
+    setPdfGenerated(false); // Reset generated flag
+    setIsSummaryModalOpen(true); // Open modal
+    setTriggerPdfGeneration(true); // Signal BlobProvider to render
+  };
+
+  // Function to upload the generated blob
+  const uploadPdfBlob = async (blobToUpload) => {
+    if (!blobToUpload) {
+      console.error("Upload attempt with no blob.");
+      setPdfError("PDF Blob was not generated correctly.");
+      setIsLoadingPdf(false);
+      return;
+    }
+    console.log("Starting PDF upload...");
+    // Keep isLoadingPdf true during upload
 
     try {
-      const canvas = await html2canvas(gridRef.current, {
-        scale: 1.5,
-        useCORS: true,
-        backgroundColor: "#f9db92",
-        logging: true,
-
-        onclone: (clonedDoc) => {
-          console.log("PDF Clone: Starting style adjustments.");
-
-          // --- Style Grid Squares ---
-          const gridSquaresInPdf = clonedDoc.querySelectorAll(".grid-square");
-          gridSquaresInPdf.forEach((square) => {
-            // Check if it's empty - you might want different styles?
-            const isEmpty = square.classList.contains("empty");
-            // --- APPLY BACKGROUND EXPLICITLY ---
-            // Use the intended background color from your CSS
-            // Assuming empty squares might be slightly different or just white
-            square.style.backgroundColor = isEmpty ? "#f8f8f8" : "#e9e9e9"; // Adjust these colors as needed!
-            square.style.border = "1px solid #ccc"; // Ensure border is visible
-            // Ensure relative positioning for PlacedAction inside
-            square.style.position = "relative";
-          });
-          // --- End Grid Square Styling ---
-
-          // --- Style Placed Actions ---
-          const placedActionsInPdf =
-            clonedDoc.querySelectorAll(".placed-action");
-          placedActionsInPdf.forEach((pa) => {
-            pa.style.position = "relative"; // Ensure context for absolute children
-            pa.style.overflow = "visible"; // Ensure mini-boxes aren't clipped
-            pa.style.backgroundColor = "transparent"; // Make sure PA itself is transparent
-          });
-          // --- End Placed Action Styling ---
-
-          // --- Style Mini-Box Containers (Positioning - Should be correct from previous step) ---
-          const positionClasses = {
-            /* ... */
-          };
-          Object.entries(positionClasses).forEach(
-            ([posIdentifier, selector]) => {
-              const containers = clonedDoc.querySelectorAll(selector);
-              containers.forEach((container, index) => {
-                // ... (Keep existing positioning logic) ...
-                container.style.backgroundColor = "transparent"; // Ensure container is transparent
-              });
-            }
-          );
-          // --- End container styling ---
-
-          // --- Style individual MiniBoxes ---
-          const miniBoxesInPdf = clonedDoc.querySelectorAll(".mini-box");
-          miniBoxesInPdf.forEach((box) => {
-            box.style.padding = "3px 5px";
-            box.style.minHeight = "28px";
-            box.style.minWidth = "32px";
-            box.style.border = "1px solid #ccc";
-            // --- ENSURE BACKGROUND ---
-            box.style.backgroundColor = "#ffffff"; // Keep mini-boxes white (or adjust)
-            box.style.overflow = "hidden"; // Prevent icon overflow if needed
-          });
-          // --- End MiniBox styling ---
-
-          // --- Style MiniBox Icons (Ensure visibility) ---
-          const miniBoxIconsInPdf =
-            clonedDoc.querySelectorAll(".mini-box-icon");
-          miniBoxIconsInPdf.forEach((icon) => {
-            // Ensure SVG itself scales and has color if needed
-            const svg = icon.querySelector("svg");
-            if (svg) {
-              svg.style.maxWidth = "100%";
-              svg.style.maxHeight = "100%";
-              // You might need to force a fill color if it's not rendering
-              // svg.style.fill = '#000000'; // Example: Force black fill
-            }
-          });
-          // --- End MiniBox Icon styling ---
-
-          // --- Style Main Action Icons (Ensure visibility) ---
-          const mainActionIconsInPdf = clonedDoc.querySelectorAll(
-            ".placed-action-icon"
-          );
-          mainActionIconsInPdf.forEach((icon) => {
-            const svg = icon.querySelector("svg");
-            if (svg) {
-              svg.style.maxWidth = "80%"; // Adjust size as needed for PDF
-              svg.style.maxHeight = "80%";
-              // svg.style.fill = '#000000'; // Example: Force black fill if needed
-            }
-          });
-          // --- End Main Action Icon styling ---
-
-          // --- Style Input Labels as Static Text ---
-          const labelsInPdf = clonedDoc.querySelectorAll(".label-input");
-          labelsInPdf.forEach((input) => {
-            const text = input.value || input.placeholder || "";
-            const parent = input.parentNode;
-            if (parent) {
-              const textNode = clonedDoc.createElement("span");
-              textNode.textContent = text;
-              textNode.style.fontSize = "9px"; // Adjust size
-              textNode.style.textAlign = "center";
-              textNode.style.color = "#333";
-              textNode.style.marginTop = "4px"; // Space below icon
-              textNode.style.wordBreak = "break-word";
-              parent.replaceChild(textNode, input);
-            }
-          });
-          // --- End Label Styling ---
-        }, // End of onclone
-      }); // End of html2canvas call
-
-      // ... rest of PDF generation (canvas.toDataURL, jsPDF, upload) ...
-
-      const imgData = canvas.toDataURL("image/jpeg", 0.9);
-
-      // 2. Create PDF using jsPDF
-      // Calculate dimensions to fit A4 page (210 x 297 mm) with margins
-      const pdf = new jsPDF("p", "mm", "a4");
-      const pdfWidth = pdf.internal.pageSize.getWidth();
-      const pdfHeight = pdf.internal.pageSize.getHeight();
-      const margin = 10; // 10mm margin
-      const imgProps = pdf.getImageProperties(imgData); // jsPDF usually detects JPEG automatically
-      const imgWidth = pdfWidth - margin * 2;
-      const imgHeight = (imgProps.height * imgWidth) / imgProps.width;
-      let positionY = margin;
-
-      // Add Title/Info (Optional but recommended)
-      pdf.setFontSize(16);
-      pdf.text(recipeInfo.name || "Untitled Recipe", margin, positionY);
-      positionY += 8;
-      pdf.setFontSize(10);
-      pdf.text(`Author: ${recipeInfo.author || "N/A"}`, margin, positionY);
-      positionY += 5;
-      pdf.text(`Cook Time: ${recipeInfo.cookTime || "N/A"}`, margin, positionY);
-      positionY += 5;
-      pdf.text(`Date: ${recipeInfo.date || "N/A"}`, margin, positionY);
-      positionY += 10; // Add space before grid image
-
-      // Check if image fits on the current page
-      if (positionY + imgHeight > pdfHeight - margin) {
-        pdf.addPage(); // Add new page if it doesn't fit
-        positionY = margin; // Reset Y position for new page
-      }
-
-      pdf.addImage(imgData, "JPEG", margin, positionY, imgWidth, imgHeight);
-
-      // 3. Get PDF as Blob
-      const pdfBlob = pdf.output("blob");
-
-      // 4. Upload Blob to Firebase Storage
       const pdfFileName = `recipe-${uuidv4()}.pdf`;
-      const fileRef = storageRef(storage, `recipes/${pdfFileName}`); // Path in storage
-
+      const fileRef = storageRef(storage, `recipes/${pdfFileName}`);
       console.log(`Uploading ${pdfFileName} to Firebase Storage...`);
-      const uploadResult = await uploadBytes(fileRef, pdfBlob);
+
+      const uploadResult = await uploadBytes(fileRef, blobToUpload);
       console.log("Upload successful:", uploadResult);
 
-      // 5. Get Download URL
       const downloadURL = await getDownloadURL(uploadResult.ref);
       console.log("Download URL:", downloadURL);
 
-      // 6. Update State
-      setQrData(downloadURL); // Set QR data to the PDF URL
-      // Keep modal open, loading state will be turned off below
+      setQrData(downloadURL); // Set QR data for the modal
+      setPdfError(null); // Clear any previous error
     } catch (error) {
-      console.error("Error generating or uploading PDF:", error);
-      setPdfError(`Failed to generate/upload PDF: ${error.message}`);
-      // Keep modal open to show error
+      console.error("Error uploading PDF:", error);
+      setPdfError(`Failed to upload PDF: ${error.message || error}`);
+      setQrData(""); // Clear QR data on error
     } finally {
-      setIsLoadingPdf(false); // Turn off loading state regardless of success/failure
+      setIsLoadingPdf(false); // Turn off loading state
+      setTriggerPdfGeneration(false); // Generation/upload cycle complete
+      setPdfBlob(null); // Clear the blob from state
+      setPdfGenerated(false); // Reset generated flag
     }
   };
 
+  // Effect to upload the blob once it's generated and stored in state
+  useEffect(() => {
+    if (pdfBlob && pdfGenerated) {
+      console.log("Blob detected in state, initiating upload...");
+      uploadPdfBlob(pdfBlob);
+    }
+  }, [pdfBlob, pdfGenerated]); // Depend on blob and the generated flag
+
+  // --- End PDF Logic ---
+
+  // Print function remains the same
   const handlePrint = () => {
     window.print();
   };
 
-  // --- Render Drag Overlay Content ---
+  // Drag Overlay rendering remains the same
   const renderDragOverlay = () => {
     if (!activeDragData) return null;
-
     const action = activeDragData.action || activeDragData.item?.action;
-    const name = action?.name || "Item";
-    const IconComponent = action?.icon; // Get the SVG component
-
-    // Common style for overlay items
-    const overlayStyle = {
-      backgroundColor: "#f9db92",
-      padding: "8px 12px",
-      borderRadius: "4px",
-      boxShadow: "0 2px 8px rgba(0,0,0,0.2)",
-      display: "flex",
-      alignItems: "center",
-      gap: "8px",
-    };
-
-    // If dragging from the palette or grid, render icon and name
-    if (action && IconComponent) {
-      return (
-        <div style={overlayStyle} className="drag-overlay">
-          <span
-            className="icon-wrapper"
-            style={{ width: "24px", height: "24px" }}
-          >
-            {" "}
-            {/* Adjust size as needed */}
-            <IconComponent className="svg-icon drag-overlay" />
-          </span>
-          <p style={{ margin: 0, fontSize: "0.9em", fontWeight: "bold" }}>
-            {name}
-          </p>
-        </div>
-      );
+    if (action) {
+      return <ActionItem action={action} />; // Use ActionItem for consistent look
     }
-
-    // Fallback if something goes wrong (shouldn't usually happen)
-    return <div style={overlayStyle}>Dragging...</div>;
+    return null;
   };
 
   return (
@@ -572,9 +342,9 @@ function App() {
       onDragCancel={handleDragCancel}
     >
       <div className="app-container">
+        {/* Left and Right Panels remain structurally the same */}
         <div className="left-panel">
           <RecipeInfoForm info={recipeInfo} onChange={handleRecipeInfoChange} />
-          {/* ActionPalette uses the new actions.js automatically */}
           <ActionPalette />
         </div>
 
@@ -584,22 +354,24 @@ function App() {
               <h2 className="cooking">COOKING</h2>
               <h2 className="notations">NOTATIONS UI</h2>
             </div>
+            {/* RecipeGrid component itself doesn't need changes for PDF generation */}
             <RecipeGrid
-              ref={gridRef}
+              ref={gridRef} // Keep ref if needed for other purposes (like print styling target)
               items={gridItems}
               onLabelChange={handleLabelChange}
               onAddMiniBox={handleAddMiniBox}
               onMiniBoxDelete={handleMiniBoxDelete}
-              onDeleteAction={handleDeleteAction} // Ensure this is passed
+              onDeleteAction={handleDeleteAction}
             />
           </div>
           <div className="action-buttons">
+            {/* --- UPDATED SERVE BUTTON --- */}
             <button
               className="serve-button"
-              onClick={handleServe}
-              disabled={isLoadingPdf}
+              onClick={handleGeneratePdf} // Trigger generation first
+              disabled={isLoadingPdf} // Disable while generating/uploading
             >
-              {isLoadingPdf ? "Generating PDF..." : "SERVE"}
+              {isLoadingPdf ? "Processing PDF..." : "SERVE"}
             </button>
             <button className="print-button" onClick={handlePrint}>
               Print Grid
@@ -608,36 +380,61 @@ function App() {
         </div>
       </div>
 
-      {/* DragOverlay uses the updated render function */}
-      {/* DragOverlay uses the updated render function */}
-      <DragOverlay className="drag-overlay">
-        {/* --- CORRECTED LOGIC --- */}
-        {
-          activeDragData // Check if activeDragData exists
-            ? (() => {
-                // Use an IIFE or helper function to extract data cleanly
-                // Extract the action object from activeDragData
-                // It might be directly under 'action' (from palette)
-                // or nested under 'item.action' (from grid)
-                const action =
-                  activeDragData.action || activeDragData.item?.action;
+      {/* DragOverlay rendering remains the same */}
+      <DragOverlay className="drag-overlay">{renderDragOverlay()}</DragOverlay>
 
-                // Only render if we successfully extracted an action object
-                if (action) {
-                  // The ActionItem component expects the 'action' object as a prop
-                  return <ActionItem action={action} />;
-                }
-                // If no action could be extracted, render nothing
-                return null;
-              })() // Immediately invoke the function expression
-            : null /* Render nothing if not dragging (activeDragData is null) */
-        }
-        {/* --- END CORRECTION --- */}
-      </DragOverlay>
+      {/* --- BlobProvider for PDF Generation --- */}
+      {/* Render BlobProvider only when triggered */}
+      {triggerPdfGeneration && (
+        <BlobProvider
+          document={
+            <RecipePdfDocument recipeInfo={recipeInfo} gridItems={gridItems} />
+          }
+        >
+          {({ blob, url, loading, error }) => {
+            // This function runs when the blob status changes
 
+            // Handle loading state (optional, as we use isLoadingPdf)
+            // if (loading && !isLoadingPdf) setIsLoadingPdf(true);
+
+            // Handle generation error
+            if (error) {
+              console.error("Error generating PDF blob:", error);
+              // Check if error state isn't already set to avoid loops
+              if (!pdfError) {
+                setPdfError(
+                  `Failed to generate PDF: ${error.message || error}`
+                );
+                setIsLoadingPdf(false); // Stop loading on error
+                setTriggerPdfGeneration(false); // Stop trying to generate
+              }
+              return null; // Don't proceed further
+            }
+
+            // When blob is ready and not already processed
+            if (blob && !loading && !pdfGenerated && !pdfBlob) {
+              console.log("PDF Blob generated successfully.");
+              setPdfBlob(blob); // Store the blob in state
+              setPdfGenerated(true); // Mark as generated
+              // The useEffect hook will now trigger the upload
+            }
+
+            // Render nothing visually here, it works in the background
+            return null;
+          }}
+        </BlobProvider>
+      )}
+
+      {/* Summary Modal remains the same, props are updated by the new flow */}
       <SummaryModal
         isOpen={isSummaryModalOpen}
-        onClose={() => setIsSummaryModalOpen(false)}
+        onClose={() => {
+          setIsSummaryModalOpen(false);
+          // Optionally reset states if modal is closed prematurely
+          // setIsLoadingPdf(false);
+          // setPdfError(null);
+          // setTriggerPdfGeneration(false);
+        }}
         qrData={qrData}
         isLoading={isLoadingPdf}
         error={pdfError}
