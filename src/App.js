@@ -347,74 +347,115 @@ function App() {
       const canvas = await html2canvas(gridRef.current, {
         scale: 1.5,
         useCORS: true,
-        backgroundColor: "#ffffff",
+        backgroundColor: "#f9db92",
         logging: true,
 
         onclone: (clonedDoc) => {
           console.log("PDF Clone: Starting style adjustments.");
 
-          // --- Style containers based on position ---
-          const positionClasses = {
-            right: ".mini-box-container-right",
-            top: ".mini-box-container-top",
-            bottom: ".mini-box-container-bottom",
-          };
-
-          Object.entries(positionClasses).forEach(([pos, selector]) => {
-            const containers = clonedDoc.querySelectorAll(selector);
-            console.log(
-              `PDF Clone: Found ${containers.length} containers for ${pos}`
-            );
-            containers.forEach((container, index) => {
-              console.log(`PDF Clone: Styling ${pos} container ${index}`);
-              container.style.position = "absolute";
-              container.style.transform = "none"; // Base reset
-              container.style.zIndex = "5";
-              container.style.backgroundColor = "transparent";
-              container.style.boxShadow = "none";
-              container.style.padding = "0";
-              container.style.gap = "2px";
-              container.style.border = "none";
-              container.style.margin = "0"; // Reset margin
-
-              // Apply position-specific styles
-              if (pos === "right") {
-                container.style.top = "55%"; // Adjust as needed
-                container.style.transform = "translateY(-50%)";
-                container.style.left = "100%";
-                container.style.marginLeft = "-5px"; // Adjust as needed
-              } else if (pos === "top") {
-                container.style.left = "50%";
-                container.style.transform = "translateX(-50%)";
-                container.style.top = "0";
-                container.style.marginTop = "-5px"; // Pull slightly outside top edge
-              } else if (pos === "bottom") {
-                container.style.left = "50%";
-                container.style.transform = "translateX(-50%)";
-                container.style.bottom = "0";
-                container.style.marginBottom = "-5px"; // Pull slightly outside bottom edge
-              }
-            });
+          // --- Style Grid Squares ---
+          const gridSquaresInPdf = clonedDoc.querySelectorAll(".grid-square");
+          gridSquaresInPdf.forEach((square) => {
+            // Check if it's empty - you might want different styles?
+            const isEmpty = square.classList.contains("empty");
+            // --- APPLY BACKGROUND EXPLICITLY ---
+            // Use the intended background color from your CSS
+            // Assuming empty squares might be slightly different or just white
+            square.style.backgroundColor = isEmpty ? "#f8f8f8" : "#e9e9e9"; // Adjust these colors as needed!
+            square.style.border = "1px solid #ccc"; // Ensure border is visible
+            // Ensure relative positioning for PlacedAction inside
+            square.style.position = "relative";
           });
+          // --- End Grid Square Styling ---
+
+          // --- Style Placed Actions ---
+          const placedActionsInPdf =
+            clonedDoc.querySelectorAll(".placed-action");
+          placedActionsInPdf.forEach((pa) => {
+            pa.style.position = "relative"; // Ensure context for absolute children
+            pa.style.overflow = "visible"; // Ensure mini-boxes aren't clipped
+            pa.style.backgroundColor = "transparent"; // Make sure PA itself is transparent
+          });
+          // --- End Placed Action Styling ---
+
+          // --- Style Mini-Box Containers (Positioning - Should be correct from previous step) ---
+          const positionClasses = {
+            /* ... */
+          };
+          Object.entries(positionClasses).forEach(
+            ([posIdentifier, selector]) => {
+              const containers = clonedDoc.querySelectorAll(selector);
+              containers.forEach((container, index) => {
+                // ... (Keep existing positioning logic) ...
+                container.style.backgroundColor = "transparent"; // Ensure container is transparent
+              });
+            }
+          );
           // --- End container styling ---
 
-          // --- Adjust individual MiniBox size/style within PDF ---
+          // --- Style individual MiniBoxes ---
           const miniBoxesInPdf = clonedDoc.querySelectorAll(".mini-box");
           miniBoxesInPdf.forEach((box) => {
             box.style.padding = "3px 5px";
             box.style.minHeight = "28px";
             box.style.minWidth = "32px";
             box.style.border = "1px solid #ccc";
-            box.style.backgroundColor = "#fff"; // Ensure background
+            // --- ENSURE BACKGROUND ---
+            box.style.backgroundColor = "#ffffff"; // Keep mini-boxes white (or adjust)
+            box.style.overflow = "hidden"; // Prevent icon overflow if needed
           });
+          // --- End MiniBox styling ---
+
+          // --- Style MiniBox Icons (Ensure visibility) ---
           const miniBoxIconsInPdf =
             clonedDoc.querySelectorAll(".mini-box-icon");
           miniBoxIconsInPdf.forEach((icon) => {
-            icon.style.fontSize = "1em";
+            // Ensure SVG itself scales and has color if needed
+            const svg = icon.querySelector("svg");
+            if (svg) {
+              svg.style.maxWidth = "100%";
+              svg.style.maxHeight = "100%";
+              // You might need to force a fill color if it's not rendering
+              // svg.style.fill = '#000000'; // Example: Force black fill
+            }
           });
-          // --- End individual MiniBox styling ---
-        },
-      });
+          // --- End MiniBox Icon styling ---
+
+          // --- Style Main Action Icons (Ensure visibility) ---
+          const mainActionIconsInPdf = clonedDoc.querySelectorAll(
+            ".placed-action-icon"
+          );
+          mainActionIconsInPdf.forEach((icon) => {
+            const svg = icon.querySelector("svg");
+            if (svg) {
+              svg.style.maxWidth = "80%"; // Adjust size as needed for PDF
+              svg.style.maxHeight = "80%";
+              // svg.style.fill = '#000000'; // Example: Force black fill if needed
+            }
+          });
+          // --- End Main Action Icon styling ---
+
+          // --- Style Input Labels as Static Text ---
+          const labelsInPdf = clonedDoc.querySelectorAll(".label-input");
+          labelsInPdf.forEach((input) => {
+            const text = input.value || input.placeholder || "";
+            const parent = input.parentNode;
+            if (parent) {
+              const textNode = clonedDoc.createElement("span");
+              textNode.textContent = text;
+              textNode.style.fontSize = "9px"; // Adjust size
+              textNode.style.textAlign = "center";
+              textNode.style.color = "#333";
+              textNode.style.marginTop = "4px"; // Space below icon
+              textNode.style.wordBreak = "break-word";
+              parent.replaceChild(textNode, input);
+            }
+          });
+          // --- End Label Styling ---
+        }, // End of onclone
+      }); // End of html2canvas call
+
+      // ... rest of PDF generation (canvas.toDataURL, jsPDF, upload) ...
 
       const imgData = canvas.toDataURL("image/jpeg", 0.9);
 
@@ -490,7 +531,7 @@ function App() {
 
     // Common style for overlay items
     const overlayStyle = {
-      backgroundColor: "#fff",
+      backgroundColor: "#f9db92",
       padding: "8px 12px",
       borderRadius: "4px",
       boxShadow: "0 2px 8px rgba(0,0,0,0.2)",
@@ -502,14 +543,14 @@ function App() {
     // If dragging from the palette or grid, render icon and name
     if (action && IconComponent) {
       return (
-        <div style={overlayStyle} className="drag-overlay-content">
+        <div style={overlayStyle} className="drag-overlay">
           <span
             className="icon-wrapper"
             style={{ width: "24px", height: "24px" }}
           >
             {" "}
             {/* Adjust size as needed */}
-            <IconComponent className="svg-icon drag-overlay-icon" />
+            <IconComponent className="svg-icon drag-overlay" />
           </span>
           <p style={{ margin: 0, fontSize: "0.9em", fontWeight: "bold" }}>
             {name}
@@ -540,7 +581,8 @@ function App() {
         <div className="right-panel">
           <div className="recipe-grid-outer-container">
             <div className="recipe-grid-title">
-              <h2>COOKING NOTATIONS UI</h2>
+              <h2 className="cooking">COOKING</h2>
+              <h2 className="notations">NOTATIONS UI</h2>
             </div>
             <RecipeGrid
               ref={gridRef}
@@ -557,7 +599,7 @@ function App() {
               onClick={handleServe}
               disabled={isLoadingPdf}
             >
-              {isLoadingPdf ? "Generating PDF..." : "Generate PDF & QR"}
+              {isLoadingPdf ? "Generating PDF..." : "SERVE"}
             </button>
             <button className="print-button" onClick={handlePrint}>
               Print Grid
@@ -567,7 +609,31 @@ function App() {
       </div>
 
       {/* DragOverlay uses the updated render function */}
-      <DragOverlay>{renderDragOverlay()}</DragOverlay>
+      {/* DragOverlay uses the updated render function */}
+      <DragOverlay className="drag-overlay">
+        {/* --- CORRECTED LOGIC --- */}
+        {
+          activeDragData // Check if activeDragData exists
+            ? (() => {
+                // Use an IIFE or helper function to extract data cleanly
+                // Extract the action object from activeDragData
+                // It might be directly under 'action' (from palette)
+                // or nested under 'item.action' (from grid)
+                const action =
+                  activeDragData.action || activeDragData.item?.action;
+
+                // Only render if we successfully extracted an action object
+                if (action) {
+                  // The ActionItem component expects the 'action' object as a prop
+                  return <ActionItem action={action} />;
+                }
+                // If no action could be extracted, render nothing
+                return null;
+              })() // Immediately invoke the function expression
+            : null /* Render nothing if not dragging (activeDragData is null) */
+        }
+        {/* --- END CORRECTION --- */}
+      </DragOverlay>
 
       <SummaryModal
         isOpen={isSummaryModalOpen}

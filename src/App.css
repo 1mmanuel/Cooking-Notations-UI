@@ -39,10 +39,15 @@ body {
 }
 
 /* Keep the rest of the styles for .left-panel, .right-panel, etc. */
+/* Around line 49 */
 .left-panel {
-  flex: 1;
-  min-width: 250px; /* Ensure palette doesn't get too small */
-  /* Add flex-basis for better control if needed, e.g., flex-basis: 300px; */
+  flex: 1; /* Keep this for horizontal sizing */
+  /* --- ADD THESE --- */
+  display: flex;
+  flex-direction: column;
+  gap: 20px; /* Space between form and palette */
+  /* --- END ADD --- */
+  min-width: 250px;
 }
 
 .right-panel {
@@ -73,7 +78,16 @@ body {
 /* Specific sizes for different contexts (adjust as needed) */
 
 /* --- MODIFICATION START --- */
+.action-item.dragging {
+  /* --- ADD THIS LINE --- */
+  position: relative;
+  /* --- END ADD --- */
 
+  opacity: 0.9 !important; /* Make it mostly opaque (use 1 for fully opaque) */
+  z-index: 9999 !important; /* Bring it to the very front */
+  cursor: grabbing !important; /* Ensure grabbing cursor */
+  pointer-events: none; /* Prevent interference with drop targets */
+}
 /* Style the wrapper in the ActionItem for centering AND defining the box */
 .action-item .icon-wrapper {
   width: 30px; /* Define the container width */
@@ -112,11 +126,10 @@ body {
   height: 20px;
 }
 
-.drag-overlay-icon {
-  /* These can remain fixed */
+/* .drag-overlay-icon {
   width: 24px;
   height: 24px;
-}
+} */
 
 /* Style the wrapper in PlacedAction */
 .placed-action .icon-wrapper {
@@ -132,13 +145,20 @@ body {
 }
 
 /* Recipe Info Form */
+/* Around line 141 */
 .recipe-info-form {
+  /* --- ADD THESE --- */
+  flex: 1; /* Allow grow/shrink */
+  overflow: auto; /* Add scroll if needed */
+  min-height: 0; /* Allow shrinking */
+  /* --- END ADD --- */
+
   background-color: #f9db92;
   padding: 15px;
   border-radius: 15px;
   box-shadow: inset 3px 3px 5px rgba(0, 0, 0, 0.552),
     inset -3px -3px 5px rgba(0, 0, 0, 0.552);
-  margin-bottom: 20px;
+  /* margin-bottom: 20px; */ /* <<< REMOVE or COMMENT OUT this line */
 }
 
 .recipe-info-form h2 {
@@ -146,6 +166,7 @@ body {
   margin-bottom: 15px;
   color: #f7a541;
   text-shadow: #000000;
+  font-size: 2.5em;
 }
 
 .recipe-info-form label {
@@ -165,25 +186,30 @@ body {
 }
 
 /* Action Palette */
+/* Around line 170 */
 .action-palette-outer-container {
-  border-radius: 15px; /* Optional rounding */
-  padding: 20px; /* This creates the inward indentation for the content below the title */
-  background-color: #f68e3e; /* Optional subtle background */
-  margin-bottom: 20px; /* Space below the entire palette block */
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  min-height: 0;
+
+  border-radius: 15px;
+  /* padding: 20px; */ /* This is overridden below */
+  background-color: #f68e3e;
+  /* margin-bottom: 20px; */ /* <<< REMOVE or COMMENT OUT this line */
   box-shadow: inset 3px 3px 5px rgba(0, 0, 0, 0.552),
     inset -3px -3px 5px rgba(0, 0, 0, 0.552);
 
-  /* --- ADD Background Image Styles --- */
-  background-image: url("./designs/Design-elements-02.png"); /* <<< REPLACE with your image path */
-  background-size: 260px; /* Or 'contain', '100% 100%', etc. */
+  /* --- Background Image Styles --- */
+  background-image: url("./designs/Design-elements-02.png");
+  background-size: 320px;
   background-position: center center;
   background-repeat: no-repeat;
-  background-color: #f68e3e;
-  background-blend-mode: multiply; /* Optional: Blend with the background color */
-  padding: 6px 6px; /* ADD padding so text isn't at the very edge */
-  border-radius: 15px; /* Optional: Add rounded corners */
-  text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.6); /* Optional: Add shadow for readability */
-  /* --- END ADD --- */
+  /* background-color: #f68e3e; */ /* Already set above */
+  background-blend-mode: multiply;
+  padding: 6px 6px; /* Keep this padding */
+  text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.6);
 }
 
 .palette-title {
@@ -193,9 +219,18 @@ body {
   font-size: 2.5em; /* Adjust title size as needed */
   color: #f9db92; /* Adjust title color as needed */
   font-weight: 600;
+  /* --- ADD --- */
+  flex-shrink: 0; /* Prevent title from shrinking */
+  /* --- END ADD --- */
 }
 
 .action-palette {
+  /* --- ADD --- */
+  flex-grow: 1; /* Allow palette to take remaining space in outer container */
+  overflow: hidden; /* Allow scrolling within the palette if needed */
+  min-height: 0; /* Allow shrinking */
+  /* --- END ADD --- */
+
   /* Optional: Set a fixed height or min-height if desired */
   /* min-height: 300px; */
   display: flex;
@@ -253,18 +288,22 @@ body {
   grid-template-columns: repeat(2, 1fr); /* 2 columns */
   grid-template-rows: repeat(
     2,
-    80px
+    140px
   ); /* 2 rows, 80px height each (adjust as needed) */
   gap: 8px; /* Spacing between action items */
   /* REMOVE flex-grow and overflow-y */
   /* flex-grow: 1; */
   /* overflow-y: auto; */
   /* Set a fixed height based on rows and gap */
-  height: calc(
+  /* height: calc(
     80px * 2 + 8px
-  ); /* (row_height * num_rows) + (gap * (num_rows - 1)) */
+  ); */
+  /* (row_height * num_rows) + (gap * (num_rows - 1)) */
   align-content: start; /* Align content to the top if fewer than 4 items */
   margin-bottom: 10px; /* Space before pagination */
+  /* --- ADD --- */
+  flex-shrink: 0; /* Prevent grid itself from shrinking if content fits */
+  /* --- END ADD --- */
 }
 
 /* Style for placeholder divs to maintain grid structure */
@@ -293,9 +332,10 @@ body {
 }
 
 .action-item p {
-  font-size: 0.75em; /* May need adjustment based on 80px height */
+  font-size: 1.1em; /* May need adjustment based on 80px height */
   margin: 0;
   line-height: 1.2;
+
   font-weight: 700;
   color: #333;
   /* Optional text overflow handling */
@@ -344,13 +384,15 @@ body {
 }
 
 /* --- ADD Outer Container for Recipe Grid --- */
-.recipe-grid-outer-container > h2 {
+.recipe-grid-title > h2 {
   /* Target the direct h2 child */
   text-align: center; /* Center the text */
-  margin-bottom: 15px; /* Add space below the title, before the grid */
-  margin-top: 0; /* Remove default top margin if needed */
-  font-size: 1.4em; /* Optional: Adjust size */
-  color: #333; /* Optional: Adjust color */
+  margin: 0; /* Remove default top margin if needed */
+}
+
+.cooking {
+  /* Target the direct h2 child */
+  font-size: 1.5em; /* Adjust size as needed */
 }
 
 .recipe-grid-outer-container {
@@ -423,8 +465,8 @@ body {
   overflow: visible !important;
 }
 
-.grid-square.over {
-  background-color: #d3e3fd; /* Highlight when dragging over */
+.grid-square.over.empty {
+  background-color: #f9db92; /* Highlight when dragging over */
   border-style: dashed;
 }
 
@@ -447,6 +489,9 @@ body {
   position: relative; /* For positioning the plus button */
   cursor: pointer; /* <-- ADD THIS for visual feedback */
   overflow: visible !important; /* Make absolutely sure overflow is visible */
+}
+.placed-action.dragging {
+  z-index: 9999;
 }
 
 /* Placed Action */
@@ -565,56 +610,65 @@ body {
   background-color: #f9db92;
 }
 
-/* --- RENAME/ADJUST Styles for RIGHT mini-box container --- */
-.placed-action .mini-box-container-right {
-  /* Renamed from .mini-box-area */
-  position: absolute;
-  /* Positioning for live view - place it overlapping right edge */
-  top: 50%;
-  left: 100%; /* Start at the right edge */
-  transform: translateY(-50%); /* Center vertically */
-  margin-left: -10px; /* Pull back slightly to overlap */
+/* --- ADJUSTED Mini-Box Container Positioning --- */
 
-  display: flex; /* Keep flex if needed, though only one item now */
-  flex-direction: column;
-  gap: 3px;
+/* Box 1: Right (Center) - Stays the same */
+.placed-action .mini-box-container-right {
+  position: absolute;
+  top: 50%;
+  left: 100%;
+  transform: translateY(-50%);
+  margin-left: -10px; /* Overlap */
   z-index: 10;
   pointer-events: auto;
-  padding: 0; /* Remove padding if box has its own */
-  background-color: transparent; /* Remove container background */
-  border-radius: 0; /* Remove container border-radius */
-  box-shadow: none; /* Remove container shadow */
+  /* Other base styles */
+  display: flex;
+  gap: 3px;
+  padding: 0;
+  background-color: transparent;
+  border-radius: 0;
+  box-shadow: none;
 }
 
-/* --- ADD Styles for TOP mini-box container --- */
+/* Box 2: Above Box 1 */
 .placed-action .mini-box-container-top {
   position: absolute;
-  top: 0; /* Align to top edge */
-  left: 50%; /* Center horizontally */
-  transform: translate(
-    -50%,
-    -50%
-  ); /* Shift left by half width, up by half height */
-  margin-top: -10px; /* Pull up slightly to overlap */
+  bottom: 50%; /* Align bottom edge to the parent's vertical center */
+  left: 100%; /* Align left edge to the parent's right edge */
+  transform: none; /* Reset transform */
+  margin-left: -10px; /* Pull back slightly to overlap (same as right box) */
+  /* --- INCREASED MARGIN --- */
+  /* Pushes this box UP from the center line */
+  /* Calculation: (approx height of middle box / 2) + gap */
+  /* (45px / 2) + 3px = 22.5px + 3px = 25.5px -> Use 26px */
+  margin-bottom: 26px;
+
+  /* Base styles */
   z-index: 10;
   pointer-events: auto;
-  /* Add other base styles if needed (display, etc.) */
+  display: flex;
 }
 
-/* --- ADD Styles for BOTTOM mini-box container --- */
+/* Box 3: Below Box 1 */
 .placed-action .mini-box-container-bottom {
   position: absolute;
-  bottom: 0; /* Align to bottom edge */
-  left: 50%; /* Center horizontally */
-  transform: translate(
-    -50%,
-    50%
-  ); /* Shift left by half width, down by half height */
-  margin-bottom: -10px; /* Pull down slightly to overlap */
+  top: 50%; /* Align top edge to the parent's vertical center */
+  left: 100%; /* Align left edge to the parent's right edge */
+  transform: none; /* Reset transform */
+  margin-left: -10px; /* Pull back slightly to overlap (same as right box) */
+  /* --- INCREASED MARGIN --- */
+  /* Pushes this box DOWN from the center line */
+  /* Calculation: (approx height of middle box / 2) + gap */
+  /* (45px / 2) + 3px = 22.5px + 3px = 25.5px -> Use 26px */
+  margin-top: 26px;
+
+  /* Base styles */
   z-index: 10;
   pointer-events: auto;
-  /* Add other base styles if needed */
+  display: flex;
 }
+
+/* --- End Mini-Box Container Positioning --- */
 
 .add-mini-box-button:hover {
   background-color: #45a049;
@@ -716,10 +770,39 @@ body {
 
 /* Drag Overlay */
 .drag-overlay {
-  opacity: 0.8;
+  opacity: 0.7;
   cursor: grabbing;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
   z-index: 9999; /* Ensure it's on top */
+}
+
+.drag-overlay p {
+  font-size: 1.1em;
+  margin: 0;
+  line-height: 1.2;
+  font-weight: 700;
+  color: #333;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  width: 90%; /* Ensure text takes width for ellipsis */
+  overflow: hidden;
+}
+
+.drag-overlay .icon-wrapper {
+  width: 30px; /* Match action item icon size */
+  height: 30px;
+  margin-bottom: 4px;
+  /* Ensure flex properties if not inherited */
+  display: inline-flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.drag-overlay .svg-icon {
+  max-width: 100%;
+  max-height: 100%;
+  object-fit: contain;
+  display: block;
 }
 
 /* Buttons */
@@ -869,7 +952,7 @@ body {
     grid-template-rows: repeat(5, 1fr);
   }
   .grid-square {
-    background-color: #fff;
+    /* background-color: #fff !important; */ /* Causes white background */
     border: 1px solid #ccc;
     border-radius: 4px;
     display: flex; /* Keep flex for centering empty state text */
@@ -882,41 +965,59 @@ body {
     box-sizing: border-box; /* Be explicit */
     overflow: visible !important;
   }
+  .placed-action {
+    /* ... other placed-action print styles ... */
+    /* --- ADD THIS --- */
+    position: relative; /* Crucial for absolute positioning of mini-boxes */
+    /* --- END ADD --- */
+    border: none;
+    box-shadow: none;
+    background-color: transparent;
+  }
+
   /* --- Style Print Containers by Position --- */
   .placed-action .mini-box-container-right,
   .placed-action .mini-box-container-top,
   .placed-action .mini-box-container-bottom {
-    display: flex; /* Ensure displayed */
+    display: flex;
     position: absolute;
-    transform: none; /* Base reset */
+    transform: none;
     z-index: 5;
     background-color: transparent;
     box-shadow: none;
     padding: 0;
     gap: 2px;
     border: none;
-    margin: 0; /* Base reset */
+    margin: 0;
   }
 
+  /* --- VERIFY/ADJUST THESE RULES --- */
+  /* Box 1: Right (Center) - Print */
   .placed-action .mini-box-container-right {
     top: 50%;
     transform: translateY(-50%);
     left: 100%;
-    margin-left: 2px; /* Adjust for print gap */
+    margin-left: 2px; /* Adjust for print gap/overlap */
   }
 
+  /* Box 2: Above Box 1 - Print */
   .placed-action .mini-box-container-top {
-    left: 50%;
-    transform: translateX(-50%);
-    top: 0;
-    margin-top: -5px; /* Adjust for print overlap */
+    bottom: 50%; /* Align bottom to parent vertical center */
+    left: 100%; /* Align left to parent right edge */
+    transform: none;
+    margin-left: 2px; /* Align horizontally */
+    /* This value pushes it UP from the center line */
+    margin-bottom: 20px; /* Adjust if needed for print spacing */
   }
 
+  /* Box 3: Below Box 1 - Print */
   .placed-action .mini-box-container-bottom {
-    left: 50%;
-    transform: translateX(-50%);
-    bottom: 0;
-    margin-bottom: -5px; /* Adjust for print overlap */
+    top: 50%; /* Align top to parent vertical center */
+    left: 100%; /* Align left to parent right edge */
+    transform: none;
+    margin-left: 2px; /* Align horizontally */
+    /* This value pushes it DOWN from the center line */
+    margin-top: 20px; /* Adjust if needed for print spacing */
   }
   /* --- End Print Container Styles --- */
 
