@@ -912,7 +912,6 @@ body {
 @media print {
   body {
     margin: 0;
-    background-color: #fff;
   }
   .app-container {
     flex-direction: column; /* Stack elements for printing */
@@ -934,15 +933,15 @@ body {
   }
   .recipe-grid {
     box-shadow: none;
-    border: 1px solid #ccc;
+
     max-width: 100%; /* Keep this */
     page-break-inside: avoid;
 
     /* --- ADD/OVERRIDE these properties --- */
     width: auto; /* Ensure it tries to use full width */
-    gap: 25px; /* Significantly reduce the gap */
+
     aspect-ratio: 1 / 1; /* Allow it to be non-square */
-    padding: 5px; /* Reduce padding if needed */
+
     margin: 0 auto; /* Center if needed, or just margin: 0; */
     box-sizing: border-box; /* Be explicit */
     /* Optional: Adjust min-height if rows become too small */
@@ -953,8 +952,6 @@ body {
   }
   .grid-square {
     /* background-color: #fff !important; */ /* Causes white background */
-    border: 1px solid #ccc;
-    border-radius: 4px;
     display: flex; /* Keep flex for centering empty state text */
     justify-content: center;
     align-items: center;
@@ -1050,9 +1047,7 @@ body {
 
   /* --- Adjust MiniBox itself for Print --- */
   .mini-box {
-    border: 1px solid #ccc;
     padding: 3px 5px;
-    background-color: #fff;
     min-height: 28px;
     min-width: 32px;
     line-height: 1.2;

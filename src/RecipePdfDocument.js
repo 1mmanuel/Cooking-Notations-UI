@@ -8,152 +8,239 @@ import {
   StyleSheet,
   Svg,
   Path,
-  Font, // Import Font
+  Font,
+  Image,
 } from "@react-pdf/renderer";
 import iconPdfData from "./iconPdfData";
 
-// --- Font Registration (Example - uncomment and adjust if you use custom fonts) ---
-/*
-// Make sure you have the font files (e.g., .ttf) in your public folder or accessible path
+// --- Font Registration (remains the same) ---
 Font.register({
-  family: 'YourWebFontName', // e.g., 'Roboto' or 'Inter'
+  family: "MyFont",
   fonts: [
-    { src: '/fonts/YourWebFont-Regular.ttf' }, // Path relative to public folder
-    { src: '/fonts/YourWebFont-Bold.ttf', fontWeight: 'bold' },
-    // Add other weights/styles if needed (italic, etc.)
-  ]
+    {
+      src: "/fonts/fonnts.com-DegularDemo-Black.otf",
+      fontWeight: 900,
+    },
+  ],
 });
-*/
 // --- End Font Registration ---
 
 // --- Styles ---
-// Adjusted to more closely match typical web UI styles and proportions
 const styles = StyleSheet.create({
   page: {
     flexDirection: "column",
-    // Match the background from html2canvas attempt or use white
-    backgroundColor: "#f9db92", // Or '#FFFFFF' for white
-    padding: 20, // Approx 20mm margin
-    // fontFamily: 'YourWebFontName', // Use registered custom font name here if applicable
-    fontFamily: "Helvetica", // Default fallback
+    backgroundColor: "#f9db92", // Matches UI grid background (also used for page)
+    padding: 25,
+    fontFamily: "MyFont",
   },
-  section: {
-    marginBottom: 15, // Increased spacing
+  // --- MODIFIED: Info Section Styles ---
+  infoSection: {
+    marginBottom: 10, // Space below the section
+    padding: 10, // Match UI padding (15px -> 15pt)
+    backgroundColor: "#f9db92", // Match UI background
+    borderRadius: 15, // Match UI border-radius
+    border: "1pt solid #000000", // Add border to mimic UI visual boundary
+    // Box-shadow is not directly supported, border is the closest alternative
   },
-  title: {
-    fontSize: 20, // Larger title
-    marginBottom: 8,
-    // fontFamily: 'YourWebFontName', // Use custom font if registered
-    fontWeight: "bold",
-    color: "#333333", // Darker color
-    textAlign: "center", // Center title maybe?
+  // --- MODIFIED: Details Heading Styles ---
+  detailsHeading: {
+    fontSize: 14, // Keep size or adjust if needed
+    fontWeight: 900, // Keep font weight
+    marginBottom: 8, // Space below heading
+    color: "#333333", // Match UI h2 color
+    fontFamily: "MyFont", // Keep font family
+    textAlign: "center", // Keep centered
   },
+  // --- MODIFIED: Info Text Styles ---
   infoText: {
-    fontSize: 10,
-    marginBottom: 4,
-    color: "#555555", // Slightly lighter text
-    // fontFamily: 'YourWebFontName', // Use custom font if registered
+    fontSize: 10, // Keep size or adjust
+    marginBottom: 5, // Space between lines
+    color: "#333333", // Match UI label color
+    fontFamily: "MyFont", // Keep font family
   },
+  // --- NEW: Outer Container for Title + Grid ---
+  outerGridArea: {
+    // Add border, radius, and padding to match UI structure
+    border: "1pt solid #000000", // Add the border
+    borderRadius: 15, // Add the border radius
+    padding: 15, // Add padding inside the border
+    backgroundColor: "#f68e3e", // Match UI outer container background
+    boxSizing: "border-box", // Ensure padding is included correctly
+    // marginBottom: 20, // Optional: Add space below this whole section if needed
+  },
+
+  // --- MODIFIED: Grid Title Container Styles ---
+  gridTitleContainer: {
+    position: "relative", // Keep relative positioning
+    overflow: "hidden", // Keep overflow hidden for cropping
+    flexDirection: "row",
+    justifyContent: "center",
+    marginBottom: 10,
+    paddingHorizontal: 15,
+    paddingVertical: 8,
+    border: "1pt solid #000000",
+    borderRadius: 15,
+    backgroundColor: "#f68e3e", // Fallback background color
+    alignItems: "center",
+  },
+  // --- MODIFIED: Background Image Style ---
+  titleBackgroundImage: {
+    position: "absolute",
+    // Set BOTH width and height to the same large percentage
+    width: "1000%", // e.g., 10x zoom
+    height: "9000%", // Match the width percentage
+    // Adjust top/left to center the oversized image
+    // (1000% - 100%) / 2 = 450% -> shift by -450%
+    top: "-450%",
+    left: "-450%",
+    // This will likely distort the image's overall aspect ratio if it's not square,
+    // but it ensures the image is rendered and zoomed.
+  },
+  // --- Grid Title Text Styles ---
+  gridTitleText: {
+    fontSize: 22,
+    fontWeight: 900,
+    color: "#f9db92", // Ensure contrast
+    fontFamily: "MyFont",
+    textAlign: "center",
+  },
+
+  // --- Grid Styles ---
   gridContainer: {
     flexDirection: "row",
     flexWrap: "wrap",
     width: "100%",
-    // Use a subtle border or none for the container?
-    // border: '1pt solid #e0e0e0',
-    marginTop: 15,
+    padding: 15, // Padding inside the container
+    backgroundColor: "#f9db92",
+    border: "1pt solid #000000",
+    borderRadius: 15,
+    boxSizing: "border-box",
+    // --- ADD: Helps align items when wrapping occurs ---
+    // alignItems: 'flex-start', // Align items to the start of the cross axis
   },
   gridSquare: {
-    width: "20%", // 5 columns
-    // Make it square based on calculated width (A4: ~170mm usable / 5 = 34mm)
-    // Convert mm to pt (1mm ~ 2.83pt) -> 34 * 2.83 = ~96pt
-    height: 96, // Use points for height to match width percentage effect
-    aspectRatio: 1, // Try to enforce squareness
-    border: "0.75pt solid #cccccc", // Approx 1px border
-    backgroundColor: "#f0f0f0", // Light grey for filled squares (adjust)
+    // --- MODIFIED: Slightly reduce width to prevent wrapping issues ---
+    width: "17.8%", // Reduced from 18%
+    // Total width per item: 17.8% + 1% (left margin) + 1% (right margin) = 19.8%
+    // 5 * 19.8% = 99%, leaving a small buffer.
+
+    margin: "1%", // Keep margin for spacing
+    aspectRatio: 1,
+    minHeight: 96,
+    border: "1pt solid #000000",
+    borderRadius: 15,
+    backgroundColor: "#f3c35b",
     position: "relative",
-    padding: 5, // Internal padding
+    padding: 4,
     alignItems: "center",
     justifyContent: "center",
     boxSizing: "border-box",
+    overflow: "visible",
   },
   emptySquare: {
-    backgroundColor: "#fafafa", // Slightly different background for empty (adjust)
-    // border: '0.75pt dashed #dddddd', // Optional: Dashed border for empty
+    backgroundColor: "#f3c35b",
+    borderStyle: "dashed",
+    borderColor: "#000000",
+    borderWidth: "1pt",
   },
+
+  // --- Placed Action Styles (remain the same) ---
   placedActionView: {
     width: "100%",
     height: "100%",
     alignItems: "center",
-    // justifyContent: 'space-between', // Maybe space icon and text? Or keep center?
-    justifyContent: "center", // Center might look cleaner
+    justifyContent: "center",
     position: "relative",
     flexDirection: "column",
-    padding: 3, // Inner padding for icon/text
+    padding: 3, // Padding inside the square for the action content
   },
   actionIconView: {
-    // Adjust size relative to square (96pt height)
-    width: "60%", // Percentage of the square width
-    height: "60%", // Percentage of the square height
-    // marginBottom: 4, // Space between icon and label
+    width: "55%",
+    height: "55%",
+    marginBottom: 5,
     alignItems: "center",
     justifyContent: "center",
-    flexShrink: 0, // Prevent icon from shrinking too much
+    flexShrink: 0,
   },
   actionLabel: {
-    fontSize: 8, // Slightly larger label text
+    fontSize: 8.5,
     textAlign: "center",
-    color: "#333333",
-    marginTop: 4, // Space above label
-    maxWidth: "95%", // Allow wrapping
-    // fontFamily: 'YourWebFontName', // Use custom font if registered
+    color: "#333333", // UI uses #333
+    maxWidth: "95%",
+    fontFamily: "MyFont", // Apply font
+    fontWeight: 900, // Apply available weight
   },
+
+  // --- Mini Box Styles (remain the same for now) ---
   miniBoxBase: {
     position: "absolute",
-    // Estimate size relative to square (96pt) - maybe ~1/4 size? ~24pt?
-    // Or use mm: ~10mm * 2.83 = ~28pt
-    width: 28,
-    height: 24,
-    border: "0.5pt solid #b0b0b0", // Slightly darker border for mini-box
-    backgroundColor: "#ffffff", // White background
-    borderRadius: 2, // Slight rounding
-    padding: 2, // Small internal padding
+    width: 26,
+    height: 22, // Height is 22pt
+    border: "1pt solid #000000", // Match UI border
+    backgroundColor: "#f3c35b",
+    borderRadius: 3,
+    padding: 2,
     alignItems: "center",
     justifyContent: "center",
     overflow: "hidden",
+    zIndex: 10,
   },
-  // Recalculate positioning based on miniBox size (W:28, H:24) and square size (96)
-  miniBoxRight: {
-    right: -14, // Halfway out the right edge (28 / 2)
-    top: "50%",
-    transform: "translateY(-12pt)", // Center vertically (24 / 2)
+
+  // --- Positioning Styles based on UI ---
+
+  // Position 1: Center Right (Corresponds to miniBox.position === 'right')
+  // --- MODIFIED: Use top: 50% + negative marginTop ---
+  miniBoxPosRightCenter: {
+    top: "50%", // Position top edge at parent's vertical center
+    left: "100%",
+    // Apply negative margin equal to half the height (22pt / 2 = 11pt)
+    marginTop: -11, // Pull the box UP by half its height
+    marginLeft: -10, // Keep horizontal overlap
+    // Remove bottom and transform from previous attempts
+    // bottom: "50%",
+    // transform: "translateY(11pt)",
   },
-  miniBoxTop: {
-    top: -12, // Halfway out the top edge (24 / 2)
-    left: "50%",
-    transform: "translateX(-14pt)", // Center horizontally (28 / 2)
+  // --- End MODIFICATION ---
+
+  // Position 2: Top Right (Corresponds to miniBox.position === 'top')
+  miniBoxPosTopRight: {
+    bottom: "50%", // Align bottom edge to parent's vertical center
+    left: "100%",
+    marginLeft: -10,
+    // Push UPWARDS from the center line. Value = (approx height/2 + gap)
+    // Using PDF height (22pt) and assuming 3pt gap: (22/2) + 3 = 14pt
+    marginBottom: 14, // Keep this calculation
   },
-  miniBoxBottom: {
-    bottom: -12, // Halfway out the bottom edge (24 / 2)
-    left: "50%",
-    transform: "translateX(-14pt)", // Center horizontally (28 / 2)
+
+  // Position 3: Bottom Right (Corresponds to miniBox.position === 'bottom')
+  miniBoxPosBottomRight: {
+    top: "50%", // Align top edge to parent's vertical center
+    left: "100%",
+    marginLeft: -10,
+    // Push DOWNWARDS from the center line. Value = (approx height/2 + gap)
+    // Using PDF height (22pt) and assuming 3pt gap: (22/2) + 3 = 14pt
+    marginTop: 14, // Keep this calculation
   },
+
   miniBoxIconView: {
-    width: "85%", // Icon size within mini-box
-    height: "85%",
+    width: "80%",
+    height: "80%",
     alignItems: "center",
     justifyContent: "center",
   },
   svgPlaceholder: {
-    fontSize: 6, // Slightly larger placeholder
-    color: "#888888",
+    fontSize: 7,
+    color: "#999999",
     textAlign: "center",
+    fontFamily: "MyFont",
+    fontWeight: 900,
   },
 });
 // --- End Styles ---
 
-// --- CORRECTED RenderSvgIcon (No changes needed from previous version) ---
+// --- RenderSvgIcon Component (remains the same) ---
 const RenderSvgIcon = ({ action, style }) => {
-  // 1. Check if action and action.id exist
+  // ... (implementation)
   if (!action || !action.id) {
     console.warn("RenderSvgIcon: Received null or invalid action object.");
     return (
@@ -162,29 +249,22 @@ const RenderSvgIcon = ({ action, style }) => {
       </View>
     );
   }
-
-  // 2. Extract the base ID (remove "action-")
   const baseId = action.id.startsWith("action-")
     ? action.id.substring("action-".length)
     : action.id;
-
-  // 3. Look up using the base ID in the imported iconPdfData
   let specificIconData = null;
   try {
     specificIconData = iconPdfData[baseId];
   } catch (e) {
     console.error("Error accessing iconPdfData:", e);
-    specificIconData = null;
   }
-
-  // 4. Check if data was found and is valid
   if (
     !specificIconData ||
     !specificIconData.viewBox ||
     !specificIconData.paths
   ) {
     console.warn(
-      `RenderSvgIcon: Missing or invalid PDF icon data for action ID: ${action.id} (Lookup key: ${baseId})`
+      `RenderSvgIcon: Missing/invalid PDF icon data for ID: ${action.id} (Lookup: ${baseId})`
     );
     return (
       <View style={style}>
@@ -194,8 +274,6 @@ const RenderSvgIcon = ({ action, style }) => {
       </View>
     );
   }
-
-  // 5. Render the SVG using the found data
   return (
     <View style={style}>
       <Svg
@@ -207,64 +285,65 @@ const RenderSvgIcon = ({ action, style }) => {
             <Path
               key={index}
               d={pathData.d}
-              fill={pathData.fill || "#000000"} // Default fill
-              stroke={pathData.stroke || "none"} // Default stroke
+              fill={pathData.fill || "#000000"}
+              stroke={pathData.stroke || "none"}
             />
           ))}
       </Svg>
     </View>
   );
 };
-// --- End CORRECTED RenderSvgIcon ---
+// --- End RenderSvgIcon Component ---
 
-// --- PDF Component Structure (No changes needed below this line) ---
-
+// --- MODIFIED: PdfMiniBox Component ---
 const PdfMiniBox = ({ miniBox }) => {
   if (!miniBox || !miniBox.position) return null;
 
   let positionStyle;
   switch (miniBox.position) {
     case "right":
-      positionStyle = styles.miniBoxRight;
+      positionStyle = styles.miniBoxPosRightCenter;
       break;
     case "top":
-      positionStyle = styles.miniBoxTop;
+      positionStyle = styles.miniBoxPosTopRight;
       break;
     case "bottom":
-      positionStyle = styles.miniBoxBottom;
+      positionStyle = styles.miniBoxPosBottomRight;
       break;
     default:
       positionStyle = {};
   }
 
+  // Use the base style defined in StyleSheet
+  const baseStyle = styles.miniBoxBase;
+
   return (
-    <View style={[styles.miniBoxBase, positionStyle]}>
+    <View style={[baseStyle, positionStyle]}>
       {miniBox.action && (
         <RenderSvgIcon action={miniBox.action} style={styles.miniBoxIconView} />
       )}
     </View>
   );
 };
+// --- End MODIFIED: PdfMiniBox Component ---
 
+// --- PdfPlacedAction Component (remains the same) ---
 const PdfPlacedAction = ({ item }) => {
+  // ... (implementation)
   if (!item || !item.action) return null;
-
   return (
     <View style={styles.placedActionView}>
-      {/* Main Action Icon */}
       <RenderSvgIcon action={item.action} style={styles.actionIconView} />
-
-      {/* Label */}
       {item.label && <Text style={styles.actionLabel}>{item.label}</Text>}
-
-      {/* Mini Boxes */}
       {item.miniBoxes &&
         item.miniBoxes.map((mb) => <PdfMiniBox key={mb.id} miniBox={mb} />)}
     </View>
   );
 };
 
+// --- PdfGridSquare Component (remains the same) ---
 const PdfGridSquare = ({ item }) => {
+  // ... (implementation)
   const isEmpty = !item || !item.action;
   return (
     <View style={[styles.gridSquare, isEmpty && styles.emptySquare]}>
@@ -273,9 +352,9 @@ const PdfGridSquare = ({ item }) => {
   );
 };
 
-// --- Main Document Component ---
+// --- Main Document Component (remains the same) ---
 const RecipePdfDocument = ({ recipeInfo, gridItems }) => {
-  // Convert gridItems object to an array for predictable order in PDF
+  // ... (implementation)
   const sortedGridKeys = Object.keys(gridItems).sort((a, b) => {
     const [, rA, cA] = a.split("-");
     const [, rB, cB] = b.split("-");
@@ -286,25 +365,41 @@ const RecipePdfDocument = ({ recipeInfo, gridItems }) => {
   return (
     <Document>
       <Page size="A4" style={styles.page}>
-        {/* Recipe Info Section */}
-        <View style={styles.section}>
-          <Text style={styles.title}>
-            {recipeInfo.name || "Untitled Recipe"}
+        {/* --- Info Section --- */}
+        <View style={styles.infoSection}>
+          <Text style={styles.detailsHeading}>DETAILS</Text>
+          <Text style={styles.infoText}>
+            Recipe Name: {recipeInfo.name || "Untitled Recipe"}
           </Text>
           <Text style={styles.infoText}>
             Author: {recipeInfo.author || "N/A"}
           </Text>
           <Text style={styles.infoText}>
-            Cook Time: {recipeInfo.cookTime || "N/A"}
+            Total Time: {recipeInfo.cookTime || "N/A"}
           </Text>
           <Text style={styles.infoText}>Date: {recipeInfo.date || "N/A"}</Text>
         </View>
 
-        {/* Recipe Grid Section */}
-        <View style={styles.gridContainer}>
-          {sortedGridKeys.map((key) => (
-            <PdfGridSquare key={key} item={gridItems[key]} />
-          ))}
+        {/* --- Grid Title Section --- */}
+        <View style={styles.outerGridArea}>
+          {/* --- Grid Title Section --- */}
+          <View style={styles.gridTitleContainer}>
+            {/* --- ADDED: Background Image --- */}
+            {/* Make sure the path is correct relative to the public folder */}
+            {/* <Image
+              style={styles.titleBackgroundImage}
+              src="/designs/Pattern-MASSIVE.png" // <-- Adjust path if needed
+            /> */}
+            {/* --- Text remains the same --- */}
+            <Text style={styles.gridTitleText}>COOKING NOTATIONS UI</Text>
+          </View>
+
+          {/* --- Recipe Grid Section --- */}
+          <View style={styles.gridContainer}>
+            {sortedGridKeys.map((key) => (
+              <PdfGridSquare key={key} item={gridItems[key]} />
+            ))}
+          </View>
         </View>
       </Page>
     </Document>
