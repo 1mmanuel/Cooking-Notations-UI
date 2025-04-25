@@ -33,6 +33,7 @@ import ActionItem from "./ActionItem";
 // PlacedAction is still needed for the web UI grid
 // import PlacedAction from "./PlacedAction";
 import { findActionById } from "./actions";
+import LandingPage from "./LandingPage";
 
 import "./App.css";
 
@@ -52,6 +53,9 @@ for (let r = 0; r < GRID_SIZE; r++) {
 }
 
 function App() {
+  // --- State for Landing Page ---
+  const [showApp, setShowApp] = useState(false); // <-- Start showing landing page
+
   const [recipeInfo, setRecipeInfo] = useState({
     name: "",
     author: "",
@@ -80,6 +84,11 @@ function App() {
     useSensor(PointerSensor),
     useSensor(KeyboardSensor)
   );
+
+  // --- Handler to switch from Landing Page to App ---
+  const handleStart = () => {
+    setShowApp(true); // <-- Set state to show the main app
+  };
 
   // --- Callbacks (handleRecipeInfoChange, handleLabelChange, handleDeleteAction, handleAddMiniBox, handleMiniBoxDelete) remain the same ---
   const handleRecipeInfoChange = (newInfo) => {
@@ -332,6 +341,12 @@ function App() {
     }
     return null;
   };
+
+  // --- Conditional Rendering ---
+  if (!showApp) {
+    // If showApp is false, render the Landing Page
+    return <LandingPage onStart={handleStart} />;
+  }
 
   return (
     <DndContext

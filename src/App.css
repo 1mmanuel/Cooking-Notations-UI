@@ -7,13 +7,130 @@
                             'embedded-opentype', and 'svg' */
 }
 
+@keyframes breatheAnimation {
+  0% {
+    transform: scale(1); /* Start at normal size */
+  }
+  50% {
+    transform: scale(1.03); /* Scale up slightly (adjust 1.03 for intensity) */
+  }
+  100% {
+    transform: scale(1); /* Return to normal size */
+  }
+}
+
 body {
   font-family: "MyFont", sans-serif;
-  /* margin: 20px; */ /* REMOVE this */
-  padding: 20px 0; /* ADD vertical padding (optional, adjust as needed) */
-  background-color: #f4f4f4;
-  margin: 0; /* Ensure no default body margin interferes */
+  padding: 0; /* Remove body padding */
+  background-color: #f9db92; /* Keep fallback background */
+  margin: 0; /* Keep margin reset */
+  min-height: 100vh; /* Ensure body can contain full height elements */
+  /* OR use height: 100% if html also has height: 100% */
 }
+
+/* --- Landing Page Styles --- */
+.landing-page-container {
+  display: flex;
+  flex-direction: column;
+  justify-content: center; /* Center vertically */
+  align-items: center; /* Center horizontally */
+  min-height: 100vh; /* Take full viewport height */
+  text-align: center;
+  padding: 40px;
+  box-sizing: border-box; /* Include padding in height calculation */
+  color: #f9db92; /* Contrasting text */
+  /* This text-shadow applies to all text inside unless overridden */
+  text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.6);
+
+  /* Optional: Use similar background/theme */
+  background-color: #f7a541; /* Match app theme */
+  background-image: url("designs/Pattern\ MASSIVE.svg "); /* Optional pattern */
+  background-size: 2000px;
+  background-blend-mode: multiply;
+  color: #f9db92; /* Contrasting text */
+  text-shadow: 5px 5px 5px rgba(0, 0, 0, 0.6);
+}
+
+/* --- REMOVE OR COMMENT OUT OLD H1/P STYLES --- */
+/*
+.landing-page-container h1 {
+  font-size: 3.5em;
+  margin-bottom: 25px;
+  color: #f9db92;
+}
+
+.landing-page-container p {
+  font-size: 1.5em;
+  margin-bottom: 50px;
+  max-width: 600px;
+  line-height: 1.6;
+  color: #f9db92;
+}
+*/
+
+/* --- ADD NEW STYLES FOR THE TITLE --- */
+.landing-title-wrapper {
+  margin-bottom: 50px; /* Space between title block and button */
+  border: 5px solid #000000; /* Add border using the text color */
+  border-radius: 45px; /* Apply the requested border radius */
+  padding: 20px 200px; /* Add padding so text isn't touching the border */
+  display: inline-block; /* Make the wrapper only as wide as its content */
+  background-color: #f68e3e; /* Give the container a solid background */
+  background-image: url("designs/Pattern\ MASSIVE.svg "); /* Your pattern */
+  background-size: 8500px;
+  box-shadow: inset 3px 3px 5px rgba(0, 0, 0, 0.552),
+    inset -3px -3px 5px rgba(0, 0, 0, 0.552);
+
+  /* --- ADD THIS LINE FOR ANIMATION --- */
+  animation: breatheAnimation 4s ease-in-out infinite;
+  /* --- END ADDED LINE --- */
+}
+
+.landing-title-cooking {
+  font-size: 10em; /* Make COOKING large */
+  line-height: 1.1; /* Adjust line height */
+  margin: 0 0 5px 0; /* Remove default margins, add small bottom margin */
+  color: #f9db92; /* Explicit color */
+  font-weight: bold; /* Ensure it's bold */
+}
+
+.landing-title-notations-ui {
+  font-size: 4.5em; /* Make NOTATIONS UI large, but smaller than COOKING */
+  line-height: 1.2;
+  margin: 0; /* Remove default margins */
+  color: #f9db92; /* Explicit color */
+  font-weight: normal; /* Or adjust as needed */
+}
+
+/* --- END NEW TITLE STYLES --- */
+
+.landing-page-container .start-button {
+  /* Style similar to other main action buttons */
+  padding: 15px 35px;
+  font-size: 2em; /* Make it prominent */
+  font-family: "MyFont", sans-serif;
+  border-radius: 8px; /* Slightly larger radius */
+  cursor: pointer;
+  transition: background-color 0.2s ease, transform 0.1s ease;
+
+  background-color: #f9db92; /* Button color - like palette background */
+  border: 2px solid #000000;
+  color: #f68e3e; /* Text color - like palette title */
+  box-shadow: 3px 3px 6px rgba(0, 0, 0, 0.4); /* Add a subtle drop shadow */
+  text-shadow: none; /* Remove text shadow from container */
+}
+
+.landing-page-container .start-button:hover {
+  background-color: #fed373; /* Lighter hover */
+  transform: scale(1.05); /* Slight grow effect */
+  box-shadow: 4px 4px 8px rgba(0, 0, 0, 0.5);
+}
+
+.landing-page-container .start-button:active {
+  transform: scale(0.98); /* Press effect */
+  box-shadow: inset 1px 1px 3px rgba(0, 0, 0, 0.3);
+}
+/* --- End Landing Page Styles --- */
 
 .app-container {
   display: flex;
@@ -209,7 +326,6 @@ body {
   /* background-color: #f68e3e; */ /* Already set above */
   background-blend-mode: multiply;
   padding: 6px 6px; /* Keep this padding */
-  text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.6);
 }
 
 .palette-title {
