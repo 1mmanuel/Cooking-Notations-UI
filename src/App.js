@@ -34,6 +34,7 @@ import ActionItem from "./ActionItem";
 // import PlacedAction from "./PlacedAction";
 import { findActionById } from "./actions";
 import LandingPage from "./LandingPage";
+import NotesModal from "./NotesModal";
 
 import "./App.css";
 
@@ -53,6 +54,9 @@ for (let r = 0; r < GRID_SIZE; r++) {
 }
 
 function App() {
+  const [notes, setNotes] = useState(""); // <-- Add state for notes text
+  const [isNotesModalOpen, setIsNotesModalOpen] = useState(false); // <-- State for modal visibility
+
   // --- State for Landing Page ---
   const [showApp, setShowApp] = useState(false); // <-- Start showing landing page
 
@@ -84,6 +88,19 @@ function App() {
     useSensor(PointerSensor),
     useSensor(KeyboardSensor)
   );
+
+  // --- Handlers for Notes Modal ---
+  const handleOpenNotesModal = () => {
+    setIsNotesModalOpen(true);
+  };
+
+  const handleCloseNotesModal = () => {
+    setIsNotesModalOpen(false);
+  };
+
+  const handleNotesChange = (newNotes) => {
+    setNotes(newNotes);
+  };
 
   // --- Handler to switch from Landing Page to App ---
   const handleStart = () => {
@@ -379,7 +396,19 @@ function App() {
               onDeleteAction={handleDeleteAction}
             />
           </div>
+          {/* --- ADDED: Notes Section for Printing --- */}
+          {/* Conditionally render only if notes exist */}
+          {notes && notes.trim() !== "" && (
+            <div className="print-notes-section">
+              <h2>Notes</h2>
+              <pre className="print-notes-content">{notes}</pre>
+            </div>
+          )}
+          {/* --- END ADDED --- */}
           <div className="action-buttons">
+            <button className="notes-button" onClick={handleOpenNotesModal}>
+              Notes
+            </button>
             {/* --- UPDATED SERVE BUTTON --- */}
             <button
               className="serve-button"
@@ -403,7 +432,11 @@ function App() {
       {triggerPdfGeneration && (
         <BlobProvider
           document={
-            <RecipePdfDocument recipeInfo={recipeInfo} gridItems={gridItems} />
+            <RecipePdfDocument
+              recipeInfo={recipeInfo}
+              gridItems={gridItems}
+              notes={notes}
+            />
           }
         >
           {({ blob, url, loading, error }) => {
@@ -454,6 +487,15 @@ function App() {
         isLoading={isLoadingPdf}
         error={pdfError}
       />
+
+      {/* --- ADDED NOTES MODAL RENDER --- */}
+      <NotesModal
+        isOpen={isNotesModalOpen}
+        onClose={handleCloseNotesModal}
+        notes={notes}
+        onNotesChange={handleNotesChange}
+      />
+      {/* --- END NOTES MODAL RENDER --- */}
     </DndContext>
   );
 }

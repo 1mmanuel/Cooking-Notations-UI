@@ -235,6 +235,31 @@ const styles = StyleSheet.create({
     fontFamily: "MyFont",
     fontWeight: 900,
   },
+
+  // --- NEW: Notes Section Styles ---
+  notesSection: {
+    marginTop: 15, // Add space above the notes section
+    marginBottom: 10,
+    padding: 10,
+    border: "1pt solid #000000",
+    borderRadius: 10,
+    backgroundColor: "#f9db92", // Match info section background
+  },
+  notesTitle: {
+    fontSize: 14,
+    fontWeight: 900,
+    marginBottom: 8,
+    color: "#333333",
+    fontFamily: "MyFont",
+    textAlign: "center",
+  },
+  notesText: {
+    fontSize: 10,
+    color: "#333333",
+    fontFamily: "MyFont",
+    // Allow text to wrap naturally
+  },
+  // --- End Notes Section Styles ---
 });
 // --- End Styles ---
 
@@ -353,7 +378,7 @@ const PdfGridSquare = ({ item }) => {
 };
 
 // --- Main Document Component (remains the same) ---
-const RecipePdfDocument = ({ recipeInfo, gridItems }) => {
+const RecipePdfDocument = ({ recipeInfo, gridItems, notes }) => {
   // ... (implementation)
   const sortedGridKeys = Object.keys(gridItems).sort((a, b) => {
     const [, rA, cA] = a.split("-");
@@ -401,6 +426,18 @@ const RecipePdfDocument = ({ recipeInfo, gridItems }) => {
             ))}
           </View>
         </View>
+
+        {/* --- NEW: Notes Section --- */}
+        {/* Only render if notes exist */}
+        {notes && notes.trim() !== "" && (
+          <View style={styles.notesSection} wrap={false}>
+            {" "}
+            {/* wrap={false} tries to keep notes together */}
+            <Text style={styles.notesTitle}>NOTES</Text>
+            <Text style={styles.notesText}>{notes}</Text>
+          </View>
+        )}
+        {/* --- End Notes Section --- */}
       </Page>
     </Document>
   );
