@@ -180,8 +180,8 @@ export const CATEGORIZED_ACTIONS = {
       "Add or prepare fruits."
     ),
     createAction(
-      "vegetables",
-      "Vegetables",
+      "carrot", // <-- Change ID part to match the SVG filename base
+      "Vegetables", // Keep the display name
       CarrotIcon,
       "Ingredients",
       "Add or prepare vegetables."

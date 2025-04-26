@@ -60,6 +60,154 @@ function findPathsRecursive(element) {
   return paths;
 }
 
+// Helper function to recursively find all drawable elements within SVG
+function findDrawableElementsRecursive(element) {
+  let elements = [];
+  if (!element || typeof element !== "object") {
+    return elements;
+  }
+
+  const processElement = (el, type) => {
+    if (el && el.$) {
+      const attributes = el.$;
+      const baseData = {
+        type: type,
+        fill: attributes.fill,
+        stroke: attributes.stroke,
+        transform: attributes.transform, // Keep track of transform if present
+        // Add other common attributes if needed: strokeWidth: attributes['stroke-width'], opacity: attributes.opacity
+      };
+
+      switch (type) {
+        case "path":
+          if (attributes.d) elements.push({ ...baseData, d: attributes.d });
+          break;
+        case "circle":
+          if (attributes.cx && attributes.cy && attributes.r) {
+            elements.push({
+              ...baseData,
+              cx: attributes.cx,
+              cy: attributes.cy,
+              r: attributes.r,
+            });
+          }
+          break;
+        case "rect":
+          if (
+            attributes.x &&
+            attributes.y &&
+            attributes.width &&
+            attributes.height
+          ) {
+            elements.push({
+              ...baseData,
+              x: attributes.x,
+              y: attributes.y,
+              width: attributes.width,
+              height: attributes.height,
+            });
+          }
+          break;
+        case "ellipse":
+          if (
+            attributes.cx &&
+            attributes.cy &&
+            attributes.rx &&
+            attributes.ry
+          ) {
+            elements.push({
+              ...baseData,
+              cx: attributes.cx,
+              cy: attributes.cy,
+              rx: attributes.rx,
+              ry: attributes.ry,
+            });
+          }
+          break;
+        case "line":
+          if (
+            attributes.x1 &&
+            attributes.y1 &&
+            attributes.x2 &&
+            attributes.y2
+          ) {
+            elements.push({
+              ...baseData,
+              x1: attributes.x1,
+              y1: attributes.y1,
+              x2: attributes.x2,
+              y2: attributes.y2,
+            });
+          }
+          break;
+        case "polygon":
+        case "polyline": // Polygons and Polylines use 'points'
+          if (attributes.points) {
+            elements.push({ ...baseData, points: attributes.points });
+          }
+          break;
+        // Add other types if needed
+      }
+    }
+  };
+
+  // Check for different element types
+  const elementTypes = [
+    "path",
+    "circle",
+    "rect",
+    "ellipse",
+    "line",
+    "polygon",
+    "polyline",
+  ];
+  elementTypes.forEach((type) => {
+    if (element[type]) {
+      const items = Array.isArray(element[type])
+        ? element[type]
+        : [element[type]];
+      items.forEach((item) => processElement(item, type));
+    }
+  });
+
+  // Recursively check children (common elements like <g>)
+  for (const key in element) {
+    // Skip attributes ($) and text content (_)
+    // Only recurse into objects/arrays that are not known element types already processed
+    if (
+      key !== "$" &&
+      key !== "_" &&
+      typeof element[key] === "object" &&
+      !elementTypes.includes(key)
+    ) {
+      const childElements = Array.isArray(element[key])
+        ? element[key]
+        : [element[key]];
+      childElements.forEach((child) => {
+        // Basic transform propagation (might need more robust handling)
+        const childTransform = child.$?.transform;
+        const parentTransform = element.$?.transform;
+        let combinedTransform = childTransform || parentTransform;
+        if (childTransform && parentTransform) {
+          combinedTransform = `${parentTransform} ${childTransform}`; // Simple concatenation
+        }
+
+        const childrenFound = findDrawableElementsRecursive(child);
+        // Apply parent transform if child doesn't have its own
+        childrenFound.forEach((cf) => {
+          if (!cf.transform && combinedTransform) {
+            cf.transform = combinedTransform;
+          }
+        });
+
+        elements = elements.concat(childrenFound);
+      });
+    }
+  }
+
+  return elements;
+}
+
 async function extractSvgData() {
   const allIconData = {};
   console.log(`Reading SVG files from: ${svgFolderPath}\n`);
@@ -79,7 +227,7 @@ async function extractSvgData() {
       const filePath = path.join(svgFolderPath, file);
       // Use filename without extension as ID, convert to camelCase maybe?
       // Or keep as is if your action IDs match the filenames directly.
-      const iconId = path.basename(file, ".svg");
+      const iconId = path.basename(file, ".svg").replace(/[()]/g, ""); // Remove parentheses
 
       try {
         const svgContent = fs.readFileSync(filePath, "utf-8");
@@ -95,31 +243,69 @@ async function extractSvgData() {
 
         if (!viewBox) {
           console.warn(`WARN: Missing viewBox attribute in ${file}`);
-          // Consider adding a default or skipping if viewBox is essential
         }
 
-        // Find all path elements recursively
-        const paths = findPathsRecursive(svgElement);
+        // --- Use the new recursive function ---
+        const drawableElements = findDrawableElementsRecursive(svgElement);
 
-        if (paths.length === 0) {
+        if (drawableElements.length === 0) {
           console.warn(
-            `WARN: No <path> elements with 'd' attribute found in ${file}`
+            `WARN: No drawable elements (<path>, <circle>, <rect>, etc.) found in ${file}`
           );
-          // Consider skipping if paths are essential
         }
 
-        // Clean up paths data (remove undefined fill/stroke)
-        const cleanedPaths = paths.map((p) => ({
-          d: p.d,
-          ...(p.fill && { fill: p.fill }), // Only include fill if it exists
-          ...(p.stroke && { stroke: p.stroke }), // Only include stroke if it exists
-        }));
+        // Clean up elements data (remove undefined fill/stroke, keep necessary attrs)
+        const cleanedElements = drawableElements.map((el) => {
+          const cleaned = { type: el.type };
+          // Common attributes
+          if (el.fill) cleaned.fill = el.fill;
+          if (el.stroke) cleaned.stroke = el.stroke;
+          if (el.transform) cleaned.transform = el.transform; // Keep transform
+
+          // Type-specific attributes
+          switch (el.type) {
+            case "path":
+              cleaned.d = el.d;
+              break;
+            case "circle":
+              cleaned.cx = el.cx;
+              cleaned.cy = el.cy;
+              cleaned.r = el.r;
+              break;
+            case "rect":
+              cleaned.x = el.x;
+              cleaned.y = el.y;
+              cleaned.width = el.width;
+              cleaned.height = el.height;
+              break;
+            case "ellipse":
+              cleaned.cx = el.cx;
+              cleaned.cy = el.cy;
+              cleaned.rx = el.rx;
+              cleaned.ry = el.ry;
+              break;
+            case "line":
+              cleaned.x1 = el.x1;
+              cleaned.y1 = el.y1;
+              cleaned.x2 = el.x2;
+              cleaned.y2 = el.y2;
+              break;
+            case "polygon":
+            case "polyline":
+              cleaned.points = el.points;
+              break;
+          }
+          return cleaned;
+        });
 
         allIconData[iconId] = {
           viewBox: viewBox || "0 0 24 24", // Provide a default viewBox if missing
-          paths: cleanedPaths,
+          // --- Store all elements, not just paths ---
+          elements: cleanedElements,
         };
-        console.log(` -> Extracted data for: ${file}`);
+        console.log(
+          ` -> Extracted data for: ${file} (${cleanedElements.length} elements)`
+        );
       } catch (parseError) {
         console.error(
           `ERROR: Failed to read or parse ${file}:`,

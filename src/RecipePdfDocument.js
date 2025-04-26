@@ -10,6 +10,12 @@ import {
   Path,
   Font,
   Image,
+  Circle,
+  Rect,
+  Ellipse,
+  Line,
+  Polygon,
+  Polyline,
 } from "@react-pdf/renderer";
 import iconPdfData from "./iconPdfData";
 
@@ -265,9 +271,8 @@ const styles = StyleSheet.create({
 
 // --- RenderSvgIcon Component (remains the same) ---
 const RenderSvgIcon = ({ action, style }) => {
-  // ... (implementation)
   if (!action || !action.id) {
-    console.warn("RenderSvgIcon: Received null or invalid action object.");
+    // ... (existing null/invalid action handling) ...
     return (
       <View style={style}>
         <Text style={styles.svgPlaceholder}>ICON</Text>
@@ -277,19 +282,23 @@ const RenderSvgIcon = ({ action, style }) => {
   const baseId = action.id.startsWith("action-")
     ? action.id.substring("action-".length)
     : action.id;
+
   let specificIconData = null;
   try {
     specificIconData = iconPdfData[baseId];
   } catch (e) {
     console.error("Error accessing iconPdfData:", e);
   }
+
+  // --- Check for 'elements' array now ---
   if (
     !specificIconData ||
     !specificIconData.viewBox ||
-    !specificIconData.paths
+    !specificIconData.elements || // Check for elements array
+    specificIconData.elements.length === 0 // Check if it's empty
   ) {
     console.warn(
-      `RenderSvgIcon: Missing/invalid PDF icon data for ID: ${action.id} (Lookup: ${baseId})`
+      `RenderSvgIcon: Missing/invalid PDF icon data or no elements for ID: ${action.id} (Lookup: ${baseId})`
     );
     return (
       <View style={style}>
@@ -299,21 +308,83 @@ const RenderSvgIcon = ({ action, style }) => {
       </View>
     );
   }
+
   return (
     <View style={style}>
       <Svg
         viewBox={specificIconData.viewBox}
         style={{ width: "100%", height: "100%" }}
       >
-        {specificIconData.paths.length > 0 &&
-          specificIconData.paths.map((pathData, index) => (
-            <Path
-              key={index}
-              d={pathData.d}
-              fill={pathData.fill || "#000000"}
-              stroke={pathData.stroke || "none"}
-            />
-          ))}
+        {/* --- Map over 'elements' array --- */}
+        {specificIconData.elements.map((elData, index) => {
+          const commonProps = {
+            key: index,
+            fill: elData.fill || "#000000", // Default fill
+            stroke: elData.stroke || "none", // Default stroke
+            // Note: @react-pdf/renderer's Svg elements might not support 'transform' directly
+            // If transforms are crucial, the SVGs might need pre-processing.
+            // transform: elData.transform || undefined
+          };
+
+          switch (elData.type) {
+            case "path":
+              return <Path {...commonProps} d={elData.d} />;
+            case "circle":
+              return (
+                <Circle
+                  {...commonProps}
+                  cx={elData.cx}
+                  cy={elData.cy}
+                  r={elData.r}
+                />
+              );
+            case "rect":
+              return (
+                <Rect
+                  {...commonProps}
+                  x={elData.x}
+                  y={elData.y}
+                  width={elData.width}
+                  height={elData.height}
+                />
+              );
+            case "ellipse":
+              return (
+                <Ellipse
+                  {...commonProps}
+                  cx={elData.cx}
+                  cy={elData.cy}
+                  rx={elData.rx}
+                  ry={elData.ry}
+                />
+              );
+            case "line":
+              // Line might need stroke by default if fill is none
+              if (commonProps.fill === "none" || !commonProps.fill)
+                commonProps.stroke = elData.stroke || "#000000";
+              return (
+                <Line
+                  {...commonProps}
+                  x1={elData.x1}
+                  y1={elData.y1}
+                  x2={elData.x2}
+                  y2={elData.y2}
+                />
+              );
+            case "polygon":
+              return <Polygon {...commonProps} points={elData.points} />;
+            case "polyline":
+              // Polyline usually needs stroke
+              if (commonProps.fill === "none" || !commonProps.fill)
+                commonProps.stroke = elData.stroke || "#000000";
+              return <Polyline {...commonProps} points={elData.points} />;
+            default:
+              console.warn(
+                `Unsupported element type in PDF renderer: ${elData.type}`
+              );
+              return null;
+          }
+        })}
       </Svg>
     </View>
   );
