@@ -294,12 +294,10 @@ const RenderSvgIcon = ({ action, style }) => {
   if (
     !specificIconData ||
     !specificIconData.viewBox ||
-    !specificIconData.elements || // Check for elements array
-    specificIconData.elements.length === 0 // Check if it's empty
+    !specificIconData.elements ||
+    specificIconData.elements.length === 0
   ) {
-    console.warn(
-      `RenderSvgIcon: Missing/invalid PDF icon data or no elements for ID: ${action.id} (Lookup: ${baseId})`
-    );
+    // ... (existing placeholder logic) ...
     return (
       <View style={style}>
         <Text style={styles.svgPlaceholder}>
@@ -315,23 +313,25 @@ const RenderSvgIcon = ({ action, style }) => {
         viewBox={specificIconData.viewBox}
         style={{ width: "100%", height: "100%" }}
       >
-        {/* --- Map over 'elements' array --- */}
         {specificIconData.elements.map((elData, index) => {
+          // --- Define the key separately ---
+          const key = index; // Using index as key is acceptable here if elements don't reorder
+
+          // --- commonProps WITHOUT the key ---
           const commonProps = {
-            key: index,
-            fill: elData.fill || "#000000", // Default fill
-            stroke: elData.stroke || "none", // Default stroke
-            // Note: @react-pdf/renderer's Svg elements might not support 'transform' directly
-            // If transforms are crucial, the SVGs might need pre-processing.
-            // transform: elData.transform || undefined
+            fill: elData.fill || "#000000",
+            stroke: elData.stroke || "none",
+            // transform: elData.transform || undefined // Still might not be supported
           };
 
+          // --- Apply the key DIRECTLY to the returned element ---
           switch (elData.type) {
             case "path":
-              return <Path {...commonProps} d={elData.d} />;
+              return <Path key={key} {...commonProps} d={elData.d} />;
             case "circle":
               return (
                 <Circle
+                  key={key}
                   {...commonProps}
                   cx={elData.cx}
                   cy={elData.cy}
@@ -341,6 +341,7 @@ const RenderSvgIcon = ({ action, style }) => {
             case "rect":
               return (
                 <Rect
+                  key={key}
                   {...commonProps}
                   x={elData.x}
                   y={elData.y}
@@ -351,6 +352,7 @@ const RenderSvgIcon = ({ action, style }) => {
             case "ellipse":
               return (
                 <Ellipse
+                  key={key}
                   {...commonProps}
                   cx={elData.cx}
                   cy={elData.cy}
@@ -359,11 +361,11 @@ const RenderSvgIcon = ({ action, style }) => {
                 />
               );
             case "line":
-              // Line might need stroke by default if fill is none
               if (commonProps.fill === "none" || !commonProps.fill)
                 commonProps.stroke = elData.stroke || "#000000";
               return (
                 <Line
+                  key={key}
                   {...commonProps}
                   x1={elData.x1}
                   y1={elData.y1}
@@ -372,16 +374,20 @@ const RenderSvgIcon = ({ action, style }) => {
                 />
               );
             case "polygon":
-              return <Polygon {...commonProps} points={elData.points} />;
+              return (
+                <Polygon key={key} {...commonProps} points={elData.points} />
+              );
             case "polyline":
-              // Polyline usually needs stroke
               if (commonProps.fill === "none" || !commonProps.fill)
                 commonProps.stroke = elData.stroke || "#000000";
-              return <Polyline {...commonProps} points={elData.points} />;
+              return (
+                <Polyline key={key} {...commonProps} points={elData.points} />
+              );
             default:
               console.warn(
                 `Unsupported element type in PDF renderer: ${elData.type}`
               );
+              // Return null with a key for consistency if needed, though React handles null fine.
               return null;
           }
         })}

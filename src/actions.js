@@ -37,7 +37,11 @@ import { ReactComponent as LayeringIcon } from "./SVG/layering.svg";
 import { ReactComponent as HeatLowIcon } from "./SVG/heat-(low).svg";
 import { ReactComponent as HeatMediumIcon } from "./SVG/heat-(medium).svg";
 import { ReactComponent as HeatHighIcon } from "./SVG/heat-(high).svg";
-
+import { ReactComponent as ProgressIcon } from "./SVG/progress.svg"; // Renamed
+import { ReactComponent as Progress10Icon } from "./SVG/progress10.svg"; // Renamed
+import { ReactComponent as Progress45Icon } from "./SVG/progress45.svg"; // Renamed
+import { ReactComponent as Progress75Icon } from "./SVG/progress75.svg"; // Renamed
+import { ReactComponent as Progress100Icon } from "./SVG/progress100.svg"; // Renamed
 // Helper function to create action objects
 const createAction = (id, name, IconComponent, category, description = "") => ({
   id: `action-${id}`,
@@ -133,6 +137,41 @@ export const CATEGORIZED_ACTIONS = {
       "Time", // <-- Updated
       "Set or check cooking time."
     ),
+    // createAction(
+    //   "progress",
+    //   "Progress",
+    //   ProgressIcon, // Use renamed import
+    //   "Time",
+    //   "Track cooking progress."
+    // ),
+    // createAction(
+    //   "progress10",
+    //   "Progress 10%",
+    //   Progress10Icon, // Use renamed import
+    //   "Time",
+    //   "Track cooking progress at 10%."
+    // ),
+    // createAction(
+    //   "progress45",
+    //   "Progress 45%",
+    //   Progress45Icon, // Use renamed import
+    //   "Time",
+    //   "Track cooking progress at 45%."
+    // ),
+    // createAction(
+    //   "progress75",
+    //   "Progress 75%",
+    //   Progress75Icon, // Use renamed import
+    //   "Time",
+    //   "Track cooking progress at 75%."
+    // ),
+    // createAction(
+    //   "progress100",
+    //   "Progress 100%",
+    //   Progress100Icon, // Use renamed import
+    //   "Time",
+    //   "Track cooking progress at 100%."
+    // ),
   ],
   Finishing: [
     createAction(
