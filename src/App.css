@@ -1913,4 +1913,37 @@ textarea, /* All textarea elements */
   .mini-box button {
     display: none; /* Hide mini-box delete button */
   }
+
+  /* --- Styles for Print-Only Notes Section --- */
+  .print-notes-section {
+    display: block !important; /* <<< THIS IS APPLYING ALWAYS */
+    page-break-before: always;
+    margin-top: 30pt;
+    padding: 10pt;
+    width: 100%;
+    box-sizing: border-box;
+  }
+
+  .print-notes-section h2 {
+    font-family: "MyFont", sans-serif;
+    font-size: 16pt;
+    color: black;
+    text-align: center;
+    margin-bottom: 15pt;
+    font-weight: 900;
+  }
+
+  .print-notes-content {
+    font-family: sans-serif;
+    font-size: 10pt;
+    height: 800px;
+    color: black;
+    white-space: pre-wrap;
+    word-wrap: break-word;
+    text-align: left;
+    border: 1pt solid #020202;
+    padding: 8pt;
+    background-color: #f9db92;
+  }
+  /* --- End Print-Only Notes Section Styles --- */
 }
