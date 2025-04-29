@@ -210,7 +210,6 @@ function findDrawableElementsRecursive(element) {
 
 async function extractSvgData() {
   const allIconData = {};
-  console.log(`Reading SVG files from: ${svgFolderPath}\n`);
 
   try {
     const files = fs.readdirSync(svgFolderPath);
@@ -219,7 +218,6 @@ async function extractSvgData() {
     );
 
     if (svgFiles.length === 0) {
-      console.log("No SVG files found in the specified directory.");
       return;
     }
 
@@ -303,9 +301,6 @@ async function extractSvgData() {
           // --- Store all elements, not just paths ---
           elements: cleanedElements,
         };
-        console.log(
-          ` -> Extracted data for: ${file} (${cleanedElements.length} elements)`
-        );
       } catch (parseError) {
         console.error(
           `ERROR: Failed to read or parse ${file}:`,
@@ -325,9 +320,6 @@ export default ${JSON.stringify(allIconData, null, 2)};
     // --- Write the content to the output file ---
     try {
       fs.writeFileSync(outputFilePath, jsFileContent, "utf-8");
-      console.log(
-        `\n--- SVG Data successfully written to: ${outputFilePath} ---`
-      );
     } catch (writeError) {
       console.error(
         `\nERROR: Failed to write SVG data to ${outputFilePath}:`,

@@ -1770,6 +1770,7 @@ textarea, /* All textarea elements */
 
     /* --- ADD/OVERRIDE these properties --- */
     width: auto; /* Ensure it tries to use full width */
+    height: 680px;
 
     aspect-ratio: 1 / 1; /* Allow it to be non-square */
 
@@ -1919,7 +1920,7 @@ textarea, /* All textarea elements */
   /* --- Styles for Print-Only Notes Section --- */
   .print-notes-section {
     display: block !important; /* <<< THIS IS APPLYING ALWAYS */
-    page-break-before: always;
+    /* page-break-before: always; */
     margin-top: 30pt;
     background-color: #f9db92;
     border: 1pt solid #000000;

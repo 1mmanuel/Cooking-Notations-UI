@@ -34,9 +34,6 @@ function PdfGenerationHandler({
 
     // When blob is ready and not already processed
     if (blob && !loading && !pdfGenerated && !pdfBlob && triggerPdfGeneration) {
-      console.log(
-        "PDF Blob generated successfully (inside PdfGenerationHandler)."
-      );
       setPdfBlob(blob);
       setPdfGenerated(true);
       // The useEffect in App depending on [pdfBlob, pdfGenerated] will trigger the upload

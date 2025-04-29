@@ -164,13 +164,8 @@ function App() {
 
         // Only proceed if the label actually changed
         if (oldLabel === newLabel) {
-          console.log("[handleLabelChange] Label unchanged.");
           return prevGrid; // No change needed
         }
-
-        console.log(
-          `[handleLabelChange] Changing label: Original='${originalLabel}', Old='${oldLabel}', New='${newLabel}'`
-        );
 
         // --- Update Notes ---
         setNotes((prevNotes) => {
@@ -178,17 +173,6 @@ function App() {
           const oldPattern = `${originalLabel} --> (${oldLabel})`;
           // The new note line we want to ADD
           const newNoteLine = `${originalLabel} --> (${newLabel})`; // No \n yet
-
-          console.log(
-            `[handleLabelChange - setNotes] Removing pattern: "${oldPattern}"`
-          );
-          console.log(
-            `[handleLabelChange - setNotes] Adding line: "${newNoteLine}"`
-          );
-          console.log(
-            `[handleLabelChange - setNotes] Previous Notes:`,
-            JSON.stringify(prevNotes)
-          );
 
           const lines = (prevNotes || "").split("\n");
           let linesRemovedCount = 0;
@@ -219,13 +203,6 @@ function App() {
 
           const finalNotes = finalLines.join("\n"); // Join remaining lines
 
-          console.log(
-            `[handleLabelChange - setNotes] Lines removed: ${linesRemovedCount}`
-          );
-          console.log(
-            `[handleLabelChange - setNotes] New Notes:`,
-            JSON.stringify(finalNotes)
-          );
           return finalNotes; // Return the potentially modified notes string
         });
         // --- End Notes Update ---
@@ -247,11 +224,6 @@ function App() {
   // --- END REWRITE handleLabelChange ---
   const handleDeleteAction = useCallback(
     (squareIdToDelete) => {
-      console.log(
-        "[handleDeleteAction] Attempting to delete action from square:",
-        squareIdToDelete
-      );
-
       // --- Update gridItems AND trigger notes update from within ---
       setGridItems((currentGridItems) => {
         const itemToDelete = currentGridItems[squareIdToDelete];
@@ -278,29 +250,12 @@ function App() {
         const noteShouldBeRemoved =
           originalLabel && originalLabel !== currentLabel;
 
-        console.log(
-          `[handleDeleteAction] Deleting item: Original='${originalLabel}', Current='${currentLabel}', NoteRemovalNeeded=${noteShouldBeRemoved}`
-        );
-
         // --- MOVED NOTES UPDATE LOGIC HERE ---
         if (noteShouldBeRemoved) {
           const noteToRemovePatternEnd = `${originalLabel} --> (${currentLabel})`; // NO trailing \n here
-          console.log(
-            "[handleDeleteAction] Attempting to remove note pattern (trimmed):",
-            JSON.stringify(noteToRemovePatternEnd)
-          );
 
           // Use functional update for setNotes INSIDE setGridItems callback
           setNotes((prevNotes) => {
-            console.log(
-              "[handleDeleteAction - setNotes] Previous Notes:",
-              JSON.stringify(prevNotes)
-            );
-            console.log(
-              "[handleDeleteAction - setNotes] Pattern to remove:",
-              JSON.stringify(noteToRemovePatternEnd)
-            );
-
             if (!prevNotes) {
               console.log(
                 "[handleDeleteAction - setNotes] No previous notes to modify."
@@ -316,23 +271,13 @@ function App() {
               const shouldKeep = trimmedLine !== noteToRemovePatternEnd;
               if (!shouldKeep && trimmedLine !== "") {
                 linesRemovedCount++;
-                console.log(
-                  `[handleDeleteAction - setNotes] Matched and removing line: "${trimmedLine}"`
-                );
               }
               return (
                 shouldKeep || (trimmedLine === "" && prevNotes.trim() !== "")
               );
             });
 
-            console.log(
-              `[handleDeleteAction - setNotes] Lines before filter: ${lines.length}, Lines after: ${updatedLines.length}, Removed count: ${linesRemovedCount}`
-            );
-
             if (linesRemovedCount > 0) {
-              console.log(
-                "[handleDeleteAction - setNotes] Note pattern found and removed."
-              );
               const result = updatedLines.join("\n");
               const finalNotes = result.trim(); // Trim final result
               console.log(
@@ -383,7 +328,6 @@ function App() {
       if (!nextPosition) return prev;
 
       const newMiniBox = { id: uuidv4(), action: null, position: nextPosition };
-      console.log(`Adding mini-box at position ${nextPosition} to ${squareId}`);
 
       return {
         ...prev,
@@ -501,13 +445,6 @@ function App() {
       const uuidStartIndex = parentSquareId.length + 1;
       const miniBoxUuid = remainingId.substring(uuidStartIndex);
 
-      console.log("Drop on MiniBox:", {
-        targetId,
-        sourceId,
-        parentSquareId,
-        miniBoxUuid,
-      });
-
       setGridItems((prev) => {
         if (!prev[parentSquareId]) {
           console.error("Parent square not found:", parentSquareId);
@@ -516,9 +453,6 @@ function App() {
         let foundMiniBox = false;
         const updatedMiniBoxes = prev[parentSquareId].miniBoxes.map((mb) => {
           if (mb.id === miniBoxUuid) {
-            console.log(
-              `Updating MiniBox ${mb.id} in square ${parentSquareId}`
-            );
             foundMiniBox = true;
             // --- Optional: Add labels to mini-box actions if they can be renamed ---
             // return {
@@ -563,7 +497,6 @@ function App() {
 
   // Function to trigger PDF generation via BlobProvider
   const handleGeneratePdf = () => {
-    console.log("Triggering PDF generation...");
     setIsLoadingPdf(true); // Show loading state early
     setPdfError(null);
     setQrData("");
@@ -581,19 +514,15 @@ function App() {
       setIsLoadingPdf(false);
       return;
     }
-    console.log("Starting PDF upload...");
     // Keep isLoadingPdf true during upload
 
     try {
       const pdfFileName = `recipe-${uuidv4()}.pdf`;
       const fileRef = storageRef(storage, `recipes/${pdfFileName}`);
-      console.log(`Uploading ${pdfFileName} to Firebase Storage...`);
 
       const uploadResult = await uploadBytes(fileRef, blobToUpload);
-      console.log("Upload successful:", uploadResult);
 
       const downloadURL = await getDownloadURL(uploadResult.ref);
-      console.log("Download URL:", downloadURL);
 
       setQrData(downloadURL); // Set QR data for the modal
       setPdfError(null); // Clear any previous error
@@ -612,7 +541,6 @@ function App() {
   // Effect to upload the blob once it's generated and stored in state
   useEffect(() => {
     if (pdfBlob && pdfGenerated) {
-      console.log("Blob detected in state, initiating upload...");
       uploadPdfBlob(pdfBlob);
     }
   }, [pdfBlob, pdfGenerated]); // Depend on blob and the generated flag
