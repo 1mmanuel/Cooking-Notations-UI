@@ -681,13 +681,6 @@ function App() {
                 onDeleteAction={handleDeleteAction}
               />
             </div>
-            {/* Notes Section for Printing */}
-            {notes && notes.trim() !== "" && (
-              <div className="print-notes-section">
-                <h2>Notes</h2>
-                <pre className="print-notes-content">{notes}</pre>
-              </div>
-            )}
             <div className="action-buttons">
               <button className="notes-button" onClick={handleOpenNotesModal}>
                 <img
@@ -755,6 +748,14 @@ function App() {
           {/* Add specific components here later as needed */}
         </div>
       </div>
+
+      {/* Notes Section for Printing */}
+      {notes && notes.trim() !== "" && (
+        <div className="print-notes-section">
+          <h2>Notes</h2>
+          <pre className="print-notes-content">{notes}</pre>
+        </div>
+      )}
 
       {isInfoPlaceholderVisible && (
         <div className="info-placeholder-container">

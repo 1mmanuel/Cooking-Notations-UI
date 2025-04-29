@@ -1044,7 +1044,7 @@ textarea, /* All textarea elements */
   padding: 15px;
   background-color: #f68e3e;
   border: 1px solid #000000;
-  border-radius: 15px;
+  border-radius: 30px;
   margin-bottom: 20px;
   box-shadow: inset 3px 3px 5px rgba(0, 0, 0, 0.552),
     inset -3px -3px 5px rgba(0, 0, 0, 0.552);
@@ -1117,16 +1117,16 @@ textarea, /* All textarea elements */
   aspect-ratio: 1 / 1; /* Maintain square aspect ratio */
   background-color: #f9db92; /* Background *between* squares */
   padding: 50px; /* Padding *inside* the grid border, around squares */
-  border-radius: 15px; /* Inner radius for the grid area */
+  border-radius: 30px; /* Inner radius for the grid area */
   border: 1px solid #000000; /* Keep inner border defining grid */
   box-shadow: inset 3px 3px 5px rgba(0, 0, 0, 0.552),
     inset -3px -3px 5px rgba(0, 0, 0, 0.552);
   margin: 0 auto; /* Center the grid horizontally within the outer container if it's wider */
   z-index: 0; /* Keep z-index below title */
-  padding-top: 70px;
+  padding-top: 90px;
 
   /* --- ADD THIS LINE --- */
-  margin-top: -55px; /* Pulls the grid up underneath the title. Adjust value as needed. */
+  margin-top: -75px; /* Pulls the grid up underneath the title. Adjust value as needed. */
   /* --- END ADD --- */
 
   /* Ensure position relative if needed for other absolute children, though not strictly for margin overlap */
@@ -1717,6 +1717,7 @@ textarea, /* All textarea elements */
 @media print {
   body {
     margin: 0;
+    background-color: #fff;
   }
   .app-container {
     flex-direction: column; /* Stack elements for printing */
@@ -1779,6 +1780,7 @@ textarea, /* All textarea elements */
 
     grid-template-columns: repeat(5, 1fr);
     grid-template-rows: repeat(5, 1fr);
+    padding-top: 70px;
   }
   .grid-square {
     /* background-color: #fff !important; */ /* Causes white background */
@@ -1824,7 +1826,7 @@ textarea, /* All textarea elements */
     top: 50%;
     transform: translateY(-50%);
     left: 100%;
-    margin-left: 2px; /* Adjust for print gap/overlap */
+    margin-left: 5px; /* Adjust for print gap/overlap */
   }
 
   /* Box 2: Above Box 1 - Print */
@@ -1832,7 +1834,7 @@ textarea, /* All textarea elements */
     bottom: 50%; /* Align bottom to parent vertical center */
     left: 100%; /* Align left to parent right edge */
     transform: none;
-    margin-left: 2px; /* Align horizontally */
+    margin-left: 5px; /* Align horizontally */
     /* This value pushes it UP from the center line */
     margin-bottom: 20px; /* Adjust if needed for print spacing */
   }
@@ -1842,7 +1844,7 @@ textarea, /* All textarea elements */
     top: 50%; /* Align top to parent vertical center */
     left: 100%; /* Align left to parent right edge */
     transform: none;
-    margin-left: 2px; /* Align horizontally */
+    margin-left: 5px; /* Align horizontally */
     /* This value pushes it DOWN from the center line */
     margin-top: 20px; /* Adjust if needed for print spacing */
   }
@@ -1919,14 +1921,20 @@ textarea, /* All textarea elements */
     display: block !important; /* <<< THIS IS APPLYING ALWAYS */
     page-break-before: always;
     margin-top: 30pt;
+    background-color: #f9db92;
+    border: 1pt solid #000000;
+    box-shadow: inset 3px 3px 5px rgba(0, 0, 0, 0.552),
+      inset -3px -3px 5px rgba(0, 0, 0, 0.552);
     padding: 10pt;
     width: 100%;
+    height: 1000px;
     box-sizing: border-box;
+    border-radius: 20px;
   }
 
   .print-notes-section h2 {
     font-family: "MyFont", sans-serif;
-    font-size: 16pt;
+    font-size: 20pt;
     color: black;
     text-align: center;
     margin-bottom: 15pt;
@@ -1936,7 +1944,7 @@ textarea, /* All textarea elements */
   .print-notes-content {
     font-family: sans-serif;
     font-size: 10pt;
-    height: 800px;
+    height: 850px;
     color: black;
     white-space: pre-wrap;
     word-wrap: break-word;
@@ -1944,6 +1952,7 @@ textarea, /* All textarea elements */
     border: 1pt solid #020202;
     padding: 8pt;
     background-color: #f9db92;
+    border-radius: 20px;
   }
   /* --- End Print-Only Notes Section Styles --- */
 }
