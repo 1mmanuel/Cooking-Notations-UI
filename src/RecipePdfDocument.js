@@ -431,12 +431,26 @@ const PdfMiniBox = ({ miniBox }) => {
 
 // --- PdfPlacedAction Component (remains the same) ---
 const PdfPlacedAction = ({ item }) => {
-  // ... (implementation)
   if (!item || !item.action) return null;
+
+  // Determine the label to display: Use currentLabel if available, fallback to originalLabel or action name
+  // This ensures *something* is displayed even if currentLabel somehow gets cleared,
+  // though ideally currentLabel should always hold the intended display text.
+  const displayLabel =
+    item.currentLabel !== undefined
+      ? item.currentLabel
+      : item.originalLabel || item.action.name || ""; // Fallback chain
+
   return (
     <View style={styles.placedActionView}>
       <RenderSvgIcon action={item.action} style={styles.actionIconView} />
-      {item.label && <Text style={styles.actionLabel}>{item.label}</Text>}
+
+      {/* --- MODIFIED LINE: Use displayLabel and check if it's not empty --- */}
+      {displayLabel && displayLabel.trim() !== "" && (
+        <Text style={styles.actionLabel}>{displayLabel}</Text>
+      )}
+      {/* --- END MODIFICATION --- */}
+
       {item.miniBoxes &&
         item.miniBoxes.map((mb) => <PdfMiniBox key={mb.id} miniBox={mb} />)}
     </View>

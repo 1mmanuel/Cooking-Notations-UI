@@ -35,6 +35,7 @@ import ActionItem from "./ActionItem";
 import { findActionById } from "./actions";
 import LandingPage from "./LandingPage";
 import NotesModal from "./NotesModal";
+import PdfGenerationHandler from "./PdfGenerationHandler"; // Adjust path if needed
 
 import HowToUseIcon from "./designs/howtouse.png";
 import InfoIcon from "./designs/info.png";
@@ -779,7 +780,7 @@ function App() {
       <DragOverlay className="drag-overlay">{renderDragOverlay()}</DragOverlay>
 
       {/* --- BlobProvider for PDF Generation --- */}
-      {/* Render BlobProvider only when triggered */}
+      {/* --- BlobProvider for PDF Generation --- */}
       {triggerPdfGeneration && (
         <BlobProvider
           document={
@@ -790,37 +791,25 @@ function App() {
             />
           }
         >
-          {({ blob, url, loading, error }) => {
-            // This function runs when the blob status changes
-
-            // Handle loading state (optional, as we use isLoadingPdf)
-            // if (loading && !isLoadingPdf) setIsLoadingPdf(true);
-
-            // Handle generation error
-            if (error) {
-              console.error("Error generating PDF blob:", error);
-              // Check if error state isn't already set to avoid loops
-              if (!pdfError) {
-                setPdfError(
-                  `Failed to generate PDF: ${error.message || error}`
-                );
-                setIsLoadingPdf(false); // Stop loading on error
-                setTriggerPdfGeneration(false); // Stop trying to generate
-              }
-              return null; // Don't proceed further
-            }
-
-            // When blob is ready and not already processed
-            if (blob && !loading && !pdfGenerated && !pdfBlob) {
-              console.log("PDF Blob generated successfully.");
-              setPdfBlob(blob); // Store the blob in state
-              setPdfGenerated(true); // Mark as generated
-              // The useEffect hook will now trigger the upload
-            }
-
-            // Render nothing visually here, it works in the background
-            return null;
-          }}
+          {(
+            { blob, url, loading, error } // <-- Keep the render prop function
+          ) => (
+            // Render the new handler component and pass props
+            <PdfGenerationHandler
+              blob={blob}
+              loading={loading}
+              error={error}
+              triggerPdfGeneration={triggerPdfGeneration}
+              pdfGenerated={pdfGenerated}
+              pdfBlob={pdfBlob}
+              pdfError={pdfError}
+              setPdfBlob={setPdfBlob}
+              setPdfGenerated={setPdfGenerated}
+              setPdfError={setPdfError}
+              setIsLoadingPdf={setIsLoadingPdf}
+              setTriggerPdfGeneration={setTriggerPdfGeneration}
+            />
+          )}
         </BlobProvider>
       )}
 

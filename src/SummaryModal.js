@@ -6,10 +6,35 @@ import { QRCodeSVG } from "qrcode.react";
 function SummaryModal({ isOpen, onClose, qrData, isLoading, error }) {
   if (!isOpen) return null;
 
+  // --- NEW: Internal close handler ---
+  // This function checks if loading is in progress before calling the actual onClose prop
+  const handleCloseAttempt = () => {
+    // Only call the passed onClose function if NOT loading
+    if (!isLoading) {
+      onClose();
+    } else {
+      // Optional: Log or provide feedback that closing is disabled during loading
+      console.log("Cannot close modal while PDF is generating/uploading.");
+      // You could add a brief visual cue or message if desired, but simply
+      // preventing the close is the main goal.
+    }
+  };
+  // --- END NEW ---
+
   return (
-    <div className="modal-overlay" onClick={onClose}>
+    // --- MODIFIED: Use handleCloseAttempt for the overlay click ---
+    <div className="modal-overlay" onClick={handleCloseAttempt}>
+      {/* Keep stopPropagation on the content itself */}
       <div className="modal-content" onClick={(e) => e.stopPropagation()}>
-        <button className="modal-close-button" onClick={onClose}>
+        {/* --- MODIFIED: Use handleCloseAttempt for the close button --- */}
+        {/* --- ADDED: disabled attribute based on isLoading --- */}
+        <button
+          className="modal-close-button"
+          onClick={handleCloseAttempt}
+          disabled={isLoading} // Visually disable the button while loading
+          aria-disabled={isLoading} // Accessibility attribute
+          title={isLoading ? "Generating PDF..." : "Close"} // Update tooltip
+        >
           &times;
         </button>
         <h2>Recipe PDF Link</h2>
