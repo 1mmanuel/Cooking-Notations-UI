@@ -508,7 +508,6 @@ const RecipePdfDocument = ({ recipeInfo, gridItems, notes }) => {
         {/* Only render if notes exist */}
         {notes && notes.trim() !== "" && (
           <View style={styles.notesSection} wrap={false}>
-            {" "}
             {/* wrap={false} tries to keep notes together */}
             <Text style={styles.notesTitle}>NOTES</Text>
             <Text style={styles.notesText}>{notes}</Text>

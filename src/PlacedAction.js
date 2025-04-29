@@ -1,25 +1,45 @@
 // src/PlacedAction.js
-import React from "react";
+import React, { useState, useEffect } from "react"; // Need state & effect
 import MiniBox from "./MiniBox";
 import { useDraggable } from "@dnd-kit/core";
 import { CSS } from "@dnd-kit/utilities";
 
 function PlacedAction({
   squareId,
-  action,
-  label,
-  miniBoxes,
+  // action, // <-- REMOVE this prop
+  // label, // <-- REMOVE this prop
+  // miniBoxes, // <-- REMOVE this prop
+  item, // <-- ADD item prop containing { action, originalLabel, currentLabel, miniBoxes }
   onLabelChange,
   onAddMiniBox,
   onMiniBoxDelete,
   onDeleteAction,
 }) {
+  // --- State for controlled input ---
+  // Initialize with currentLabel, fall back to old label or action name if needed
+  const initialLabel =
+    item?.currentLabel !== undefined
+      ? item.currentLabel
+      : item?.label || item?.action?.name || "";
+  const [inputValue, setInputValue] = useState(initialLabel);
+
+  // --- Effect to update input value if item.currentLabel changes externally ---
+  useEffect(() => {
+    const updatedLabel =
+      item?.currentLabel !== undefined
+        ? item.currentLabel
+        : item?.label || item?.action?.name || "";
+    setInputValue(updatedLabel);
+  }, [item?.currentLabel, item?.label, item?.action?.name]); // Depend on potential label sources
+  // --- End Effect ---
+
   const { attributes, listeners, setNodeRef, transform, isDragging } =
     useDraggable({
-      id: squareId,
+      id: squareId, // Use squareId as the draggable ID for grid items
       data: {
         type: "grid-item",
-        item: { action, label, miniBoxes },
+        // Pass the *current* item state, including potentially updated labels
+        item: { ...item, currentLabel: inputValue }, // Include local input value for drag data if needed
         sourceId: squareId,
       },
     });
@@ -37,13 +57,14 @@ function PlacedAction({
     alignItems: "center",
     justifyContent: "center",
     padding: "5px",
-    overflow: "visible", // Keep visible for mini-boxes
+    overflow: "visible",
   };
 
-  if (!action) return null;
+  // Use item.action now
+  if (!item || !item.action) return null;
 
   // Get the SVG component for the main action
-  const MainIconComponent = action.icon;
+  const MainIconComponent = item.action.icon;
 
   const handleRevealMiniBoxClick = (e) => {
     e.stopPropagation();
@@ -58,11 +79,14 @@ function PlacedAction({
     }
   };
 
-  const shouldShowAddButton = miniBoxes.length < 3;
-
-  const miniBoxRight = miniBoxes.find((box) => box.position === "right");
-  const miniBoxTop = miniBoxes.find((box) => box.position === "top");
-  const miniBoxBottom = miniBoxes.find((box) => box.position === "bottom");
+  // Use item.miniBoxes now
+  const currentMiniBoxes = item.miniBoxes || []; // Ensure miniBoxes is an array
+  const shouldShowAddButton = currentMiniBoxes.length < 3;
+  const miniBoxRight = currentMiniBoxes.find((box) => box.position === "right");
+  const miniBoxTop = currentMiniBoxes.find((box) => box.position === "top");
+  const miniBoxBottom = currentMiniBoxes.find(
+    (box) => box.position === "bottom"
+  );
 
   const renderMiniBox = (boxData) => {
     if (!boxData) return null;
@@ -72,12 +96,37 @@ function PlacedAction({
         key={boxData.id}
         id={boxData.id}
         droppableId={miniBoxDroppableId}
-        action={boxData.action} // Pass the full action object or null
+        action={boxData.action}
         onDelete={onMiniBoxDelete}
         parentSquareId={squareId}
       />
     );
   };
+
+  // --- Handlers for Input ---
+  const handleInputChange = (e) => {
+    setInputValue(e.target.value); // Update local state while typing
+  };
+
+  const handleInputBlur = () => {
+    // Determine the label that was originally passed in (currentLabel or fallback)
+    const originalCurrentLabel =
+      item?.currentLabel !== undefined
+        ? item.currentLabel
+        : item?.label || item?.action?.name || "";
+    // Call onLabelChange only if the input value has actually changed
+    if (inputValue !== originalCurrentLabel) {
+      onLabelChange(squareId, inputValue);
+    }
+  };
+
+  const handleInputKeyDown = (e) => {
+    if (e.key === "Enter") {
+      handleInputBlur(); // Treat Enter the same as blur
+      e.target.blur(); // Optionally remove focus
+    }
+  };
+  // --- End Input Handlers ---
 
   return (
     <div
@@ -87,10 +136,10 @@ function PlacedAction({
       {...attributes}
       className={`placed-action ${isDragging ? "dragging" : ""}`}
       onContextMenu={handleContextMenu}
-      title={`${action.name} (Right-click to delete)`}
+      // Use item.action.name for the base tooltip
+      title={`${item.action.name} (Right-click to delete)`}
     >
       {/* Main content (Icon and Label) */}
-      {/* Render the SVG component */}
       {MainIconComponent && (
         <span className="icon-wrapper">
           <MainIconComponent className="svg-icon placed-action-icon" />
@@ -99,20 +148,18 @@ function PlacedAction({
       <input
         type="text"
         className="label-input"
-        value={label}
-        onChange={(e) => onLabelChange(squareId, e.target.value)} // Handles typing
+        value={inputValue} // Use local state for value
+        onChange={handleInputChange} // Update local state on change
+        onBlur={handleInputBlur} // Call parent handler on blur
+        onKeyDown={handleInputKeyDown} // Call parent handler on Enter
         placeholder="Label this action"
-        onPointerDown={(e) => e.stopPropagation()} // Prevents drag start on input
-        // --- MODIFICATION HERE ---
-        onClick={(e) => {
-          e.stopPropagation(); // Keep stopping propagation
-          // Call onLabelChange with an empty string to clear the input
-          onLabelChange(squareId, "");
-        }}
-        // --- END MODIFICATION ---
-        onTouchStart={(e) => e.stopPropagation()} // Prevents drag on touch
-        onContextMenu={(e) => e.stopPropagation()} // Prevents context menu interference
+        onPointerDown={(e) => e.stopPropagation()} // Prevent drag start on input
+        onClick={(e) => e.stopPropagation()} // Prevent click from bubbling, DO NOT CLEAR INPUT HERE
+        onTouchStart={(e) => e.stopPropagation()} // Prevent drag on touch
+        onContextMenu={(e) => e.stopPropagation()} // Prevent context menu interference
         style={{ pointerEvents: isDragging ? "none" : "auto" }}
+        // Use item.originalLabel for accessibility if available
+        aria-label={`Label for ${item.originalLabel || item.action.name}`}
       />
 
       {/* Conditional '+' Button */}
@@ -128,7 +175,7 @@ function PlacedAction({
         </button>
       )}
 
-      {/* Render MiniBoxes in Positioned Containers */}
+      {/* Render MiniBoxes */}
       {miniBoxRight && (
         <div
           className="mini-box-container-right"

@@ -139,26 +139,232 @@ function App() {
     setRecipeInfo(newInfo);
   };
 
-  const handleLabelChange = useCallback((squareId, newLabel) => {
-    setGridItems((prev) => ({
-      ...prev,
-      [squareId]: { ...prev[squareId], label: newLabel },
-    }));
-  }, []);
+  const handleLabelChange = useCallback(
+    (squareId, newLabel) => {
+      setGridItems((prevGrid) => {
+        const currentItem = prevGrid[squareId];
 
-  const handleDeleteAction = useCallback((squareIdToDelete) => {
-    console.log("Deleting action from square:", squareIdToDelete);
-    setGridItems((currentGridItems) => {
-      if (!currentGridItems[squareIdToDelete]) {
-        console.warn(`Square ${squareIdToDelete} not found for deletion.`);
-        return currentGridItems;
-      }
-      return {
-        ...currentGridItems,
-        [squareIdToDelete]: createEmptySquare(),
-      };
-    });
-  }, []);
+        if (!currentItem || !currentItem.action) {
+          console.warn(
+            `[handleLabelChange] Item not found or has no action for squareId: ${squareId}`
+          );
+          return prevGrid;
+        }
+
+        // Capture labels before potential update
+        const originalLabel =
+          currentItem.originalLabel !== undefined
+            ? currentItem.originalLabel
+            : currentItem.action?.name || currentItem.label || "";
+        const oldLabel =
+          currentItem.currentLabel !== undefined
+            ? currentItem.currentLabel
+            : currentItem.label || currentItem.action?.name || ""; // Use action name as fallback for old label too
+
+        // Only proceed if the label actually changed
+        if (oldLabel === newLabel) {
+          console.log("[handleLabelChange] Label unchanged.");
+          return prevGrid; // No change needed
+        }
+
+        console.log(
+          `[handleLabelChange] Changing label: Original='${originalLabel}', Old='${oldLabel}', New='${newLabel}'`
+        );
+
+        // --- Update Notes ---
+        setNotes((prevNotes) => {
+          // Pattern for the note we want to REMOVE
+          const oldPattern = `${originalLabel} --> (${oldLabel})`;
+          // The new note line we want to ADD
+          const newNoteLine = `${originalLabel} --> (${newLabel})`; // No \n yet
+
+          console.log(
+            `[handleLabelChange - setNotes] Removing pattern: "${oldPattern}"`
+          );
+          console.log(
+            `[handleLabelChange - setNotes] Adding line: "${newNoteLine}"`
+          );
+          console.log(
+            `[handleLabelChange - setNotes] Previous Notes:`,
+            JSON.stringify(prevNotes)
+          );
+
+          const lines = (prevNotes || "").split("\n");
+          let linesRemovedCount = 0;
+
+          // Filter out the *old* note, comparing trimmed lines
+          const filteredLines = lines.filter((line) => {
+            const trimmedLine = line.trim();
+            // Check if the trimmed line exactly matches the old pattern
+            const shouldRemove = trimmedLine === oldPattern;
+            if (shouldRemove && trimmedLine !== "") {
+              // Only count if we are removing a non-empty line
+              linesRemovedCount++;
+            }
+            // Keep lines that don't match the old pattern OR were empty lines originally
+            return !shouldRemove || trimmedLine === "";
+          });
+
+          // Add the *new* note line (only if originalLabel exists, which it should if renamed)
+          if (originalLabel) {
+            // Avoid adding duplicates if somehow the new note is already there
+            if (!filteredLines.some((line) => line.trim() === newNoteLine)) {
+              filteredLines.push(newNoteLine);
+            }
+          }
+
+          // Clean up: remove any blank lines that might result from filtering/splitting
+          const finalLines = filteredLines.filter((line) => line.trim() !== "");
+
+          const finalNotes = finalLines.join("\n"); // Join remaining lines
+
+          console.log(
+            `[handleLabelChange - setNotes] Lines removed: ${linesRemovedCount}`
+          );
+          console.log(
+            `[handleLabelChange - setNotes] New Notes:`,
+            JSON.stringify(finalNotes)
+          );
+          return finalNotes; // Return the potentially modified notes string
+        });
+        // --- End Notes Update ---
+
+        // --- Return updated Grid ---
+        return {
+          ...prevGrid,
+          [squareId]: {
+            ...currentItem,
+            originalLabel: originalLabel, // Ensure originalLabel is preserved
+            currentLabel: newLabel, // Update the currentLabel
+            label: undefined, // Remove the old 'label' property explicitly
+          },
+        };
+      }); // --- End setGridItems callback ---
+    },
+    [setGridItems, setNotes] // Keep dependencies
+  );
+  // --- END REWRITE handleLabelChange ---
+  const handleDeleteAction = useCallback(
+    (squareIdToDelete) => {
+      console.log(
+        "[handleDeleteAction] Attempting to delete action from square:",
+        squareIdToDelete
+      );
+
+      // --- Update gridItems AND trigger notes update from within ---
+      setGridItems((currentGridItems) => {
+        const itemToDelete = currentGridItems[squareIdToDelete];
+
+        // Guard clause: If square is already empty or invalid, do nothing
+        if (!itemToDelete || !itemToDelete.action) {
+          console.warn(
+            `[handleDeleteAction] Square ${squareIdToDelete} not found or empty for deletion.`
+          );
+          return currentGridItems; // Return current state, no change
+        }
+
+        // Capture the labels *before* deleting the item
+        const originalLabel =
+          itemToDelete.originalLabel !== undefined
+            ? itemToDelete.originalLabel
+            : itemToDelete.action?.name || itemToDelete.label || "";
+        const currentLabel =
+          itemToDelete.currentLabel !== undefined
+            ? itemToDelete.currentLabel
+            : itemToDelete.label || itemToDelete.action?.name || "";
+
+        // Determine if a note *might* need removal (only if it was ever renamed)
+        const noteShouldBeRemoved =
+          originalLabel && originalLabel !== currentLabel;
+
+        console.log(
+          `[handleDeleteAction] Deleting item: Original='${originalLabel}', Current='${currentLabel}', NoteRemovalNeeded=${noteShouldBeRemoved}`
+        );
+
+        // --- MOVED NOTES UPDATE LOGIC HERE ---
+        if (noteShouldBeRemoved) {
+          const noteToRemovePatternEnd = `${originalLabel} --> (${currentLabel})`; // NO trailing \n here
+          console.log(
+            "[handleDeleteAction] Attempting to remove note pattern (trimmed):",
+            JSON.stringify(noteToRemovePatternEnd)
+          );
+
+          // Use functional update for setNotes INSIDE setGridItems callback
+          setNotes((prevNotes) => {
+            console.log(
+              "[handleDeleteAction - setNotes] Previous Notes:",
+              JSON.stringify(prevNotes)
+            );
+            console.log(
+              "[handleDeleteAction - setNotes] Pattern to remove:",
+              JSON.stringify(noteToRemovePatternEnd)
+            );
+
+            if (!prevNotes) {
+              console.log(
+                "[handleDeleteAction - setNotes] No previous notes to modify."
+              );
+              return "";
+            }
+
+            const lines = prevNotes.split("\n");
+            let linesRemovedCount = 0;
+
+            const updatedLines = lines.filter((line) => {
+              const trimmedLine = line.trim();
+              const shouldKeep = trimmedLine !== noteToRemovePatternEnd;
+              if (!shouldKeep && trimmedLine !== "") {
+                linesRemovedCount++;
+                console.log(
+                  `[handleDeleteAction - setNotes] Matched and removing line: "${trimmedLine}"`
+                );
+              }
+              return (
+                shouldKeep || (trimmedLine === "" && prevNotes.trim() !== "")
+              );
+            });
+
+            console.log(
+              `[handleDeleteAction - setNotes] Lines before filter: ${lines.length}, Lines after: ${updatedLines.length}, Removed count: ${linesRemovedCount}`
+            );
+
+            if (linesRemovedCount > 0) {
+              console.log(
+                "[handleDeleteAction - setNotes] Note pattern found and removed."
+              );
+              const result = updatedLines.join("\n");
+              const finalNotes = result.trim(); // Trim final result
+              console.log(
+                "[handleDeleteAction - setNotes] New Notes:",
+                JSON.stringify(finalNotes)
+              );
+              return finalNotes;
+            } else {
+              console.log(
+                "[handleDeleteAction - setNotes] Note pattern not found."
+              );
+              return prevNotes; // Return original notes if no match
+            }
+          });
+        } else {
+          console.log(
+            "[handleDeleteAction] No rename detected for deleted item, notes not modified."
+          );
+        }
+        // --- END MOVED NOTES UPDATE LOGIC ---
+
+        // Return the updated grid state with the square cleared
+        return {
+          ...currentGridItems,
+          [squareIdToDelete]: createEmptySquare(), // Clear the square
+        };
+      }); // --- End setGridItems callback ---
+
+      // --- REMOVE the notes update logic from here ---
+      // if (noteShouldBeRemoved) { ... } // <-- DELETE THIS BLOCK
+    },
+    [setGridItems, setNotes] // Keep dependencies
+  );
 
   const handleAddMiniBox = useCallback((squareId) => {
     setGridItems((prev) => {
@@ -227,7 +433,14 @@ function App() {
       const action = activeData.action;
       setGridItems((prev) => ({
         ...prev,
-        [targetId]: { action: action, label: action.name || "", miniBoxes: [] },
+        [targetId]: {
+          action: action,
+          // --- ADD originalLabel and use currentLabel ---
+          originalLabel: action.name || "", // Store the original name
+          currentLabel: action.name || "", // Initialize the editable label
+          // --- END ADD ---
+          miniBoxes: [], // Initialize miniBoxes
+        },
       }));
       return;
     }
@@ -240,9 +453,33 @@ function App() {
       activeData?.item
     ) {
       const draggedItemData = activeData.item;
+
+      // --- Prepare the item being moved, ensuring labels are correct ---
+      // Use currentLabel if it exists, otherwise fall back to old 'label'
+      const currentLabelValue =
+        draggedItemData.currentLabel !== undefined
+          ? draggedItemData.currentLabel
+          : draggedItemData.label;
+      // Use originalLabel if it exists, otherwise fall back to action name or old 'label'
+      const originalLabelValue =
+        draggedItemData.originalLabel !== undefined
+          ? draggedItemData.originalLabel
+          : draggedItemData.action?.name || currentLabelValue || "";
+
+      const itemToMove = {
+        ...draggedItemData, // Copy other properties like action, miniBoxes
+        originalLabel: originalLabelValue,
+        currentLabel: currentLabelValue,
+      };
+      // Remove the old 'label' property if it exists to avoid confusion
+      delete itemToMove.label;
+      // --- End preparation ---
+
       setGridItems((prev) => {
         const newGrid = { ...prev };
-        newGrid[targetId] = { ...draggedItemData };
+        // Place the prepared item in the target square
+        newGrid[targetId] = itemToMove;
+        // Clear the source square
         newGrid[sourceId] = createEmptySquare();
         return newGrid;
       });
@@ -282,6 +519,16 @@ function App() {
               `Updating MiniBox ${mb.id} in square ${parentSquareId}`
             );
             foundMiniBox = true;
+            // --- Optional: Add labels to mini-box actions if they can be renamed ---
+            // return {
+            //   ...mb,
+            //   action: {
+            //       ...droppedAction,
+            //       originalLabel: droppedAction.name || "",
+            //       currentLabel: droppedAction.name || ""
+            //   }
+            // };
+            // --- If mini-boxes are NOT renamed, keep it simple: ---
             return { ...mb, action: droppedAction };
           }
           return mb;
