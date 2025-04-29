@@ -36,6 +36,17 @@ import { findActionById } from "./actions";
 import LandingPage from "./LandingPage";
 import NotesModal from "./NotesModal";
 
+import HowToUseIcon from "./designs/howtouse.png";
+import InfoIcon from "./designs/info.png";
+import MascotIcon from "./designs/mascot.png";
+import NotesIcon from "./designs/notes.png";
+import PotIcon from "./designs/pot.png";
+
+import CookingPNG from "./designs/cooking.png";
+import ServePNG from "./designs/serve.png"; // Import the new image
+
+import PrintPNG from "./designs/print.png"; // Import the new image
+
 import "./App.css";
 
 // Define Grid Size
@@ -85,8 +96,8 @@ function App() {
   const gridRef = useRef(null);
 
   const sensors = useSensors(
-    useSensor(PointerSensor),
-    useSensor(KeyboardSensor)
+    useSensor(PointerSensor)
+    // useSensor(KeyboardSensor)
   );
 
   // --- Handlers for Notes Modal ---
@@ -373,54 +384,113 @@ function App() {
       onDragEnd={handleDragEnd}
       onDragCancel={handleDragCancel}
     >
+      {/* App Container now holds the main content area and the info panel */}
       <div className="app-container">
-        {/* Left and Right Panels remain structurally the same */}
-        <div className="left-panel">
-          <RecipeInfoForm info={recipeInfo} onChange={handleRecipeInfoChange} />
-          <ActionPalette />
-        </div>
-
-        <div className="right-panel">
-          <div className="recipe-grid-outer-container">
-            <div className="recipe-grid-title">
-              <h2 className="cooking">COOKING</h2>
-              <h2 className="notations">NOTATIONS UI</h2>
-            </div>
-            {/* RecipeGrid component itself doesn't need changes for PDF generation */}
-            <RecipeGrid
-              ref={gridRef} // Keep ref if needed for other purposes (like print styling target)
-              items={gridItems}
-              onLabelChange={handleLabelChange}
-              onAddMiniBox={handleAddMiniBox}
-              onMiniBoxDelete={handleMiniBoxDelete}
-              onDeleteAction={handleDeleteAction}
+        {/* NEW: Wrapper for Left and Middle Panels */}
+        <div className="main-content-area">
+          {/* Panel 1: Left Panel (Existing) */}
+          <div className="left-panel">
+            <RecipeInfoForm
+              info={recipeInfo}
+              onChange={handleRecipeInfoChange}
             />
+            <ActionPalette />
           </div>
-          {/* --- ADDED: Notes Section for Printing --- */}
-          {/* Conditionally render only if notes exist */}
-          {notes && notes.trim() !== "" && (
-            <div className="print-notes-section">
-              <h2>Notes</h2>
-              <pre className="print-notes-content">{notes}</pre>
+
+          {/* Panel 2: Middle Panel (Previously Right Panel) */}
+          <div className="right-panel">
+            {" "}
+            {/* Keep class name */}
+            <div className="recipe-grid-outer-container">
+              <div className="recipe-grid-title">
+                <img
+                  src={CookingPNG} /* Use the URL from the default import */
+                  alt="" /* Alt text is handled by aria-label on button */
+                  className="cooking-icon"
+                />
+              </div>
+              <RecipeGrid
+                ref={gridRef}
+                items={gridItems}
+                onLabelChange={handleLabelChange}
+                onAddMiniBox={handleAddMiniBox}
+                onMiniBoxDelete={handleMiniBoxDelete}
+                onDeleteAction={handleDeleteAction}
+              />
             </div>
-          )}
-          {/* --- END ADDED --- */}
-          <div className="action-buttons">
-            <button className="notes-button" onClick={handleOpenNotesModal}>
-              Notes
-            </button>
-            {/* --- UPDATED SERVE BUTTON --- */}
-            <button
-              className="serve-button"
-              onClick={handleGeneratePdf} // Trigger generation first
-              disabled={isLoadingPdf} // Disable while generating/uploading
-            >
-              {isLoadingPdf ? "Processing PDF..." : "SERVE"}
-            </button>
-            <button className="print-button" onClick={handlePrint}>
-              Print Grid
-            </button>
+            {/* Notes Section for Printing */}
+            {notes && notes.trim() !== "" && (
+              <div className="print-notes-section">
+                <h2>Notes</h2>
+                <pre className="print-notes-content">{notes}</pre>
+              </div>
+            )}
+            <div className="action-buttons">
+              <button className="notes-button" onClick={handleOpenNotesModal}>
+                <img
+                  src={NotesIcon} /* Use the URL from the default import */
+                  alt="" /* Alt text is handled by aria-label on button */
+                  className="notes-icon"
+                />
+              </button>
+              <button
+                className="serve-button"
+                onClick={handleGeneratePdf}
+                disabled={isLoadingPdf}
+              >
+                <img
+                  src={ServePNG} /* Use the URL from the default import */
+                  alt="" /* Alt text is handled by aria-label on button */
+                  className="serve-icon"
+                />
+              </button>
+              <button className="print-button" onClick={handlePrint}>
+                <img
+                  src={PrintPNG} /* Use the URL from the default import */
+                  alt="" /* Alt text is handled by aria-label on button */
+                  className="print-icon"
+                />
+              </button>
+            </div>
           </div>
+        </div>{" "}
+        {/* End main-content-area */}
+        {/* Panel 3: Info Side Panel (Now a direct sibling of main-content-area) */}
+        <div className="info-side-panel">
+          {/* --- ADD THE NEW BUTTON HERE --- */}
+          <button
+            className="info-panel-middle-left-button"
+            onClick={() => {
+              console.log("Middle Left Info Button Clicked!");
+              // Add your info button functionality here
+            }}
+            aria-label="Show Information" // Accessibility label
+          >
+            {/* Replace text with the icon component */}
+            <img
+              src={InfoIcon} /* Use the URL from the default import */
+              alt="" /* Alt text is handled by aria-label on button */
+              className="button-info-icon infoicon"
+            />
+          </button>
+          {/* --- END NEW BUTTON --- */}
+          <img
+            src={PotIcon}
+            alt="Pot"
+            className="info-panel-image poticon"
+          />{" "}
+          {/* Pot first */}
+          <img
+            src={HowToUseIcon}
+            alt="How to Use"
+            className="info-panel-image howtouseicon"
+          />
+          <img
+            src={MascotIcon}
+            alt="Mascot"
+            className="info-panel-image mascoticon"
+          />
+          {/* Add specific components here later as needed */}
         </div>
       </div>
 

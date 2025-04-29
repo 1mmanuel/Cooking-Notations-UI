@@ -1,4 +1,5 @@
 import React from "react";
+import DetailsPNG from "./designs/details.png"; // Import the new image
 
 function RecipeInfoForm({ info, onChange }) {
   const handleChange = (e) => {
@@ -8,7 +9,11 @@ function RecipeInfoForm({ info, onChange }) {
 
   return (
     <div className="recipe-info-form">
-      <h2>DETAILS</h2>
+      <img
+        src={DetailsPNG} /* Use the URL from the default import */
+        alt="" /* Alt text is handled by aria-label on button */
+        className="details-icon"
+      />
       <label htmlFor="name">Recipe Name</label>
       <input
         type="text"

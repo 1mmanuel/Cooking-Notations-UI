@@ -42,13 +42,48 @@ body {
   /* This text-shadow applies to all text inside unless overridden */
   text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.6);
 
-  /* Optional: Use similar background/theme */
-  background-color: #f7a541; /* Match app theme */
-  background-image: url("designs/Pattern\ MASSIVE.svg "); /* Optional pattern */
-  background-size: 2000px;
-  background-blend-mode: multiply;
-  color: #f9db92; /* Contrasting text */
+  /* --- MODIFICATION START --- */
+  background-color: #f7a541; /* Keep solid background color */
+  /* REMOVE background image properties from here */
+  /* background-image: url("designs/Pattern MASSIVE.svg "); */
+  /* background-size: 6000px; */
+  /* background-blend-mode: multiply; */
+  /* --- MODIFICATION END --- */
+
+  /* Keep existing text color and shadow */
+  color: #f9db92;
   text-shadow: 5px 5px 5px rgba(0, 0, 0, 0.6);
+
+  /* --- ADD These --- */
+  position: relative; /* Needed for pseudo-element */
+  overflow: hidden; /* Good practice, clips pseudo-element if needed */
+  z-index: 0; /* Establish stacking context */
+  /* --- END ADD --- */
+}
+
+/* --- ADD THIS NEW RULE --- */
+.landing-page-container::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: -1; /* Behind content */
+
+  /* Apply background image properties here */
+  background-image: url("designs/Pattern MASSIVE.svg ");
+  background-size: 6000px; /* Or adjust as needed */
+  background-position: center center; /* Optional: Center the large image */
+  background-repeat: no-repeat; /* Assuming it's a large pattern */
+  background-blend-mode: multiply; /* Keep blend mode if desired */
+
+  /* --- SET DESIRED OPACITY HERE --- */
+  opacity: 0.5; /* Example: 20% opacity. Adjust as needed (0.0 to 1.0) */
+  /* --- END OPACITY --- */
+
+  /* Optional: Add if container might get rounded corners later */
+  /* border-radius: inherit; */
 }
 
 /* --- REMOVE OR COMMENT OUT OLD H1/P STYLES --- */
@@ -70,21 +105,60 @@ body {
 
 /* --- ADD NEW STYLES FOR THE TITLE --- */
 .landing-title-wrapper {
-  margin-bottom: 50px; /* Space between title block and button */
+  margin-bottom: 30px; /* Space between title block and button */
   border: 5px solid #000000; /* Add border using the text color */
   border-radius: 45px; /* Apply the requested border radius */
-  padding: 20px 200px; /* Add padding so text isn't touching the border */
+  padding: 0px 30px; /* Add padding so text isn't touching the border */
   display: inline-block; /* Make the wrapper only as wide as its content */
-  background-color: #f68e3e; /* Give the container a solid background */
-  background-image: url("designs/Pattern\ MASSIVE.svg "); /* Your pattern */
-  background-size: 8500px;
+
+  background-color: #f68e3e; /* Keep the container's solid background */
   box-shadow: inset 3px 3px 5px rgba(0, 0, 0, 0.552),
     inset -3px -3px 5px rgba(0, 0, 0, 0.552);
 
-  /* --- ADD THIS LINE FOR ANIMATION --- */
-  animation: breatheAnimation 4s ease-in-out infinite;
-  /* --- END ADDED LINE --- */
+  /* --- REMOVE Background Image Styles from here --- */
+  /* background-image: url("designs/Pattern MASSIVE.svg "); */
+  /* background-size: 8500px; */
+  /* --- END REMOVE --- */
+
+  /* --- ADD These --- */
+  position: relative; /* Needed for pseudo-element */
+  overflow: hidden; /* To clip pseudo-element to border-radius */
+  z-index: 0; /* Establish stacking context */
+  /* --- END ADD --- */
+
+  /* --- Keep Animation --- */
+  animation: breatheAnimation 2s ease-in-out infinite;
 }
+
+/* --- ADD THIS NEW RULE --- */
+.landing-title-wrapper::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: -1; /* Behind content */
+
+  /* Apply background image properties here */
+  background-image: url("designs/Pattern MASSIVE.svg ");
+  background-size: 9000px; /* Or adjust as needed */
+  background-position: center center; /* Optional: Center the large image */
+  background-repeat: no-repeat; /* Assuming it's a large pattern */
+
+  /* --- SET DESIRED OPACITY HERE --- */
+  opacity: 0.55; /* Example: 30% opacity. Adjust as needed (0.0 to 1.0) */
+  /* --- END OPACITY --- */
+
+  border-radius: inherit; /* Match parent's border-radius */
+}
+
+.landing-cooking-icon {
+  max-width: 1500px;
+  padding-top: 20px;
+  padding-bottom: 10px;
+}
+/* --- END ADDED RULE --- */
 
 .landing-title-cooking {
   font-size: 10em; /* Make COOKING large */
@@ -109,14 +183,15 @@ body {
   padding: 15px 35px;
   font-size: 2em; /* Make it prominent */
   font-family: "MyFont", sans-serif;
-  border-radius: 8px; /* Slightly larger radius */
+  border-radius: 30px; /* Slightly larger radius */
   cursor: pointer;
   transition: background-color 0.2s ease, transform 0.1s ease;
 
-  background-color: #f9db92; /* Button color - like palette background */
+  background-color: #f7a541; /* Button color - like palette background */
   border: 2px solid #000000;
   color: #f68e3e; /* Text color - like palette title */
-  box-shadow: 3px 3px 6px rgba(0, 0, 0, 0.4); /* Add a subtle drop shadow */
+  box-shadow: inset 3px 3px 5px rgba(0, 0, 0, 0.552),
+    inset -3px -3px 5px rgba(0, 0, 0, 0.552);
   text-shadow: none; /* Remove text shadow from container */
 }
 
@@ -130,48 +205,266 @@ body {
   transform: scale(0.98); /* Press effect */
   box-shadow: inset 1px 1px 3px rgba(0, 0, 0, 0.3);
 }
+
+.start-icon {
+  max-width: 350px;
+  padding-top: 15px;
+}
 /* --- End Landing Page Styles --- */
 
 .app-container {
   display: flex;
-  gap: 30px;
-  flex-wrap: wrap; /* Allow wrapping on smaller screens */
-
-  /* Centering and Sizing */
-  max-width: 1100px; /* Or your preferred max width */
-  margin: 20px auto; /* Center horizontally, add some top/bottom margin */
-  padding: 20px; /* Padding inside the container */
-  box-sizing: border-box; /* Include padding/border in width calculation */
-
-  /* --- ADD --- */
-  /* Adjust color/width as needed (e.g., #bbb, 2px) */
-  border-radius: 15px; /* Optional: Rounded corners */
-  background-color: #f7a541; /* Give the container a solid background */
-  background-image: url("designs/Pattern\ MASSIVE.svg "); /* Your pattern */
-  background-size: 2500px;
-  background-blend-mode: multiply;
-  box-shadow: inset 3px 3px 5px rgba(0, 0, 0, 0.552),
-    inset -3px -3px 5px rgba(0, 0, 0, 0.552);
-  /* --- END ADD --- */
+  flex-wrap: nowrap;
+  width: 100%;
+  max-width: 1900px;
+  margin: 20px auto;
+  padding: 0;
+  box-sizing: border-box;
+  /* gap: 15px; */ /* Keep gap removed */
 }
 
-/* Keep the rest of the styles for .left-panel, .right-panel, etc. */
-/* Around line 49 */
-.left-panel {
-  flex: 1; /* Keep this for horizontal sizing */
-  /* --- ADD THESE --- */
+/* --- Main Content Area (Left + Middle) --- */
+.main-content-area {
   display: flex;
-  flex-direction: column;
-  gap: 20px; /* Space between form and palette */
-  /* --- END ADD --- */
-  min-width: 250px;
+  flex-grow: 1;
+  flex-basis: 80%;
+  min-width: 0;
+  max-width: 1450px;
+  /* overflow: hidden; */ /* Keep overflow: hidden */
+  padding: 15px;
+  box-sizing: border-box;
+  border: 4px solid #000000;
+  border-radius: 40px; /* Rounded on ALL corners */
+
+  /* --- MODIFICATION START --- */
+  background-color: #f7a541; /* Keep the solid background color */
+  /* REMOVE background image properties from here */
+  /* background-image: url("designs/Pattern MASSIVE.svg "); */
+  /* background-size: 2500px; */
+  /* background-blend-mode: multiply; */
+  /* --- MODIFICATION END --- */
+
+  box-shadow: inset 3px 3px 5px rgba(0, 0, 0, 0.552),
+    inset -3px -3px 5px rgba(0, 0, 0, 0.552);
+  gap: 15px;
+
+  position: relative; /* Keep: Needed for pseudo-element positioning */
+  overflow: hidden; /* Keep: Ensures pseudo-element respects border-radius */
+  z-index: 9; /* Ensure content is layered above the ::before pseudo-element */
+}
+
+/* --- ADD THIS NEW RULE --- */
+.main-content-area::before {
+  content: ""; /* Required for pseudo-elements */
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: -1; /* Place behind the content */
+
+  /* Apply background image properties here */
+  background-image: url("designs/Pattern MASSIVE.svg ");
+  background-size: 2500px; /* Adjust size as needed */
+  background-repeat: repeat; /* Or 'no-repeat' depending on the pattern */
+  background-position: center center; /* Adjust position as needed */
+  /* background-blend-mode: multiply; */ /* Apply here if you still want blending */
+
+  /* --- SET DESIRED OPACITY HERE --- */
+  opacity: 0.45; /* Example: 30% opacity. Adjust value between 0.0 and 1.0 */
+  /* --- END OPACITY SETTING --- */
+
+  border-radius: inherit; /* Make pseudo-element respect parent's border-radius */
+}
+/* --- END ADDED RULE --- */
+
+.cooking-icon {
+  max-width: 800px;
+  padding-top: 20px;
+  padding-bottom: 10px;
+}
+
+/* Style all three panels - Remove shared margin */
+.left-panel,
+.right-panel, /* This is now the middle panel */
+.info-side-panel {
+  flex-grow: 1;
+  flex-shrink: 1;
+  box-sizing: border-box;
+  overflow-y: auto;
+  overflow-x: hidden;
+  /* border-radius: 10px; */ /* Remove default radius here */
+  /* margin: 0 10px; */ /* Keep margin removed */
+}
+
+/* Adjust flex basis WITHIN main-content-area */
+.left-panel {
+  flex-basis: 25%;
+  min-width: 450px;
+  padding: 10px 0px 10px 10px;
+  border-radius: 10px; /* Can keep its own internal radius */
 }
 
 .right-panel {
-  flex: 3;
-  /* Add flex-basis for better control if needed, e.g., flex-basis: 700px; */
-  /* Ensure the grid inside doesn't push the container too wide */
-  min-width: 0; /* Allow shrinking if necessary */
+  flex-basis: 75%;
+  min-width: 400px;
+  padding: 10px 10px 10px 0px;
+  border-radius: 10px; /* Can keep its own internal radius */
+}
+
+/* Info Side Panel - Now a direct child of app-container */
+.info-side-panel {
+  flex-basis: 20%;
+  /* min-width: 350px; */
+  max-width: 450px;
+  background-color: #f68e3e;
+  padding: 15px;
+  padding-left: 50px;
+
+  position: relative;
+  z-index: 1; /* Adjusted z-index */
+  margin-left: -32px; /* Keep overlap */
+
+  border-top: 5px solid #000000;
+  border-bottom: 5px solid #000000;
+  border-right: 5px solid #000000;
+  border-left: none;
+
+  border-radius: 0 30px 30px 0;
+
+  /* --- ADD Flexbox for content alignment --- */
+  display: flex; /* Use flexbox */
+  flex-direction: column; /* Stack children vertically */
+  /* align-items: center; */ /* Center children horizontally */
+  /* justify-content: space-around; */ /* Distribute space */
+  /* --- END ADD --- */
+}
+
+/* --- REMOVE OLD Info Panel Content Styles --- */
+/*
+.info-side-panel h2 { ... }
+.info-side-panel p { ... }
+*/
+/* --- END REMOVE --- */
+
+/* --- ADD Styles for SVG Container and SVGs --- */
+.info-panel-svg-container {
+  display: flex;
+  flex-direction: column; /* Stack SVGs vertically */
+  align-items: center; /* Center SVGs horizontally */
+  justify-content: space-around; /* Distribute space vertically */
+  gap: 20px; /* Space between SVGs */
+  padding: 20px 0; /* Add some vertical padding */
+  height: 100%; /* Make container fill the panel height */
+  box-sizing: border-box;
+}
+
+.info-panel-svg {
+  width: 70%; /* Adjust width as needed */
+  max-width: 180px; /* Set a max width */
+  height: auto; /* Maintain aspect ratio */
+  fill: #f9db92; /* Example fill color - adjust if SVGs have own colors */
+  /* Add transition or other effects if desired */
+}
+
+.poticon {
+  width: 90%;
+  height: auto; /* Maintain aspect ratio */
+  padding-left: 15px;
+  padding-top: 20px;
+}
+
+.howtouseicon {
+  width: 100%;
+  height: auto; /* Maintain aspect ratio */
+  padding-top: 75px;
+  padding-left: 10px;
+}
+
+.mascoticon {
+  width: 100%;
+  min-width: 5 50px; /* Set a min width for larger screens */
+  height: 850px; /* Maintain aspect ratio */
+  padding-top: 100px;
+  padding-left: 30px;
+  position: absolute;
+  top: 30%;
+}
+
+/* --- ADJUST Styles for the Middle Left Button (Now Icon Button) --- */
+.info-panel-middle-left-button {
+  position: absolute; /* Position relative to the info-side-panel */
+  top: 50%; /* Align top edge to the vertical center */
+  left: 50px; /* Position 15px from the left edge */
+  transform: translateY(50%); /* Shift up by half its height */
+
+  z-index: 5; /* Ensure it's above the background/pattern */
+
+  /* --- Styling Adjustments for Icon --- */
+  width: 100px; /* Make it square-ish (adjust size as needed) */
+  height: 100px;
+  padding: 0; /* Remove padding used for text */
+  border-radius: 15px; /* Make it circular */
+  display: flex; /* Use flexbox to center the icon */
+  align-items: center; /* Center icon vertically */
+  justify-content: center; /* Center icon horizontally */
+  /* font-size: 1em; /* Font size less relevant now */
+  font-family: "MyFont", sans-serif; /* Keep for potential tooltips */
+  cursor: pointer;
+  transition: background-color 0.2s ease, transform 0.1s ease,
+    box-shadow 0.2s ease; /* Added box-shadow */
+
+  background-color: #f9db92; /* Button background */
+  border: 5px solid #000000;
+  /* color: #f68e3e; /* Color is now handled by icon fill */
+  box-shadow: inset 3px 3px 5px rgba(0, 0, 0, 0.552),
+    inset -3px -3px 5px rgba(0, 0, 0, 0.552);
+}
+
+.info-panel-middle-left-button:hover {
+  background-color: #fed373; /* Lighter hover */
+  /* Keep combined transform */
+  transform: translateY(-50%) scale(1.05);
+  box-shadow: inset 3px 3px 5px rgba(0, 0, 0, 0.552),
+    inset -3px -3px 5px rgba(0, 0, 0, 0.552);
+}
+
+.info-panel-middle-left-button:active {
+  /* Keep combined transform */
+  transform: translateY(-50%) scale(0.98);
+  box-shadow: inset 3px 3px 5px rgba(0, 0, 0, 0.552),
+    inset -3px -3px 5px rgba(0, 0, 0, 0.552);
+}
+
+/* --- ADD Styling for the Icon INSIDE the button --- */
+.info-panel-middle-left-button .button-info-icon {
+  width: 60%; /* Size the icon relative to the button */
+  height: 60%;
+  /* fill: #f68e3e; */ /* REMOVE fill - doesn't apply to <img> */
+  display: block; /* Prevent potential extra space below icon */
+  object-fit: contain; /* Optional: Ensures the image scales nicely within its bounds */
+}
+/* --- END Icon Styling --- */
+
+/* --- Ensure original InfoIcon styles are not affected --- */
+.info-panel-svg.infoicon {
+  width: 50px; /* Keep original size */
+  height: 90px;
+  fill: #f9db92; /* Keep original fill */
+}
+/* --- END Middle Left Button Styles --- */
+
+/* ... (all your other styles for RecipeInfoForm, ActionPalette, RecipeGrid, buttons, etc.) ... */
+
+/* Example: Ensure panels don't shrink below a certain size */
+
+/* Adjustments for action buttons if needed */
+.action-buttons {
+  /* Maybe center them or adjust spacing if the panel width changed significantly */
+  display: flex;
+  justify-content: space-around; /* Example */
+  margin-top: 20px;
+  padding-top: 15px;
 }
 
 /* Icon Styling */
@@ -275,7 +568,7 @@ body {
   border-radius: 15px;
   box-shadow: inset 3px 3px 5px rgba(0, 0, 0, 0.552),
     inset -3px -3px 5px rgba(0, 0, 0, 0.552);
-  /* margin-bottom: 20px; */ /* <<< REMOVE or COMMENT OUT this line */
+  margin-bottom: 20px;
 }
 
 .recipe-info-form h2 {
@@ -284,6 +577,23 @@ body {
   color: #f7a541;
   text-shadow: #000000;
   font-size: 2.5em;
+}
+
+.details-icon {
+  width: 220px; /* Adjust size as needed */
+  height: 50px;
+  margin-bottom: 10px; /* Space below icon */
+}
+
+.icons-title {
+  width: 180px; /* Adjust size as needed */
+  /* margin-left: 50px; */ /* REMOVE explicit left margin */
+
+  /* --- ADD THESE --- */
+  display: block; /* Treat as a block element */
+  margin-left: auto; /* Center horizontally */
+  margin-right: auto; /* Center horizontally */
+  margin-bottom: 10px; /* Optional: Add space below the image */
 }
 
 .recipe-info-form label {
@@ -308,24 +618,53 @@ body {
   flex: 1;
   display: flex;
   flex-direction: column;
-  overflow: hidden;
-  min-height: 0;
+  /* overflow: hidden; */ /* Keep/Add this */
+  min-height: 900px;
 
-  border-radius: 15px;
-  /* padding: 20px; */ /* This is overridden below */
-  background-color: #f68e3e;
-  /* margin-bottom: 20px; */ /* <<< REMOVE or COMMENT OUT this line */
+  border-radius: 30px;
+  background-color: #f68e3e; /* Keep solid background color */
   box-shadow: inset 3px 3px 5px rgba(0, 0, 0, 0.552),
     inset -3px -3px 5px rgba(0, 0, 0, 0.552);
 
-  /* --- Background Image Styles --- */
+  /* --- REMOVE Background Image Styles from here --- */
+  /* background-image: url("./designs/Design-elements-02.png"); */
+  /* background-size: 320px; */
+  /* background-position: center center; */
+  /* background-repeat: no-repeat; */
+  /* background-blend-mode: multiply; */
+  /* --- END REMOVE --- */
+
+  padding: 16px 16px; /* Keep this padding */
+
+  /* --- ADD These --- */
+  position: relative; /* Needed for pseudo-element */
+  overflow: hidden; /* To clip pseudo-element to border-radius */
+  z-index: 0; /* Establish stacking context */
+  /* --- END ADD --- */
+}
+
+/* --- ADD THIS NEW RULE --- */
+.action-palette-outer-container::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: -1; /* Behind content */
+
+  /* Apply background image properties here */
   background-image: url("./designs/Design-elements-02.png");
   background-size: 320px;
   background-position: center center;
   background-repeat: no-repeat;
-  /* background-color: #f68e3e; */ /* Already set above */
-  background-blend-mode: multiply;
-  padding: 6px 6px; /* Keep this padding */
+  background-blend-mode: multiply; /* Keep blend mode if desired */
+
+  /* --- SET DESIRED OPACITY HERE --- */
+  opacity: 0.35; /* Example: 30% opacity. Adjust as needed (0.0 to 1.0) */
+  /* --- END OPACITY --- */
+
+  border-radius: inherit; /* Match parent's border-radius */
 }
 
 .palette-title {
@@ -353,7 +692,7 @@ body {
   flex-direction: column; /* Stack category nav, list, pagination */
   background-color: #f9db92;
   border: 1px solid #000000;
-  border-radius: 15px;
+  border-radius: 30px;
   padding: 10px;
 }
 
@@ -367,8 +706,8 @@ body {
 }
 
 .category-title {
-  margin: 0 10px;
-  font-size: 1.1em;
+  margin: 20px 10px;
+  font-size: 2.1em;
   font-weight: bold;
   text-align: center;
   flex-grow: 1;
@@ -379,11 +718,31 @@ body {
   /* Shared styles for arrow buttons */
   background: none;
   border: 1px solid #000000;
-  border-radius: 4px;
   padding: 2px 8px;
   font-size: 1.2em;
   cursor: pointer;
   transition: background-color 0.2s;
+}
+
+.category-arrow {
+  border-radius: 7px; /* Rounded corners for category arrows */
+  margin-left: 40px;
+}
+
+.category-arrow-next {
+  margin-left: 0;
+  margin-right: 37px;
+}
+
+.pagination-arrow {
+  /* Specific styles for pagination arrows */
+  margin-left: 140px; /* Space between arrows */
+  border-radius: 100%;
+}
+
+.pagination-arrow-next {
+  margin-left: 0;
+  margin-right: 140px;
 }
 
 .category-arrow:hover:not(:disabled),
@@ -401,37 +760,36 @@ body {
 .action-list.fixed-grid {
   /* Target the list when it's the fixed grid */
   display: grid;
-  grid-template-columns: repeat(2, 1fr); /* 2 columns */
+  grid-template-columns: repeat(2, 1fr); /* Keep 2 columns */
   grid-template-rows: repeat(
-    2,
-    140px
-  ); /* 2 rows, 80px height each (adjust as needed) */
-  gap: 8px; /* Spacing between action items */
-  /* REMOVE flex-grow and overflow-y */
-  /* flex-grow: 1; */
-  /* overflow-y: auto; */
-  /* Set a fixed height based on rows and gap */
-  /* height: calc(
-    80px * 2 + 8px
-  ); */
-  /* (row_height * num_rows) + (gap * (num_rows - 1)) */
-  align-content: start; /* Align content to the top if fewer than 4 items */
-  margin-bottom: 10px; /* Space before pagination */
-  /* --- ADD --- */
-  flex-shrink: 0; /* Prevent grid itself from shrinking if content fits */
+    3,
+    180px /* Or 200px if action-item height changes */
+  ); /* 3 rows */
+  gap: 0px; /* Spacing between action items */
+  margin-left: 10px; /* Existing style */
+  margin-bottom: 30px; /* Reduced space before pagination */
+
+  margin-right: 10px;
+  /* --- ADD THESE LINES FOR CENTERING ITEMS --- */
+  justify-items: center; /* Center grid items horizontally within their cell */
+  align-items: center; /* Center grid items vertically within their cell */
   /* --- END ADD --- */
+
+  align-content: start; /* Align content to the top if fewer than 6 items */
+  flex-shrink: 0; /* Prevent grid itself from shrinking if content fits */
 }
 
 /* Style for placeholder divs to maintain grid structure */
 .action-item-placeholder {
   background-color: #f9db92; /* Slightly different background */
+  /* Ensure placeholder also respects the height */
 }
 
 /* --- Action Item Styling (mostly unchanged, ensure it fits 80px height) --- */
 .action-item {
   background-color: #f9db92;
   border: 1px solid #000000;
-  border-radius: 4px;
+  border-radius: 30px;
   padding: 5px;
   text-align: center;
   cursor: grab;
@@ -443,7 +801,8 @@ body {
     -1px -1px 5px rgba(0, 0, 0, 0.552);
   transition: box-shadow 0.2s ease;
   overflow: hidden; /* Prevent content spilling out */
-  height: 100%; /* Make item fill the grid cell height (80px) */
+  height: 150px; /* Make item fill the grid cell height (80px) */
+  width: 150px;
   box-sizing: border-box; /* Include padding/border in height */
 }
 
@@ -462,8 +821,8 @@ body {
 }
 
 .action-item .icon-wrapper {
-  width: 30px; /* Keep icon size consistent */
-  height: 30px;
+  width: 60px; /* Keep icon size consistent */
+  height: 60px;
   margin-bottom: 4px;
 }
 
@@ -512,57 +871,101 @@ body {
 }
 
 .recipe-grid-outer-container {
-  padding: 15px; /* Adjust padding as needed - space between container edge and grid */
-  background-color: #f68e3e; /* Optional: Subtle background color */
-  border: 1px solid #000000; /* Optional: Border around the grid area */
-  border-radius: 15px; /* Match other rounded corners */
-  margin-bottom: 20px; /* Keep the space below the grid area */
+  flex-grow: 1;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  max-width: 950px;
+  padding: 15px;
+  background-color: #f68e3e;
+  border: 1px solid #000000;
+  border-radius: 15px;
+  margin-bottom: 20px;
   box-shadow: inset 3px 3px 5px rgba(0, 0, 0, 0.552),
     inset -3px -3px 5px rgba(0, 0, 0, 0.552);
-  /* Ensures the container properly contains the grid, especially if grid uses max-width */
-  /* You might not need this depending on exact layout, but often helpful */
-  /* display: flow-root; */ /* Alternative: overflow: hidden; */
 }
 .recipe-grid-title {
   text-align: center; /* Center the title text */
   margin-bottom: 15px; /* Space between title and grid */
   font-size: 2.4em; /* Adjust size as needed */
   color: #f9db92; /* Adjust color as needed */
+  max-width: 838px;
+  /* margin-left: 45px; */ /* Consider margin: 0 auto 15px auto; for centering */
+  margin: 0 auto 15px auto; /* Center horizontally if max-width applies */
   border: 1px solid #000000;
   box-shadow: inset 3px 3px 5px rgba(0, 0, 0, 0.552),
     inset -3px -3px 5px rgba(0, 0, 0, 0.552);
 
-  /* --- ADD Background Image Styles --- */
-  background-image: url("./designs/Design-elements-01.png"); /* <<< REPLACE with your image path */
-  background-size: 1900px; /* Or 'contain', '100% 100%', etc. */
-  background-position: center center;
-  background-repeat: no-repeat;
-  background-color: #f68e3e;
-  background-blend-mode: multiply; /* Optional: Blend with the background color */
-  padding: 6px 6px; /* ADD padding so text isn't at the very edge */
-  border-radius: 15px; /* Optional: Add rounded corners */
+  /* --- REMOVE Background Image Styles from here --- */
+  /* background-image: url("./designs/Design-elements-01.png"); */
+  /* background-size: 1900px; */
+  /* background-position: center center; */
+  /* background-repeat: no-repeat; */
+  /* background-blend-mode: multiply; */
+  /* --- END REMOVE --- */
+
+  background-color: #f68e3e; /* Keep solid background color */
+  padding: 6px 26px 6px 26px; /* ADD padding so text isn't at the very edge */
+  border-radius: 30px; /* Optional: Add rounded corners */
   text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.6); /* Optional: Add shadow for readability */
+
+  /* --- ADD These --- */
+  overflow: hidden; /* To clip pseudo-element to border-radius */
+  position: relative; /* Needed for z-index */
+  z-index: 1; /* Ensure title is above grid */
   /* --- END ADD --- */
 }
+
+/* --- ADD THIS NEW RULE --- */
+.recipe-grid-title::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: -1; /* Behind content */
+
+  /* Apply background image properties here */
+  background-image: url("./designs/Design-elements-01.png");
+  background-size: 1100px; /* Or 'contain', '100% 100%', etc. */
+  background-position: center center;
+  background-repeat: no-repeat;
+  background-blend-mode: multiply; /* Optional: Blend with the background color */
+
+  /* --- SET DESIRED OPACITY HERE --- */
+  opacity: 0.7; /* Example: 40% opacity. Adjust as needed (0.0 to 1.0) */
+  /* --- END OPACITY --- */
+
+  border-radius: inherit; /* Match parent's border-radius */
+}
+/* --- END ADDED RULE --- *
 
 /* --- ADJUST Recipe Grid --- */
 .recipe-grid {
   display: grid;
   grid-template-columns: repeat(5, 1fr);
   grid-template-rows: repeat(5, 1fr);
-  gap: 40px;
+  gap: 45px;
   width: 100%; /* Grid takes full width *of its new container* */
-  max-width: 650px; /* Max width of the grid itself remains */
+  max-width: 750px; /* Max width of the grid itself remains */
   aspect-ratio: 1 / 1; /* Maintain square aspect ratio */
   background-color: #f9db92; /* Background *between* squares */
-  padding: 40px; /* Padding *inside* the grid border, around squares */
+  padding: 50px; /* Padding *inside* the grid border, around squares */
   border-radius: 15px; /* Inner radius for the grid area */
-  /* REMOVE box-shadow: 0 2px 4px rgba(199, 4, 4, 0.1); */ /* Shadow moved to outer container */
-  /* REMOVE margin-bottom: 20px; */ /* Margin now handled by outer container */
   border: 1px solid #000000; /* Keep inner border defining grid */
   box-shadow: inset 3px 3px 5px rgba(0, 0, 0, 0.552),
     inset -3px -3px 5px rgba(0, 0, 0, 0.552);
   margin: 0 auto; /* Center the grid horizontally within the outer container if it's wider */
+  z-index: 0; /* Keep z-index below title */
+  padding-top: 70px;
+
+  /* --- ADD THIS LINE --- */
+  margin-top: -55px; /* Pulls the grid up underneath the title. Adjust value as needed. */
+  /* --- END ADD --- */
+
+  /* Ensure position relative if needed for other absolute children, though not strictly for margin overlap */
+  position: relative;
 }
 
 /* Grid Square */
@@ -732,7 +1135,7 @@ body {
 .placed-action .mini-box-container-right {
   position: absolute;
   top: 50%;
-  left: 100%;
+  left: 112%;
   transform: translateY(-50%);
   margin-left: -10px; /* Overlap */
   z-index: 10;
@@ -750,7 +1153,7 @@ body {
 .placed-action .mini-box-container-top {
   position: absolute;
   bottom: 50%; /* Align bottom edge to the parent's vertical center */
-  left: 100%; /* Align left edge to the parent's right edge */
+  left: 112%; /* Align left edge to the parent's right edge */
   transform: none; /* Reset transform */
   margin-left: -10px; /* Pull back slightly to overlap (same as right box) */
   /* --- INCREASED MARGIN --- */
@@ -769,7 +1172,7 @@ body {
 .placed-action .mini-box-container-bottom {
   position: absolute;
   top: 50%; /* Align top edge to the parent's vertical center */
-  left: 100%; /* Align left edge to the parent's right edge */
+  left: 112%; /* Align left edge to the parent's right edge */
   transform: none; /* Reset transform */
   margin-left: -10px; /* Pull back slightly to overlap (same as right box) */
   /* --- INCREASED MARGIN --- */
@@ -926,15 +1329,39 @@ body {
   background-color: #f7a541;
   border: 2px solid #000000;
   color: #f9db92;
-  padding: 10px 20px;
-  border-radius: 15px; /* Match other buttons */
+
+  /* --- ADJUST PADDING TO RESIZE BUTTON --- */
+  /* Example: Make button TALLER and WIDER */
+  /* padding: 10px 30px; */
+
+  /* Example: Make button SHORTER (closer to icon size) and keep current width */
+  /* padding: 1px 20px; */
+
+  /* Example: Make button NARROWER and keep current height */
+  /* padding: 3px 10px; */
+
+  /* CURRENT PADDING (from previous step): */
+  padding: 0px 45px; /* Shorter and Narrower */
+
+  /* --- END ADJUST --- */
+
+  border-radius: 30px; /* Keep consistent radius */
   cursor: pointer;
-  font-size: 1em;
-  font-weight: bold;
   transition: background-color 0.2s ease;
   box-shadow: inset 1px 1px 5px rgba(0, 0, 0, 0.263),
     inset -1px -1px 5px rgba(0, 0, 0, 0.263);
-  font-family: "DegularDemo", sans-serif; /* Match font */
+
+  /* Keep flexbox for centering the icon */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+}
+
+/* Keep icon size fixed */
+.notes-icon {
+  width: 45px;
+  height: 45px;
 }
 
 .notes-button:hover {
@@ -943,7 +1370,7 @@ body {
 
 /* Styling for the Notes Modal Content */
 .notes-modal-content {
-  width: 80%;
+  width: 40%;
   max-width: 600px; /* Adjust as needed */
   /* Inherits general modal styles, add specifics if needed */
 }
@@ -1009,15 +1436,17 @@ body {
 }
 
 .action-buttons button {
-  padding: 10px 20px;
   font-size: 1.7em;
   font-family: "MyFont", sans-serif;
-  border-radius: 5px;
+  border-radius: 30px;
   cursor: pointer;
   transition: background-color 0.2s ease;
+  box-shadow: inset 3px 3px 5px rgba(0, 0, 0, 0.552),
+    inset -3px -3px 5px rgba(0, 0, 0, 0.552);
 }
 
 .serve-button {
+  padding: 10px 20px;
   background-color: #f7a541;
   border: 2px solid #000000;
   color: #f9db92;
@@ -1025,11 +1454,21 @@ body {
     inset -1px -1px 5px rgba(0, 0, 0, 0.263);
 }
 
+.serve-icon {
+  padding-top: 10px;
+  width: 320px;
+}
+
+.print-icon {
+  padding-top: 10px;
+  width: 320px;
+}
 .serve-button:hover {
   background-color: #f3c35b;
 }
 
 .print-button {
+  padding: 10px 20px;
   background-color: #f7a541;
   border: 2px solid #000000;
   color: #f9db92;
@@ -1116,8 +1555,17 @@ body {
   }
   .app-container {
     flex-direction: column; /* Stack elements for printing */
+    /* --- ADDED: Reset print-specific container styles --- */
+    max-width: none;
+    margin: 0;
+    padding: 0;
+    border-radius: 0;
+    box-shadow: none;
+    background: none;
+    /* --- END ADD --- */
   }
   .left-panel,
+  .info-side-panel,
   .action-buttons,
   .modal-overlay,
   .no-print {

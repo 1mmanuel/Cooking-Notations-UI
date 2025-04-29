@@ -2,8 +2,9 @@
 import React, { useState, useEffect } from "react";
 import ActionItem from "./ActionItem";
 import { CATEGORIZED_ACTIONS } from "./actions";
+import IconsPNG from "./designs/icons.png"; // Import the new image
 
-const ITEMS_PER_PAGE = 4; // 2x2 grid
+const ITEMS_PER_PAGE = 6; // 2x2 grid
 
 function ActionPalette() {
   const categoryNames = Object.keys(CATEGORIZED_ACTIONS);
@@ -55,7 +56,11 @@ function ActionPalette() {
     // --- NEW: Outer Container ---
     <div className="action-palette-outer-container">
       {/* --- NEW: Centered Title --- */}
-      <h2 className="palette-title">ICONS</h2>
+      <img
+        src={IconsPNG} /* Use the URL from the default import */
+        alt="" /* Alt text is handled by aria-label on button */
+        className="icons-title"
+      />
 
       {/* --- Original Action Palette content now acts as the inner container --- */}
       {/* --- Note: The className "action-palette" is kept on this inner div --- */}
@@ -74,7 +79,7 @@ function ActionPalette() {
           <button
             onClick={handleNextCategory}
             disabled={categoryNames.length <= 1}
-            className="category-arrow"
+            className="category-arrow category-arrow-next"
             title="Next Category"
           >
             &gt;
@@ -113,13 +118,11 @@ function ActionPalette() {
           >
             &lt; {/* Left Arrow */}
           </button>
-          <span className="page-indicator">
-            {totalPages > 0 ? `Page ${currentPage + 1} of ${totalPages}` : ""}
-          </span>
+
           <button
             onClick={handleNextPage}
             disabled={currentPage >= totalPages - 1 || totalPages === 0}
-            className="pagination-arrow"
+            className="pagination-arrow pagination-arrow-next"
             title="Next Page"
           >
             &gt; {/* Right Arrow */}
