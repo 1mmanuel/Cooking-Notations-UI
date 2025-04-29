@@ -92,6 +92,22 @@ function App() {
   // Flag to trigger PDF generation
   const [triggerPdfGeneration, setTriggerPdfGeneration] = useState(false);
 
+  // --- ADD STATE FOR PLACEHOLDER VISIBILITY ---
+  const [isInfoPlaceholderVisible, setIsInfoPlaceholderVisible] =
+    useState(false);
+  // --- END ADD ---
+
+  // --- ADD HANDLER TO SHOW PLACEHOLDER ---
+  const handleInfoButtonClick = () => {
+    setIsInfoPlaceholderVisible(true);
+  };
+  // --- END ADD ---
+
+  // --- ADD HANDLER TO HIDE PLACEHOLDER ---
+  const handleCloseInfoPlaceholder = () => {
+    setIsInfoPlaceholderVisible(false);
+  };
+  // --- END ADD ---
   // Ref for the VISIBLE grid (still needed for print maybe, or just structure)
   const gridRef = useRef(null);
 
@@ -460,13 +476,12 @@ function App() {
           {/* --- ADD THE NEW BUTTON HERE --- */}
           <button
             className="info-panel-middle-left-button"
-            onClick={() => {
-              console.log("Middle Left Info Button Clicked!");
-              // Add your info button functionality here
-            }}
+            // --- CHANGE THIS LINE ---
+            onClick={handleInfoButtonClick} // Use the handler function directly
+            // --- END CHANGE ---
             aria-label="Show Information" // Accessibility label
           >
-            {/* Replace text with the icon component */}
+            {/* Icon remains the same */}
             <img
               src={InfoIcon} /* Use the URL from the default import */
               alt="" /* Alt text is handled by aria-label on button */
@@ -494,6 +509,24 @@ function App() {
         </div>
       </div>
 
+      {isInfoPlaceholderVisible && (
+        <div className="info-placeholder-container">
+          {/* Add a close button inside the placeholder */}
+          <button
+            className="info-placeholder-close-button"
+            onClick={handleCloseInfoPlaceholder}
+            aria-label="Close Info"
+          >
+            &times; {/* HTML entity for 'X' */}
+          </button>
+          {/* Placeholder Content Area - Image will go here later */}
+          <div className="info-placeholder-content">
+            {/* Intentionally empty for now */}
+            {/* TEMPORARY TEXT FOR DEBUGGING */}
+            <p style={{ color: "black", fontSize: "20px" }}>Instructions</p>
+          </div>
+        </div>
+      )}
       {/* DragOverlay rendering remains the same */}
       <DragOverlay className="drag-overlay">{renderDragOverlay()}</DragOverlay>
 

@@ -26,6 +26,103 @@ body {
   margin: 0; /* Keep margin reset */
   min-height: 100vh; /* Ensure body can contain full height elements */
   /* OR use height: 100% if html also has height: 100% */
+  /* --- ADD THESE LINES TO HIDE BODY SCROLLBAR --- */
+  /* Hide scrollbar for Firefox */
+
+  /* Hide scrollbar for IE/Edge (older versions) */
+  -ms-overflow-style: none;
+  /* --- END ADD --- */
+}
+
+/* --- ADD THIS SEPARATE RULE TO HIDE SCROLLBAR FOR WEBKIT (Chrome, Safari, Edge Chromium) --- */
+body::-webkit-scrollbar {
+  display: none; /* Hide scrollbar */
+}
+/* --- END ADD --- */
+/* --- Pointer Events Control --- */
+
+/* Step 1: Disable pointer events on the main containers by default */
+/* This makes backgrounds, static text, layout divs etc. non-interactive */
+.landing-page-container,
+.landing-cooking-icon,
+.landing-title-wrapper,
+.landing-title-wrapper::before,
+.start-icon,
+.recipe-info-form label,
+.icons-title,
+.button-info-icon,
+.serve-icon,
+.print-icon,
+.app-container {
+  pointer-events: none;
+}
+
+/* Step 2: Selectively RE-ENABLE pointer events on ALL interactive elements */
+.start-button,
+.recipe-info-form input,
+.recipe-info-form label, /* Optional: Allow clicking labels to focus input */
+.action-palette-outer-container, /* Allow scrolling/interaction within */
+.category-arrow,
+.pagination-arrow,
+.action-item, /* Draggable items */
+.recipe-grid-outer-container, /* Allow scrolling/interaction within */
+.recipe-grid, /* Allow interaction within grid padding/gaps if needed */
+.grid-square, /* Drop zones */
+.placed-action, /* Clickable/Draggable placed items */
+.placed-action .label-input,
+.placed-action .reveal-mini-box-button,
+.mini-box-container-right, /* Containers need events to delegate to mini-boxes */
+.mini-box-container-top,
+.mini-box-container-bottom,
+.mini-box, /* Mini-box drop zones/content */
+.mini-box input, /* Input inside mini-box if editable */
+.notes-button,
+.serve-button,
+.print-button,
+.modal-overlay, /* Allow clicking overlay to close (if applicable) */
+.modal-content, /* Allow scrolling/interaction within modal */
+.modal-close-button,
+.notes-textarea,
+.info-panel-middle-left-button,
+/* Add any other specific interactive elements here */
+a /* Re-enable standard links if any exist */ {
+  pointer-events: auto; /* Restore default interaction */
+}
+
+/* --- End Pointer Events Control --- */
+
+/* Step 1: Disable text selection globally on the main containers */
+.landing-page-container,
+.app-container {
+  user-select: none; /* Standard */
+  -webkit-user-select: none; /* Safari/Chrome */
+  -moz-user-select: none; /* Firefox */
+  -ms-user-select: none; /* IE/Edge */
+}
+
+/* Step 2: Ensure selection is disabled during drag operations */
+.action-item.dragging,
+.placed-action.dragging,
+.drag-overlay {
+  user-select: none !important; /* Use !important to override potential conflicts */
+  -webkit-user-select: none !important;
+  -moz-user-select: none !important;
+  -ms-user-select: none !important;
+}
+
+/* Step 3: Selectively RE-ENABLE text selection where needed */
+input, /* All standard input elements */
+textarea, /* All textarea elements */
+.label-input, /* Your specific input class */
+.notes-textarea, /* Your specific textarea class */
+.summary-text, /* Allow selecting summary text in modal */
+.recipe-info-form label /* Optional: Allow selecting form labels */
+/* Add any other specific text elements you want selectable */ {
+  user-select: auto; /* Allow default browser selection behavior */
+  /* Or use user-select: text; for explicit text-only selection */
+  -webkit-user-select: auto;
+  -moz-user-select: auto;
+  -ms-user-select: auto;
 }
 
 /* --- Landing Page Styles --- */
@@ -216,11 +313,15 @@ body {
   display: flex;
   flex-wrap: nowrap;
   width: 100%;
-  max-width: 1900px;
+  max-width: 2000px;
   margin: 20px auto;
   padding: 0;
   box-sizing: border-box;
   /* gap: 15px; */ /* Keep gap removed */
+  /* --- MODIFY OVERFLOW --- */
+  overflow-y: auto; /* Keep vertical scroll if needed for other content */
+  overflow-x: visible; /* Allow horizontal overflow (for the mascot) */
+  /* --- END MODIFY --- */
 }
 
 /* --- Main Content Area (Left + Middle) --- */
@@ -291,8 +392,7 @@ body {
   flex-grow: 1;
   flex-shrink: 1;
   box-sizing: border-box;
-  overflow-y: auto;
-  overflow-x: hidden;
+
   /* border-radius: 10px; */ /* Remove default radius here */
   /* margin: 0 10px; */ /* Keep margin removed */
 }
@@ -316,7 +416,7 @@ body {
 .info-side-panel {
   flex-basis: 20%;
   /* min-width: 350px; */
-  max-width: 450px;
+  max-width: 530px;
   background-color: #f68e3e;
   padding: 15px;
   padding-left: 50px;
@@ -382,56 +482,60 @@ body {
 }
 
 .mascoticon {
-  width: 100%;
-  min-width: 5 50px; /* Set a min width for larger screens */
+  width: 500px;
+
   height: 850px; /* Maintain aspect ratio */
   padding-top: 100px;
   padding-left: 30px;
   position: absolute;
   top: 30%;
+
+  z-index: 9999; /* Very high z-index to be on top of everything */
+  pointer-events: none;
 }
 
 /* --- ADJUST Styles for the Middle Left Button (Now Icon Button) --- */
 .info-panel-middle-left-button {
-  position: absolute; /* Position relative to the info-side-panel */
-  top: 50%; /* Align top edge to the vertical center */
-  left: 50px; /* Position 15px from the left edge */
-  transform: translateY(50%); /* Shift up by half its height */
+  position: absolute;
+  top: 50%;
+  left: 50px;
+  /* --- CHANGE THIS BACK to the original lower position --- */
+  transform: translateY(50%); /* Shift DOWN by half its height */
+  /* --- END CHANGE --- */
 
-  z-index: 5; /* Ensure it's above the background/pattern */
-
-  /* --- Styling Adjustments for Icon --- */
-  width: 100px; /* Make it square-ish (adjust size as needed) */
+  z-index: 5;
+  width: 100px;
   height: 100px;
-  padding: 0; /* Remove padding used for text */
-  border-radius: 15px; /* Make it circular */
-  display: flex; /* Use flexbox to center the icon */
-  align-items: center; /* Center icon vertically */
-  justify-content: center; /* Center icon horizontally */
-  /* font-size: 1em; /* Font size less relevant now */
-  font-family: "MyFont", sans-serif; /* Keep for potential tooltips */
+  padding: 0;
+  border-radius: 15px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: "MyFont", sans-serif;
   cursor: pointer;
   transition: background-color 0.2s ease, transform 0.1s ease,
-    box-shadow 0.2s ease; /* Added box-shadow */
-
-  background-color: #f9db92; /* Button background */
+    box-shadow 0.2s ease;
+  background-color: #f9db92;
   border: 5px solid #000000;
-  /* color: #f68e3e; /* Color is now handled by icon fill */
   box-shadow: inset 3px 3px 5px rgba(0, 0, 0, 0.552),
     inset -3px -3px 5px rgba(0, 0, 0, 0.552);
 }
 
+/* Around line 432 */
 .info-panel-middle-left-button:hover {
-  background-color: #fed373; /* Lighter hover */
-  /* Keep combined transform */
-  transform: translateY(-50%) scale(1.05);
+  background-color: #fed373;
+  /* --- MODIFY THIS LINE: Keep translateY(50%) and add scale --- */
+  transform: translateY(50%) scale(1.05);
+  /* --- END MODIFY --- */
   box-shadow: inset 3px 3px 5px rgba(0, 0, 0, 0.552),
     inset -3px -3px 5px rgba(0, 0, 0, 0.552);
 }
 
+/* Around line 441 */
 .info-panel-middle-left-button:active {
-  /* Keep combined transform */
-  transform: translateY(-50%) scale(0.98);
+  /* --- MODIFY THIS LINE: Keep translateY(50%) and add scale --- */
+  transform: translateY(50%) scale(0.98);
+  /* --- END MODIFY --- */
   box-shadow: inset 3px 3px 5px rgba(0, 0, 0, 0.552),
     inset -3px -3px 5px rgba(0, 0, 0, 0.552);
 }
@@ -454,6 +558,66 @@ body {
 }
 /* --- END Middle Left Button Styles --- */
 
+/* --- Info Placeholder Styles --- */
+/* --- Info Placeholder Styles --- */
+/* --- Info Placeholder Styles --- */
+.info-placeholder-container {
+  position: fixed; /* Position relative to the viewport */
+  top: 50%;
+  left: 48%;
+  transform: translate(-50%, -50%); /* Center the container */
+
+  width: 750px; /* Make sure this is > 0 */
+  height: 950px; /* Make sure this is > 0 */
+
+  background-color: #f68e3e; /* Make sure this is not transparent */
+  border: 3px solid #000000;
+  border-radius: 20px;
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.4),
+    inset 3px 3px 5px rgba(0, 0, 0, 0.552),
+    inset -3px -3px 5px rgba(0, 0, 0, 0.552);
+
+  z-index: 1000; /* Ensure it's high enough */
+  padding: 20px;
+  box-sizing: border-box;
+
+  /* Make sure it's interactive */
+  pointer-events: auto; /* Should be auto */
+
+  display: flex; /* Or block, just not none */
+  justify-content: center;
+  align-items: center;
+}
+.info-placeholder-close-button {
+  position: absolute;
+  top: 10px;
+  right: 15px;
+  background: none;
+  border: 1px solid #000000; /* Subtle border */
+  border-radius: 50%; /* Make it circular */
+  width: 30px;
+  height: 30px;
+  font-size: 1.5rem;
+  line-height: 28px; /* Adjust to center 'X' */
+  text-align: center;
+  cursor: pointer;
+  color: #000000; /* Button color */
+  transition: background-color 0.2s, color 0.2s;
+  padding: 0; /* Remove default padding */
+}
+
+.info-placeholder-close-button:hover {
+  background-color: #eee;
+  color: #000;
+}
+
+.info-placeholder-content {
+  width: 100%;
+  height: 100%;
+  /* Style this later when adding the image */
+  /* e.g., border: 1px dashed #ccc; */
+}
+/* --- End Info Placeholder Styles --- */
 /* ... (all your other styles for RecipeInfoForm, ActionPalette, RecipeGrid, buttons, etc.) ... */
 
 /* Example: Ensure panels don't shrink below a certain size */
@@ -601,6 +765,7 @@ body {
   margin-bottom: 5px;
   font-weight: bold;
   color: #f7a541;
+  font-size: 1.7em;
 }
 
 .recipe-info-form input {
@@ -619,7 +784,7 @@ body {
   display: flex;
   flex-direction: column;
   /* overflow: hidden; */ /* Keep/Add this */
-  min-height: 900px;
+  min-height: 838px;
 
   border-radius: 30px;
   background-color: #f68e3e; /* Keep solid background color */
@@ -655,7 +820,7 @@ body {
 
   /* Apply background image properties here */
   background-image: url("./designs/Design-elements-02.png");
-  background-size: 320px;
+  background-size: 580px;
   background-position: center center;
   background-repeat: no-repeat;
   background-blend-mode: multiply; /* Keep blend mode if desired */
@@ -1580,6 +1745,22 @@ body {
     margin: 0;
     box-sizing: border-box; /* Be explicit */
   }
+
+  /* --- ADD THESE RULES FOR THE TITLE IN PRINT --- */
+  .recipe-grid-title {
+    /* Significantly smaller font size for print */
+    text-shadow: none; /* Remove text shadow */
+    padding: 5px 10px; /* Reduce padding */
+    margin-bottom: 10px; /* Reduce space below title */
+    max-width: 700px; /* Ensure it doesn't exceed page width */
+    text-align: center; /* Keep centered */
+  }
+
+  .cooking-icon {
+    max-width: 630px;
+  }
+  /* --- END ADDED RULES --- */
+
   .recipe-grid {
     box-shadow: none;
 
