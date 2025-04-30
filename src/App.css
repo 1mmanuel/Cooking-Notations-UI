@@ -570,8 +570,8 @@ textarea, /* All textarea elements */
 
   /* Adjust width/height as needed for your image */
   width: 80%; /* Example: 80% of viewport width */
-  max-width: 900px; /* Example: Max width */
-  max-height: 90vh; /* Example: Max height */
+  max-width: 1500px; /* Example: Max width */
+  max-height: 100vh; /* Example: Max height */
 
   background-color: #f68e3e; /* Make sure this is not transparent */
   border: 3px solid #000000;
