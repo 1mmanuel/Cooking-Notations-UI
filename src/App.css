@@ -561,14 +561,17 @@ textarea, /* All textarea elements */
 /* --- Info Placeholder Styles --- */
 /* --- Info Placeholder Styles --- */
 /* --- Info Placeholder Styles --- */
-.info-placeholder-container {
+.instructions-popup-container {
   position: fixed; /* Position relative to the viewport */
   top: 50%;
   left: 48%;
+  left: 50%; /* Center horizontally */
   transform: translate(-50%, -50%); /* Center the container */
 
-  width: 750px; /* Make sure this is > 0 */
-  height: 950px; /* Make sure this is > 0 */
+  /* Adjust width/height as needed for your image */
+  width: 80%; /* Example: 80% of viewport width */
+  max-width: 900px; /* Example: Max width */
+  max-height: 90vh; /* Example: Max height */
 
   background-color: #f68e3e; /* Make sure this is not transparent */
   border: 3px solid #000000;
@@ -588,7 +591,7 @@ textarea, /* All textarea elements */
   justify-content: center;
   align-items: center;
 }
-.info-placeholder-close-button {
+.instructions-popup-close-button {
   position: absolute;
   top: 10px;
   right: 15px;
@@ -606,18 +609,27 @@ textarea, /* All textarea elements */
   padding: 0; /* Remove default padding */
 }
 
-.info-placeholder-close-button:hover {
+.instructions-popup-close-button:hover {
   background-color: #eee;
   color: #000;
 }
 
-.info-placeholder-content {
+.instructions-popup-content {
   width: 100%;
   height: 100%;
-  /* Style this later when adding the image */
-  /* e.g., border: 1px dashed #ccc; */
+  display: flex; /* Center image */
+  justify-content: center;
+  align-items: center;
+  overflow: auto; /* Add scroll if image is larger than container */
 }
-/* --- End Info Placeholder Styles --- */
+
+.instructions-image {
+  display: block; /* Remove extra space below image */
+  max-width: 100%; /* Ensure image doesn't overflow horizontally */
+  max-height: 100%; /* Ensure image doesn't overflow vertically */
+  object-fit: contain; /* Scale image nicely within bounds */
+}
+/* --- End Instructions Popup Styles --- */
 /* ... (all your other styles for RecipeInfoForm, ActionPalette, RecipeGrid, buttons, etc.) ... */
 
 /* Example: Ensure panels don't shrink below a certain size */
@@ -1928,7 +1940,7 @@ textarea, /* All textarea elements */
       inset -3px -3px 5px rgba(0, 0, 0, 0.552);
     padding: 10pt;
     width: 100%;
-    height: 1000px;
+
     box-sizing: border-box;
     border-radius: 20px;
   }
@@ -1945,7 +1957,6 @@ textarea, /* All textarea elements */
   .print-notes-content {
     font-family: sans-serif;
     font-size: 10pt;
-    height: 850px;
     color: black;
     white-space: pre-wrap;
     word-wrap: break-word;

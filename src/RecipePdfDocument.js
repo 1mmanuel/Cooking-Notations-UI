@@ -247,7 +247,7 @@ const styles = StyleSheet.create({
     marginTop: 15, // Add space above the notes section
     marginBottom: 10,
     padding: 10,
-    border: "1pt solid #000000",
+    // border: "1pt solid #000000",
     borderRadius: 10,
     backgroundColor: "#f9db92", // Match info section background
   },
@@ -264,6 +264,18 @@ const styles = StyleSheet.create({
     color: "#333333",
     fontFamily: "MyFont",
     // Allow text to wrap naturally
+  },
+  notesBorderTop: {
+    height: 1, // Border thickness
+    backgroundColor: "#000000", // Border color
+    marginBottom: 8, // Space between top border and text (adjust as needed)
+    width: "100%", // Ensure it spans the width within padding
+  },
+  notesBorderBottom: {
+    height: 1, // Border thickness
+    backgroundColor: "#000000", // Border color
+    marginTop: 8, // Space between text and bottom border (adjust as needed)
+    width: "100%", // Ensure it spans the width within padding
   },
   // --- End Notes Section Styles ---
 });
@@ -521,9 +533,12 @@ const RecipePdfDocument = ({ recipeInfo, gridItems, notes }) => {
         {/* --- NEW: Notes Section --- */}
         {/* Only render if notes exist */}
         {notes && notes.trim() !== "" && (
-          <View style={styles.notesSection} wrap={false}>
+          <View style={styles.notesSection}>
             {/* wrap={false} tries to keep notes together */}
-            <Text style={styles.notesTitle}>NOTES</Text>
+            <Text style={styles.notesTitle} wrap={false}>
+              NOTES
+            </Text>
+            <View style={styles.notesBorderTop} /> {/* Simulated Top Border */}
             <Text style={styles.notesText}>{notes}</Text>
           </View>
         )}

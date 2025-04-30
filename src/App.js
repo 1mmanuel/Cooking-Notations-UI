@@ -45,7 +45,7 @@ import PotIcon from "./designs/pot.png";
 
 import CookingPNG from "./designs/cooking.png";
 import ServePNG from "./designs/serve.png"; // Import the new image
-
+import instructionsImage from "./designs/instructions.png";
 import PrintPNG from "./designs/print.png"; // Import the new image
 
 import "./App.css";
@@ -68,7 +68,7 @@ for (let r = 0; r < GRID_SIZE; r++) {
 function App() {
   const [notes, setNotes] = useState(""); // <-- Add state for notes text
   const [isNotesModalOpen, setIsNotesModalOpen] = useState(false); // <-- State for modal visibility
-
+  const [showInstructions, setShowInstructions] = useState(false);
   // --- State for Landing Page ---
   const [showApp, setShowApp] = useState(false); // <-- Start showing landing page
 
@@ -98,11 +98,34 @@ function App() {
     useState(false);
   // --- END ADD ---
 
+  // --- Add confirmation before leaving/closing the page ---
+  useEffect(() => {
+    const handleBeforeUnload = (event) => {
+      // Standard way to trigger the browser's confirmation dialog
+      event.preventDefault();
+      // Required for some older browsers
+      event.returnValue = "";
+    };
+
+    window.addEventListener("beforeunload", handleBeforeUnload);
+
+    // Cleanup function to remove the listener when the component unmounts
+    return () => {
+      window.removeEventListener("beforeunload", handleBeforeUnload);
+    };
+  }, []); // Empty dependency array ensures this runs only on mount and unmount
+  // --- End confirmation logic ---
+
   // --- ADD HANDLER TO SHOW PLACEHOLDER ---
   const handleInfoButtonClick = () => {
     setIsInfoPlaceholderVisible(true);
   };
   // --- END ADD ---
+
+  // --- NEW: Function to toggle instructions popup ---
+  const toggleInstructions = () => {
+    setShowInstructions(!showInstructions);
+  };
 
   // --- ADD HANDLER TO HIDE PLACEHOLDER ---
   const handleCloseInfoPlaceholder = () => {
@@ -646,7 +669,7 @@ function App() {
           <button
             className="info-panel-middle-left-button"
             // --- CHANGE THIS LINE ---
-            onClick={handleInfoButtonClick} // Use the handler function directly
+            onClick={toggleInstructions} // Use the handler function directly
             // --- END CHANGE ---
             aria-label="Show Information" // Accessibility label
           >
@@ -764,6 +787,25 @@ function App() {
         onNotesChange={handleNotesChange}
       />
       {/* --- END NOTES MODAL RENDER --- */}
+
+      {/* --- NEW: Instructions Popup --- */}
+      {showInstructions && (
+        <div className="instructions-popup-container">
+          <button
+            className="instructions-popup-close-button"
+            onClick={toggleInstructions}
+          >
+            &times; {/* Simple 'X' character */}
+          </button>
+          <div className="instructions-popup-content">
+            <img
+              src={instructionsImage}
+              alt="Instructions"
+              className="instructions-image"
+            />
+          </div>
+        </div>
+      )}
     </DndContext>
   );
 }
