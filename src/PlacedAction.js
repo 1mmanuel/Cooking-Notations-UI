@@ -1,36 +1,52 @@
 // src/PlacedAction.js
-import React from "react";
-import MiniBox from "./MiniBox"; // Will be updated next
-import { v4 as uuidv4 } from "uuid";
+import React, { useState, useEffect } from "react"; // Need state & effect
+import MiniBox from "./MiniBox";
 import { useDraggable } from "@dnd-kit/core";
 import { CSS } from "@dnd-kit/utilities";
 
 function PlacedAction({
-  squareId, // ID of the main square this action is in
-  action,
-  label,
-  miniBoxes, // Now array of { id: uuid, action: actionObject | null }
+  squareId,
+  // action, // <-- REMOVE this prop
+  // label, // <-- REMOVE this prop
+  // miniBoxes, // <-- REMOVE this prop
+  item, // <-- ADD item prop containing { action, originalLabel, currentLabel, miniBoxes }
   onLabelChange,
   onAddMiniBox,
-  // onMiniBoxChange, // Removed
   onMiniBoxDelete,
+  onDeleteAction,
 }) {
+  // --- State for controlled input ---
+  // Initialize with currentLabel, fall back to old label or action name if needed
+  const initialLabel =
+    item?.currentLabel !== undefined
+      ? item.currentLabel
+      : item?.label || item?.action?.name || "";
+  const [inputValue, setInputValue] = useState(initialLabel);
+
+  // --- Effect to update input value if item.currentLabel changes externally ---
+  useEffect(() => {
+    const updatedLabel =
+      item?.currentLabel !== undefined
+        ? item.currentLabel
+        : item?.label || item?.action?.name || "";
+    setInputValue(updatedLabel);
+  }, [item?.currentLabel, item?.label, item?.action?.name]); // Depend on potential label sources
+  // --- End Effect ---
+
   const { attributes, listeners, setNodeRef, transform, isDragging } =
     useDraggable({
-      id: squareId,
+      id: squareId, // Use squareId as the draggable ID for grid items
       data: {
         type: "grid-item",
-        item: { action, label, miniBoxes },
+        // Pass the *current* item state, including potentially updated labels
+        item: { ...item, currentLabel: inputValue }, // Include local input value for drag data if needed
         sourceId: squareId,
       },
     });
 
-  // ... style definition remains the same ...
   const style = {
-    // ... (as before)
     transform: CSS.Translate.toString(transform),
-    opacity: isDragging ? 0.5 : 1,
-    cursor: "grab",
+    opacity: isDragging ? 0 : 1,
     touchAction: "none",
     width: "100%",
     height: "100%",
@@ -41,14 +57,76 @@ function PlacedAction({
     alignItems: "center",
     justifyContent: "center",
     padding: "5px",
+    overflow: "visible",
   };
 
-  if (!action) return null;
+  // Use item.action now
+  if (!item || !item.action) return null;
 
-  const handleAddClick = (e) => {
+  // Get the SVG component for the main action
+  const MainIconComponent = item.action.icon;
+
+  const handleRevealMiniBoxClick = (e) => {
     e.stopPropagation();
-    onAddMiniBox(squareId); // Call with just squareId
+    onAddMiniBox(squareId);
   };
+
+  const handleContextMenu = (event) => {
+    event.preventDefault();
+    event.stopPropagation();
+    if (onDeleteAction) {
+      onDeleteAction(squareId);
+    }
+  };
+
+  // Use item.miniBoxes now
+  const currentMiniBoxes = item.miniBoxes || []; // Ensure miniBoxes is an array
+  const shouldShowAddButton = currentMiniBoxes.length < 3;
+  const miniBoxRight = currentMiniBoxes.find((box) => box.position === "right");
+  const miniBoxTop = currentMiniBoxes.find((box) => box.position === "top");
+  const miniBoxBottom = currentMiniBoxes.find(
+    (box) => box.position === "bottom"
+  );
+
+  const renderMiniBox = (boxData) => {
+    if (!boxData) return null;
+    const miniBoxDroppableId = `minibox-${squareId}-${boxData.id}`;
+    return (
+      <MiniBox
+        key={boxData.id}
+        id={boxData.id}
+        droppableId={miniBoxDroppableId}
+        action={boxData.action}
+        onDelete={onMiniBoxDelete}
+        parentSquareId={squareId}
+      />
+    );
+  };
+
+  // --- Handlers for Input ---
+  const handleInputChange = (e) => {
+    setInputValue(e.target.value); // Update local state while typing
+  };
+
+  const handleInputBlur = () => {
+    // Determine the label that was originally passed in (currentLabel or fallback)
+    const originalCurrentLabel =
+      item?.currentLabel !== undefined
+        ? item.currentLabel
+        : item?.label || item?.action?.name || "";
+    // Call onLabelChange only if the input value has actually changed
+    if (inputValue !== originalCurrentLabel) {
+      onLabelChange(squareId, inputValue);
+    }
+  };
+
+  const handleInputKeyDown = (e) => {
+    if (e.key === "Enter") {
+      handleInputBlur(); // Treat Enter the same as blur
+      e.target.blur(); // Optionally remove focus
+    }
+  };
+  // --- End Input Handlers ---
 
   return (
     <div
@@ -57,53 +135,78 @@ function PlacedAction({
       {...listeners}
       {...attributes}
       className={`placed-action ${isDragging ? "dragging" : ""}`}
-      title={`${action.name}: ${action.description}`}
+      onContextMenu={handleContextMenu}
+      // Use item.action.name for the base tooltip
+      title={`${item.action.name} (Right-click to delete)`}
     >
       {/* Main content (Icon and Label) */}
-      <span className="icon">{action.icon}</span>
+      {MainIconComponent && (
+        <span className="icon-wrapper">
+          <MainIconComponent className="svg-icon placed-action-icon" />
+        </span>
+      )}
       <input
         type="text"
         className="label-input"
-        value={label}
-        onChange={(e) => onLabelChange(squareId, e.target.value)}
+        value={inputValue} // Use local state for value
+        onChange={handleInputChange} // Update local state on change
+        onBlur={handleInputBlur} // Call parent handler on blur
+        onKeyDown={handleInputKeyDown} // Call parent handler on Enter
         placeholder="Label this action"
-        onPointerDown={(e) => e.stopPropagation()}
-        onClick={(e) => e.stopPropagation()}
-        onTouchStart={(e) => e.stopPropagation()}
-        style={{ pointerEvents: isDragging ? "none" : "auto", marginBottom: 0 }}
+        onPointerDown={(e) => e.stopPropagation()} // Prevent drag start on input
+        onClick={(e) => e.stopPropagation()} // Prevent click from bubbling, DO NOT CLEAR INPUT HERE
+        onTouchStart={(e) => e.stopPropagation()} // Prevent drag on touch
+        onContextMenu={(e) => e.stopPropagation()} // Prevent context menu interference
+        style={{ pointerEvents: isDragging ? "none" : "auto" }}
+        // Use item.originalLabel for accessibility if available
+        aria-label={`Label for ${item.originalLabel || item.action.name}`}
       />
 
-      {/* Absolutely Positioned Mini-Box Container */}
-      {action && (
+      {/* Conditional '+' Button */}
+      {shouldShowAddButton && !isDragging && (
+        <button
+          className="reveal-mini-box-button"
+          onClick={handleRevealMiniBoxClick}
+          title="Add related action slot"
+          onPointerDown={(e) => e.stopPropagation()}
+          onContextMenu={(e) => e.stopPropagation()}
+        >
+          +
+        </button>
+      )}
+
+      {/* Render MiniBoxes */}
+      {miniBoxRight && (
         <div
-          className="mini-boxes-container"
+          className="mini-box-container-right"
           onPointerDown={(e) => e.stopPropagation()}
           onClick={(e) => e.stopPropagation()}
           onTouchStart={(e) => e.stopPropagation()}
+          onContextMenu={(e) => e.stopPropagation()}
         >
-          {miniBoxes.map((box) => {
-            // Generate the unique ID for the droppable mini-box
-            const miniBoxDroppableId = `minibox-${squareId}-${box.id}`;
-            return (
-              <MiniBox
-                key={box.id} // React key is still the UUID
-                id={box.id} // Pass the UUID for deletion logic
-                droppableId={miniBoxDroppableId} // Pass the full ID for dnd-kit
-                action={box.action} // Pass the action object or null
-                onDelete={onMiniBoxDelete} // Pass the delete handler
-                parentSquareId={squareId} // Pass parent ID for the delete handler
-              />
-            );
-          })}
-          {/* Add button */}
-          <button
-            className="add-mini-box-button"
-            onClick={handleAddClick}
-            title="Add related action slot"
-            disabled={isDragging}
-          >
-            +
-          </button>
+          {renderMiniBox(miniBoxRight)}
+        </div>
+      )}
+      {miniBoxTop && (
+        <div
+          className="mini-box-container-top"
+          onPointerDown={(e) => e.stopPropagation()}
+          onClick={(e) => e.stopPropagation()}
+          onTouchStart={(e) => e.stopPropagation()}
+          onContextMenu={(e) => e.stopPropagation()}
+        >
+          {renderMiniBox(miniBoxTop)}
+        </div>
+      )}
+      {miniBoxBottom && (
+        <div
+          className="mini-box-container-bottom"
+          onPointerDown={(e) => e.stopPropagation()}
+          onClick={(e) => e.stopPropagation()}
+          onTouchStart={(e) => e.stopPropagation()}
+          onContextMenu={(e) => e.stopPropagation()}
+        >
+          {renderMiniBox(miniBoxBottom)}
         </div>
       )}
     </div>

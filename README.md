@@ -1,70 +1,74 @@
-# Getting Started with Create React App
+# Recipe Builder UI
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+A React-based web application that allows users to visually create cooking recipes by dragging and dropping actions onto a grid. It includes features for adding related sub-actions (mini-boxes), editing labels, adding notes, and generating a shareable PDF document with a QR code.
 
-## Available Scripts
+## Features
 
-In the project directory, you can run:
+- **Drag & Drop Interface:** Easily drag cooking actions from a palette onto a 5x5 grid.
+- **Action Palette:** Browse categorized and paginated cooking actions with icons and descriptions.
+- **Recipe Grid:** Arrange actions sequentially or spatially on the grid.
+- **Editable Labels:** Click on the label below a placed action to rename it.
+- **Mini-Boxes:** Add up to three smaller "mini-box" slots to each main action for related steps or ingredients (drag actions from the palette to fill them).
+- **Context Menus:** Right-click on placed actions or mini-boxes to delete them.
+- **Recipe Information:** Form to input recipe name, author, total time, and date.
+- **Notes:**
+  - Dedicated modal to add freeform notes, tips, or variations.
+  - Automatic notes generated when an action's label is renamed (`Original Name --> (New Name)`). These notes are automatically removed if the action is deleted.
+- **PDF Generation:** Client-side generation of a PDF document summarizing the recipe info, grid layout (with icons), and notes using `@react-pdf/renderer`.
+- **Firebase Integration:** Uploads the generated PDF to Firebase Storage.
+- **QR Code & Sharing:** Generates a QR code and a direct link to the uploaded PDF for easy sharing and downloading.
+- **Printing:** Basic browser print functionality for the current view.
+- **Instructions Popup:** A modal displaying visual instructions on how to use the app.
 
-### `npm start`
+## Setup and Running Locally
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in your browser.
+1.  **Prerequisites:**
 
-The page will reload when you make changes.\
-You may also see any lint errors in the console.
+    - Node.js and npm (or yarn) installed.
 
-### `npm test`
+2.  **Clone the Repository:**
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+    ```bash
+    git clone <your-repository-url>
+    cd recipe-builder-final
+    ```
 
-### `npm run build`
+3.  **Install Dependencies:**
 
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
+    ```bash
+    npm install
+    # or
+    yarn install
+    ```
 
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
+4.  **Firebase Setup:**
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+    - Create a Firebase project at https://console.firebase.google.com/.
+    - Enable Firebase Storage.
+    - Get your Firebase project configuration (apiKey, authDomain, projectId, storageBucket, etc.).
+    - Update the `src/firebase.js` file with your actual Firebase configuration.
 
-### `npm run eject`
+5.  **Generate SVG Data for PDF:**
 
-**Note: this is a one-way operation. Once you `eject`, you can't go back!**
+    - If you add or modify SVG icons in the `src/SVG` folder, you need to regenerate the data file used for PDF rendering. Run the script from the project root:
 
-If you aren't satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
+    ```bash
+    node src/extract-svg-data.js
+    ```
 
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you're on your own.
+    - This will update `src/iconPdfData.js`.
 
-You don't have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn't feel obligated to use this feature. However we understand that this tool wouldn't be useful if you couldn't customize it when you are ready for it.
+6.  **Start the Development Server:**
+    ```bash
+    npm start
+    # or
+    yarn start
+    ```
+    The application should now be running on `http://localhost:3000` (or another port if 3000 is busy).
 
-## Learn More
+## How It Works
 
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
-
-To learn React, check out the [React documentation](https://reactjs.org/).
-
-### Code Splitting
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/code-splitting](https://facebook.github.io/create-react-app/docs/code-splitting)
-
-### Analyzing the Bundle Size
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size](https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size)
-
-### Making a Progressive Web App
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app](https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app)
-
-### Advanced Configuration
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/advanced-configuration](https://facebook.github.io/create-react-app/docs/advanced-configuration)
-
-### Deployment
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/deployment](https://facebook.github.io/create-react-app/docs/deployment)
-
-### `npm run build` fails to minify
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify)
+- **Drag and Drop:** `dnd-kit` provides the context and hooks (`useDraggable`, `useDroppable`) to manage dragging actions from the palette or within the grid. `handleDragEnd` in `App.js` contains the logic for updating the `gridItems` state based on the drop target.
+- **State Management:** The main `App.js` component holds most of the application state using `useState`, including recipe info, grid items, notes, and modal visibility. Callbacks are passed down to child components to update this state.
+- **PDF Generation:** When "Serve" is clicked, `BlobProvider` from `@react-pdf/renderer` is triggered. It uses the `RecipePdfDocument` component (which defines the PDF layout using React-like components) and the data from `iconPdfData.js` (generated by `extract-svg-data.js`) to render the PDF client-side into a Blob. The `PdfGenerationHandler` manages the state updates between `BlobProvider` and `App.js`.
+- **PDF Upload & QR:** Once the Blob is ready, it's uploaded to Firebase Storage. The resulting download URL is then used to generate the QR code displayed in the `SummaryModal`.

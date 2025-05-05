@@ -1,47 +1,55 @@
 // src/MiniBox.js
 import React from "react";
-import { useDroppable } from "@dnd-kit/core"; // Import useDroppable
+import { useDroppable } from "@dnd-kit/core";
+// No need to import ActionItem anymore if just rendering the icon
 
-// Receive parentSquareId to correctly call onDelete
 function MiniBox({ id, droppableId, action, onDelete, parentSquareId }) {
   const { setNodeRef, isOver } = useDroppable({
-    id: droppableId, // Use the unique droppable ID passed from PlacedAction
+    id: droppableId,
+    data: {
+      type: "minibox",
+      targetId: id, // The mini-box's own unique ID
+      parentSquareId: parentSquareId,
+    },
   });
 
-  const hasAction = action !== null;
-  const miniBoxClasses = `mini-box ${isOver ? "over" : ""} ${
-    !hasAction ? "empty" : ""
-  }`;
+  const hasAction = Boolean(action);
+  // Get the SVG component if an action exists
+  const MiniIconComponent = hasAction ? action.icon : null;
 
-  const handleDelete = (e) => {
-    e.stopPropagation(); // Prevent potential parent interactions
-    onDelete(parentSquareId, id); // Call delete with parent ID and mini-box ID
+  const handleContextMenu = (event) => {
+    event.preventDefault();
+    event.stopPropagation();
+    onDelete(parentSquareId, id);
   };
 
   return (
-    // Apply droppable ref and classes
-    <div ref={setNodeRef} className={miniBoxClasses}>
-      {/* Content Area */}
+    <div
+      ref={setNodeRef}
+      className={`mini-box ${isOver ? "over" : ""} ${
+        !hasAction ? "empty" : ""
+      }`}
+      onContextMenu={handleContextMenu}
+      title={
+        hasAction
+          ? `${action.name} (Right-click to delete)`
+          : "Empty Slot (Right-click to delete)"
+      }
+      onPointerDown={(e) => e.stopPropagation()}
+      onClick={(e) => e.stopPropagation()}
+      onTouchStart={(e) => e.stopPropagation()}
+    >
       <div className="mini-box-content">
-        {hasAction ? (
-          <span className="mini-box-icon" title={action.name}>
-            {action.icon}
+        {hasAction && MiniIconComponent ? (
+          // Render the SVG component for the mini action
+          <span className="mini-box-icon-wrapper">
+            <MiniIconComponent className="svg-icon mini-box-icon" />
           </span>
         ) : (
-          <span className="mini-box-placeholder">Drop Action</span>
+          // Placeholder for empty state
+          <span className="mini-box-placeholder"></span>
         )}
       </div>
-
-      {/* Delete Button - only show if an action is present? Or always? Let's show always for now */}
-      <button
-        className="mini-box-delete-button"
-        onClick={handleDelete}
-        title="Remove item / Clear slot"
-        // Stop pointer down needed if button is sometimes obscured or complex layout
-        onPointerDown={(e) => e.stopPropagation()}
-      >
-        ×
-      </button>
     </div>
   );
 }

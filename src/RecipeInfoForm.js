@@ -1,4 +1,5 @@
 import React from "react";
+import DetailsPNG from "./designs/details.png"; // Import the new image
 
 function RecipeInfoForm({ info, onChange }) {
   const handleChange = (e) => {
@@ -8,8 +9,12 @@ function RecipeInfoForm({ info, onChange }) {
 
   return (
     <div className="recipe-info-form">
-      <h2>Recipe Details</h2>
-      <label htmlFor="name">Recipe Name:</label>
+      <img
+        src={DetailsPNG} /* Use the URL from the default import */
+        alt="" /* Alt text is handled by aria-label on button */
+        className="details-icon"
+      />
+      <label htmlFor="name">Recipe Name</label>
       <input
         type="text"
         id="name"
@@ -18,7 +23,7 @@ function RecipeInfoForm({ info, onChange }) {
         onChange={handleChange}
       />
 
-      <label htmlFor="author">Author:</label>
+      <label htmlFor="author">Recipe By</label>
       <input
         type="text"
         id="author"
@@ -27,17 +32,16 @@ function RecipeInfoForm({ info, onChange }) {
         onChange={handleChange}
       />
 
-      <label htmlFor="cookTime">Cook Time:</label>
+      <label htmlFor="cookTime">Total Time</label>
       <input
         type="text"
         id="cookTime"
         name="cookTime"
         value={info.cookTime}
         onChange={handleChange}
-        placeholder="e.g., 30 minutes"
       />
 
-      <label htmlFor="date">Date:</label>
+      <label htmlFor="date">Date</label>
       <input
         type="date"
         id="date"

@@ -1,138 +1,1176 @@
-body {
-  font-family: sans-serif;
-  margin: 20px;
-  background-color: #f4f4f4;
+/* Add this block at the very beginning of your App.css file */
+@font-face {
+  font-family: "MyFont";
+  src: local("MyFont"),
+    url(./fonts/fonnts.com-DegularDemo-Black.otf) format("opentype");
+  /* other formats include: 'woff2', 'truetype, 'opentype',
+                            'embedded-opentype', and 'svg' */
 }
+
+@keyframes breatheAnimation {
+  0% {
+    transform: scale(1); /* Start at normal size */
+  }
+  50% {
+    transform: scale(1.03); /* Scale up slightly (adjust 1.03 for intensity) */
+  }
+  100% {
+    transform: scale(1); /* Return to normal size */
+  }
+}
+
+body {
+  font-family: "MyFont", sans-serif;
+  padding: 0; /* Remove body padding */
+  background-color: #f68e3e; /* Keep fallback background */
+  margin: 0; /* Keep margin reset */
+  min-height: 100vh; /* Ensure body can contain full height elements */
+  /* OR use height: 100% if html also has height: 100% */
+  /* --- ADD THESE LINES TO HIDE BODY SCROLLBAR --- */
+  /* Hide scrollbar for Firefox */
+
+  /* Hide scrollbar for IE/Edge (older versions) */
+  -ms-overflow-style: none;
+  /* --- END ADD --- */
+}
+
+/* --- ADD THIS SEPARATE RULE TO HIDE SCROLLBAR FOR WEBKIT (Chrome, Safari, Edge Chromium) --- */
+body::-webkit-scrollbar {
+  display: none; /* Hide scrollbar */
+}
+/* --- END ADD --- */
+/* --- Pointer Events Control --- */
+
+/* Step 1: Disable pointer events on the main containers by default */
+/* This makes backgrounds, static text, layout divs etc. non-interactive */
+.landing-page-container,
+.landing-cooking-icon,
+.landing-title-wrapper,
+.landing-title-wrapper::before,
+.start-icon,
+.recipe-info-form label,
+.icons-title,
+.button-info-icon,
+.serve-icon,
+.print-icon,
+.app-container {
+  pointer-events: none;
+}
+
+/* Step 2: Selectively RE-ENABLE pointer events on ALL interactive elements */
+.start-button,
+.recipe-info-form input,
+.recipe-info-form label, /* Optional: Allow clicking labels to focus input */
+.action-palette-outer-container, /* Allow scrolling/interaction within */
+.category-arrow,
+.pagination-arrow,
+.action-item, /* Draggable items */
+.recipe-grid-outer-container, /* Allow scrolling/interaction within */
+.recipe-grid, /* Allow interaction within grid padding/gaps if needed */
+.grid-square, /* Drop zones */
+.placed-action, /* Clickable/Draggable placed items */
+.placed-action .label-input,
+.placed-action .reveal-mini-box-button,
+.mini-box-container-right, /* Containers need events to delegate to mini-boxes */
+.mini-box-container-top,
+.mini-box-container-bottom,
+.mini-box, /* Mini-box drop zones/content */
+.mini-box input, /* Input inside mini-box if editable */
+.notes-button,
+.serve-button,
+.print-button,
+.modal-overlay, /* Allow clicking overlay to close (if applicable) */
+.modal-content, /* Allow scrolling/interaction within modal */
+.modal-close-button,
+.notes-textarea,
+.info-panel-middle-left-button,
+/* Add any other specific interactive elements here */
+a /* Re-enable standard links if any exist */ {
+  pointer-events: auto; /* Restore default interaction */
+}
+
+/* --- End Pointer Events Control --- */
+
+/* Step 1: Disable text selection globally on the main containers */
+.landing-page-container,
+.app-container {
+  user-select: none; /* Standard */
+  -webkit-user-select: none; /* Safari/Chrome */
+  -moz-user-select: none; /* Firefox */
+  -ms-user-select: none; /* IE/Edge */
+}
+
+/* Step 2: Ensure selection is disabled during drag operations */
+.action-item.dragging,
+.placed-action.dragging,
+.drag-overlay {
+  user-select: none !important; /* Use !important to override potential conflicts */
+  -webkit-user-select: none !important;
+  -moz-user-select: none !important;
+  -ms-user-select: none !important;
+}
+
+/* Step 3: Selectively RE-ENABLE text selection where needed */
+input, /* All standard input elements */
+textarea, /* All textarea elements */
+.label-input, /* Your specific input class */
+.notes-textarea, /* Your specific textarea class */
+.summary-text, /* Allow selecting summary text in modal */
+.recipe-info-form label /* Optional: Allow selecting form labels */
+/* Add any other specific text elements you want selectable */ {
+  user-select: auto; /* Allow default browser selection behavior */
+  /* Or use user-select: text; for explicit text-only selection */
+  -webkit-user-select: auto;
+  -moz-user-select: auto;
+  -ms-user-select: auto;
+}
+
+/* --- Landing Page Styles --- */
+.landing-page-container {
+  display: flex;
+  flex-direction: column;
+  justify-content: center; /* Center vertically */
+  align-items: center; /* Center horizontally */
+  min-height: 100vh; /* Take full viewport height */
+  text-align: center;
+  padding: 40px;
+  box-sizing: border-box; /* Include padding in height calculation */
+  color: #f9db92; /* Contrasting text */
+  /* This text-shadow applies to all text inside unless overridden */
+  text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.6);
+
+  /* --- MODIFICATION START --- */
+  background-color: #f7a541; /* Keep solid background color */
+  /* REMOVE background image properties from here */
+  /* background-image: url("designs/Pattern MASSIVE.svg "); */
+  /* background-size: 6000px; */
+  /* background-blend-mode: multiply; */
+  /* --- MODIFICATION END --- */
+
+  /* Keep existing text color and shadow */
+  color: #f9db92;
+  text-shadow: 5px 5px 5px rgba(0, 0, 0, 0.6);
+
+  /* --- ADD These --- */
+  position: relative; /* Needed for pseudo-element */
+  overflow: hidden; /* Good practice, clips pseudo-element if needed */
+  z-index: 0; /* Establish stacking context */
+  /* --- END ADD --- */
+}
+
+/* --- ADD THIS NEW RULE --- */
+.landing-page-container::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: -1; /* Behind content */
+
+  /* Apply background image properties here */
+  background-image: url("designs/Pattern MASSIVE.svg ");
+  background-size: 6000px; /* Or adjust as needed */
+  background-position: center center; /* Optional: Center the large image */
+  background-repeat: no-repeat; /* Assuming it's a large pattern */
+  background-blend-mode: multiply; /* Keep blend mode if desired */
+
+  /* --- SET DESIRED OPACITY HERE --- */
+  opacity: 0.5; /* Example: 20% opacity. Adjust as needed (0.0 to 1.0) */
+  /* --- END OPACITY --- */
+
+  /* Optional: Add if container might get rounded corners later */
+  /* border-radius: inherit; */
+}
+
+/* --- REMOVE OR COMMENT OUT OLD H1/P STYLES --- */
+/*
+.landing-page-container h1 {
+  font-size: 3.5em;
+  margin-bottom: 25px;
+  color: #f9db92;
+}
+
+.landing-page-container p {
+  font-size: 1.5em;
+  margin-bottom: 50px;
+  max-width: 600px;
+  line-height: 1.6;
+  color: #f9db92;
+}
+*/
+
+/* --- ADD NEW STYLES FOR THE TITLE --- */
+.landing-title-wrapper {
+  margin-bottom: 30px; /* Space between title block and button */
+  border: 5px solid #000000; /* Add border using the text color */
+  border-radius: 45px; /* Apply the requested border radius */
+  padding: 0px 30px; /* Add padding so text isn't touching the border */
+  display: inline-block; /* Make the wrapper only as wide as its content */
+
+  background-color: #f68e3e; /* Keep the container's solid background */
+  box-shadow: inset 3px 3px 5px rgba(0, 0, 0, 0.552),
+    inset -3px -3px 5px rgba(0, 0, 0, 0.552);
+
+  /* --- REMOVE Background Image Styles from here --- */
+  /* background-image: url("designs/Pattern MASSIVE.svg "); */
+  /* background-size: 8500px; */
+  /* --- END REMOVE --- */
+
+  /* --- ADD These --- */
+  position: relative; /* Needed for pseudo-element */
+  overflow: hidden; /* To clip pseudo-element to border-radius */
+  z-index: 0; /* Establish stacking context */
+  /* --- END ADD --- */
+
+  /* --- Keep Animation --- */
+  animation: breatheAnimation 2s ease-in-out infinite;
+}
+
+/* --- ADD THIS NEW RULE --- */
+.landing-title-wrapper::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: -1; /* Behind content */
+
+  /* Apply background image properties here */
+  background-image: url("designs/Pattern MASSIVE.svg ");
+  background-size: 9000px; /* Or adjust as needed */
+  background-position: center center; /* Optional: Center the large image */
+  background-repeat: no-repeat; /* Assuming it's a large pattern */
+
+  /* --- SET DESIRED OPACITY HERE --- */
+  opacity: 0.55; /* Example: 30% opacity. Adjust as needed (0.0 to 1.0) */
+  /* --- END OPACITY --- */
+
+  border-radius: inherit; /* Match parent's border-radius */
+}
+
+.landing-cooking-icon {
+  max-width: 1500px;
+  padding-top: 20px;
+  padding-bottom: 10px;
+}
+/* --- END ADDED RULE --- */
+
+.landing-title-cooking {
+  font-size: 10em; /* Make COOKING large */
+  line-height: 1.1; /* Adjust line height */
+  margin: 0 0 5px 0; /* Remove default margins, add small bottom margin */
+  color: #f9db92; /* Explicit color */
+  font-weight: bold; /* Ensure it's bold */
+}
+
+.landing-title-notations-ui {
+  font-size: 4.5em; /* Make NOTATIONS UI large, but smaller than COOKING */
+  line-height: 1.2;
+  margin: 0; /* Remove default margins */
+  color: #f9db92; /* Explicit color */
+  font-weight: normal; /* Or adjust as needed */
+}
+
+/* --- END NEW TITLE STYLES --- */
+
+.landing-page-container .start-button {
+  /* Style similar to other main action buttons */
+  padding: 15px 35px;
+  font-size: 2em; /* Make it prominent */
+  font-family: "MyFont", sans-serif;
+  border-radius: 30px; /* Slightly larger radius */
+  cursor: pointer;
+  transition: background-color 0.2s ease, transform 0.1s ease;
+
+  background-color: #f7a541; /* Button color - like palette background */
+  border: 2px solid #000000;
+  color: #f68e3e; /* Text color - like palette title */
+  box-shadow: inset 3px 3px 5px rgba(0, 0, 0, 0.552),
+    inset -3px -3px 5px rgba(0, 0, 0, 0.552);
+  text-shadow: none; /* Remove text shadow from container */
+}
+
+.landing-page-container .start-button:hover {
+  background-color: #fed373; /* Lighter hover */
+  transform: scale(1.05); /* Slight grow effect */
+  box-shadow: 4px 4px 8px rgba(0, 0, 0, 0.5);
+}
+
+.landing-page-container .start-button:active {
+  transform: scale(0.98); /* Press effect */
+  box-shadow: inset 1px 1px 3px rgba(0, 0, 0, 0.3);
+}
+
+.start-icon {
+  max-width: 350px;
+  padding-top: 15px;
+}
+/* --- End Landing Page Styles --- */
 
 .app-container {
   display: flex;
-  gap: 30px;
-  flex-wrap: wrap; /* Allow wrapping on smaller screens */
+  flex-wrap: nowrap;
+  width: 100%;
+  max-width: 2000px;
+  margin: 20px auto;
+  padding: 0;
+  box-sizing: border-box;
+  /* gap: 15px; */ /* Keep gap removed */
+  /* --- MODIFY OVERFLOW --- */
+  overflow-y: auto; /* Keep vertical scroll if needed for other content */
+  overflow-x: visible; /* Allow horizontal overflow (for the mascot) */
+  /* --- END MODIFY --- */
 }
 
+/* --- Main Content Area (Left + Middle) --- */
+.main-content-area {
+  display: flex;
+  flex-grow: 1;
+  flex-basis: 80%;
+  min-width: 0;
+  max-width: 1450px;
+  /* overflow: hidden; */ /* Keep overflow: hidden */
+  padding: 15px;
+  box-sizing: border-box;
+  border: 4px solid #000000;
+  border-radius: 40px; /* Rounded on ALL corners */
+
+  /* --- MODIFICATION START --- */
+  background-color: #f7a541; /* Keep the solid background color */
+  /* REMOVE background image properties from here */
+  /* background-image: url("designs/Pattern MASSIVE.svg "); */
+  /* background-size: 2500px; */
+  /* background-blend-mode: multiply; */
+  /* --- MODIFICATION END --- */
+
+  box-shadow: inset 3px 3px 5px rgba(0, 0, 0, 0.552),
+    inset -3px -3px 5px rgba(0, 0, 0, 0.552);
+  gap: 15px;
+
+  position: relative; /* Keep: Needed for pseudo-element positioning */
+  overflow: hidden; /* Keep: Ensures pseudo-element respects border-radius */
+  z-index: 9; /* Ensure content is layered above the ::before pseudo-element */
+}
+
+/* --- ADD THIS NEW RULE --- */
+.main-content-area::before {
+  content: ""; /* Required for pseudo-elements */
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: -1; /* Place behind the content */
+
+  /* Apply background image properties here */
+  background-image: url("designs/Pattern MASSIVE.svg ");
+  background-size: 2500px; /* Adjust size as needed */
+  background-repeat: repeat; /* Or 'no-repeat' depending on the pattern */
+  background-position: center center; /* Adjust position as needed */
+  /* background-blend-mode: multiply; */ /* Apply here if you still want blending */
+
+  /* --- SET DESIRED OPACITY HERE --- */
+  opacity: 0.45; /* Example: 30% opacity. Adjust value between 0.0 and 1.0 */
+  /* --- END OPACITY SETTING --- */
+
+  border-radius: inherit; /* Make pseudo-element respect parent's border-radius */
+}
+/* --- END ADDED RULE --- */
+
+.cooking-icon {
+  max-width: 800px;
+  padding-top: 20px;
+  padding-bottom: 10px;
+}
+
+/* Style all three panels - Remove shared margin */
+.left-panel,
+.right-panel, /* This is now the middle panel */
+.info-side-panel {
+  flex-grow: 1;
+  flex-shrink: 1;
+  box-sizing: border-box;
+
+  /* border-radius: 10px; */ /* Remove default radius here */
+  /* margin: 0 10px; */ /* Keep margin removed */
+}
+
+/* Adjust flex basis WITHIN main-content-area */
 .left-panel {
-  flex: 1;
-  min-width: 250px; /* Ensure palette doesn't get too small */
+  flex-basis: 25%;
+  min-width: 450px;
+  padding: 10px 0px 10px 10px;
+  border-radius: 10px; /* Can keep its own internal radius */
 }
 
 .right-panel {
-  flex: 3;
+  flex-basis: 75%;
+  min-width: 400px;
+  padding: 10px 10px 10px 0px;
+  border-radius: 10px; /* Can keep its own internal radius */
+}
+
+/* Info Side Panel - Now a direct child of app-container */
+.info-side-panel {
+  flex-basis: 20%;
+  /* min-width: 350px; */
+  max-width: 530px;
+  background-color: #f68e3e;
+  padding: 15px;
+  padding-left: 50px;
+
+  position: relative;
+  z-index: 1; /* Adjusted z-index */
+  margin-left: -32px; /* Keep overlap */
+
+  border-top: 5px solid #000000;
+  border-bottom: 5px solid #000000;
+  border-right: 5px solid #000000;
+  border-left: none;
+
+  border-radius: 0 30px 30px 0;
+
+  /* --- ADD Flexbox for content alignment --- */
+  display: flex; /* Use flexbox */
+  flex-direction: column; /* Stack children vertically */
+  /* align-items: center; */ /* Center children horizontally */
+  /* justify-content: space-around; */ /* Distribute space */
+  /* --- END ADD --- */
+}
+
+/* --- REMOVE OLD Info Panel Content Styles --- */
+/*
+.info-side-panel h2 { ... }
+.info-side-panel p { ... }
+*/
+/* --- END REMOVE --- */
+
+/* --- ADD Styles for SVG Container and SVGs --- */
+.info-panel-svg-container {
+  display: flex;
+  flex-direction: column; /* Stack SVGs vertically */
+  align-items: center; /* Center SVGs horizontally */
+  justify-content: space-around; /* Distribute space vertically */
+  gap: 20px; /* Space between SVGs */
+  padding: 20px 0; /* Add some vertical padding */
+  height: 100%; /* Make container fill the panel height */
+  box-sizing: border-box;
+}
+
+.info-panel-svg {
+  width: 70%; /* Adjust width as needed */
+  max-width: 180px; /* Set a max width */
+  height: auto; /* Maintain aspect ratio */
+  fill: #f9db92; /* Example fill color - adjust if SVGs have own colors */
+  /* Add transition or other effects if desired */
+}
+
+.poticon {
+  width: 90%;
+  height: auto; /* Maintain aspect ratio */
+  padding-left: 15px;
+  padding-top: 20px;
+}
+
+.howtouseicon {
+  width: 100%;
+  height: auto; /* Maintain aspect ratio */
+  padding-top: 75px;
+  padding-left: 10px;
+}
+
+.mascoticon {
+  width: 500px;
+
+  height: 850px; /* Maintain aspect ratio */
+  padding-top: 100px;
+  padding-left: 30px;
+  position: absolute;
+  top: 30%;
+
+  z-index: 9999; /* Very high z-index to be on top of everything */
+  pointer-events: none;
+}
+
+/* --- ADJUST Styles for the Middle Left Button (Now Icon Button) --- */
+.info-panel-middle-left-button {
+  position: absolute;
+  top: 50%;
+  left: 50px;
+  /* --- CHANGE THIS BACK to the original lower position --- */
+  transform: translateY(50%); /* Shift DOWN by half its height */
+  /* --- END CHANGE --- */
+
+  z-index: 5;
+  width: 100px;
+  height: 100px;
+  padding: 0;
+  border-radius: 15px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: "MyFont", sans-serif;
+  cursor: pointer;
+  transition: background-color 0.2s ease, transform 0.1s ease,
+    box-shadow 0.2s ease;
+  background-color: #f9db92;
+  border: 5px solid #000000;
+  box-shadow: inset 3px 3px 5px rgba(0, 0, 0, 0.552),
+    inset -3px -3px 5px rgba(0, 0, 0, 0.552);
+}
+
+/* Around line 432 */
+.info-panel-middle-left-button:hover {
+  background-color: #fed373;
+  /* --- MODIFY THIS LINE: Keep translateY(50%) and add scale --- */
+  transform: translateY(50%) scale(1.05);
+  /* --- END MODIFY --- */
+  box-shadow: inset 3px 3px 5px rgba(0, 0, 0, 0.552),
+    inset -3px -3px 5px rgba(0, 0, 0, 0.552);
+}
+
+/* Around line 441 */
+.info-panel-middle-left-button:active {
+  /* --- MODIFY THIS LINE: Keep translateY(50%) and add scale --- */
+  transform: translateY(50%) scale(0.98);
+  /* --- END MODIFY --- */
+  box-shadow: inset 3px 3px 5px rgba(0, 0, 0, 0.552),
+    inset -3px -3px 5px rgba(0, 0, 0, 0.552);
+}
+
+/* --- ADD Styling for the Icon INSIDE the button --- */
+.info-panel-middle-left-button .button-info-icon {
+  width: 60%; /* Size the icon relative to the button */
+  height: 60%;
+  /* fill: #f68e3e; */ /* REMOVE fill - doesn't apply to <img> */
+  display: block; /* Prevent potential extra space below icon */
+  object-fit: contain; /* Optional: Ensures the image scales nicely within its bounds */
+}
+/* --- END Icon Styling --- */
+
+/* --- Ensure original InfoIcon styles are not affected --- */
+.info-panel-svg.infoicon {
+  width: 50px; /* Keep original size */
+  height: 90px;
+  fill: #f9db92; /* Keep original fill */
+}
+/* --- END Middle Left Button Styles --- */
+
+/* --- Info Placeholder Styles --- */
+/* --- Info Placeholder Styles --- */
+/* --- Info Placeholder Styles --- */
+.instructions-popup-container {
+  position: fixed; /* Position relative to the viewport */
+  top: 50%;
+  left: 48%;
+  left: 50%; /* Center horizontally */
+  transform: translate(-50%, -50%); /* Center the container */
+
+  /* Adjust width/height as needed for your image */
+  width: 80%; /* Example: 80% of viewport width */
+  max-width: 1500px; /* Example: Max width */
+  max-height: 100vh; /* Example: Max height */
+
+  background-color: #f68e3e; /* Make sure this is not transparent */
+  border: 3px solid #000000;
+  border-radius: 20px;
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.4),
+    inset 3px 3px 5px rgba(0, 0, 0, 0.552),
+    inset -3px -3px 5px rgba(0, 0, 0, 0.552);
+
+  z-index: 1000; /* Ensure it's high enough */
+  padding: 20px;
+  box-sizing: border-box;
+
+  /* Make sure it's interactive */
+  pointer-events: auto; /* Should be auto */
+
+  display: flex; /* Or block, just not none */
+  justify-content: center;
+  align-items: center;
+}
+.instructions-popup-close-button {
+  position: absolute;
+  top: 10px;
+  right: 15px;
+  background: none;
+  border: 1px solid #000000; /* Subtle border */
+  border-radius: 50%; /* Make it circular */
+  width: 30px;
+  height: 30px;
+  font-size: 1.5rem;
+  line-height: 28px; /* Adjust to center 'X' */
+  text-align: center;
+  cursor: pointer;
+  color: #000000; /* Button color */
+  transition: background-color 0.2s, color 0.2s;
+  padding: 0; /* Remove default padding */
+}
+
+.instructions-popup-close-button:hover {
+  background-color: #eee;
+  color: #000;
+}
+
+.instructions-popup-content {
+  width: 100%;
+  height: 100%;
+  display: flex; /* Center image */
+  justify-content: center;
+  align-items: center;
+  overflow: auto; /* Add scroll if image is larger than container */
+}
+
+.instructions-image {
+  display: block; /* Remove extra space below image */
+  max-width: 100%; /* Ensure image doesn't overflow horizontally */
+  max-height: 100%; /* Ensure image doesn't overflow vertically */
+  object-fit: contain; /* Scale image nicely within bounds */
+}
+/* --- End Instructions Popup Styles --- */
+/* ... (all your other styles for RecipeInfoForm, ActionPalette, RecipeGrid, buttons, etc.) ... */
+
+/* Example: Ensure panels don't shrink below a certain size */
+
+/* Adjustments for action buttons if needed */
+.action-buttons {
+  /* Maybe center them or adjust spacing if the panel width changed significantly */
+  display: flex;
+  justify-content: space-around; /* Example */
+  margin-top: 20px;
+  padding-top: 15px;
+}
+
+/* Icon Styling */
+.icon-wrapper {
+  display: inline-flex; /* Use flex to center content */
+  justify-content: center;
+  align-items: center;
+  /* Keep dimensions if needed, or let parent control */
+  /* Example: width: 30px; height: 30px; */ /* This is set below specifically for action-item */
+  overflow: hidden; /* Hide any part of SVG that might overflow if not scaled */
+}
+
+.svg-icon {
+  display: block; /* Remove extra space below inline SVGs */
+  /* REMOVE fixed width/height here if you want context-specific sizing */
+  /* width: 100%; */
+  /* height: 100%; */
+  /* Instead, use max-width/max-height in specific contexts */
+}
+
+/* Specific sizes for different contexts (adjust as needed) */
+
+/* --- MODIFICATION START --- */
+.action-item.dragging {
+  /* --- ADD THIS LINE --- */
+  position: relative;
+  /* --- END ADD --- */
+
+  opacity: 0.9 !important; /* Make it mostly opaque (use 1 for fully opaque) */
+  z-index: 9999 !important; /* Bring it to the very front */
+  cursor: grabbing !important; /* Ensure grabbing cursor */
+  pointer-events: none; /* Prevent interference with drop targets */
+}
+/* Style the wrapper in the ActionItem for centering AND defining the box */
+.action-item .icon-wrapper {
+  width: 30px; /* Define the container width */
+  height: 30px; /* Define the container height (make it square) */
+  margin-bottom: 4px;
+  /* display: inline-flex, justify-content, align-items are inherited or already set */
+}
+
+/* Style the SVG ICON specifically within the ActionItem */
+.action-item .svg-icon {
+  /* REMOVE fixed dimensions */
+  /* width: 28px; */
+  /* height: 28px; */
+
+  /* ADD max dimensions to scale SVG down to fit the wrapper */
+  max-width: 100%; /* Max width is the wrapper's width (30px) */
+  max-height: 100%; /* Max height is the wrapper's height (30px) */
+
+  /* Ensure it behaves like an image/block for scaling */
+  object-fit: contain; /* Good practice, though max-width/height handles it */
+  display: block;
+}
+
+/* --- MODIFICATION END --- */
+
+.placed-action-icon {
+  /* These can remain fixed as they apply to a different context */
+  width: 36px;
+  height: 36px;
+  /* margin-bottom: 5px; */ /* Handled by wrapper style below */
+}
+
+.mini-box-icon {
+  /* These can remain fixed */
+  width: 20px;
+  height: 20px;
+}
+
+/* .drag-overlay-icon {
+  width: 24px;
+  height: 24px;
+} */
+
+/* Style the wrapper in PlacedAction */
+.placed-action .icon-wrapper {
+  width: 36px; /* Match the icon size */
+  height: 36px;
+  margin-bottom: 5px;
+}
+
+/* Style the wrapper in MiniBox */
+.mini-box .mini-box-icon-wrapper {
+  width: 20px; /* Match the icon size */
+  height: 20px;
 }
 
 /* Recipe Info Form */
+/* Around line 141 */
 .recipe-info-form {
-  background-color: #fff;
+  /* --- ADD THESE --- */
+  flex: 1; /* Allow grow/shrink */
+  overflow: auto; /* Add scroll if needed */
+  min-height: 0; /* Allow shrinking */
+  /* --- END ADD --- */
+
+  background-color: #f9db92;
   padding: 15px;
-  border-radius: 8px;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  border-radius: 15px;
+  box-shadow: inset 3px 3px 5px rgba(0, 0, 0, 0.552),
+    inset -3px -3px 5px rgba(0, 0, 0, 0.552);
   margin-bottom: 20px;
 }
 
 .recipe-info-form h2 {
   margin-top: 0;
   margin-bottom: 15px;
-  color: #333;
+  color: #f7a541;
+  text-shadow: #000000;
+  font-size: 2.5em;
+}
+
+.details-icon {
+  width: 220px; /* Adjust size as needed */
+  height: 50px;
+  margin-bottom: 10px; /* Space below icon */
+}
+
+.icons-title {
+  width: 180px; /* Adjust size as needed */
+  /* margin-left: 50px; */ /* REMOVE explicit left margin */
+
+  /* --- ADD THESE --- */
+  display: block; /* Treat as a block element */
+  margin-left: auto; /* Center horizontally */
+  margin-right: auto; /* Center horizontally */
+  margin-bottom: 10px; /* Optional: Add space below the image */
 }
 
 .recipe-info-form label {
   display: block;
   margin-bottom: 5px;
   font-weight: bold;
-  color: #555;
+  color: #f7a541;
+  font-size: 1.7em;
 }
 
 .recipe-info-form input {
   width: calc(100% - 16px); /* Account for padding */
   padding: 8px;
   margin-bottom: 10px;
-  border: 1px solid #ccc;
-  border-radius: 4px;
+  background-color: #fed373;
+  border: 1px solid #000000;
+  border-radius: 8px;
 }
 
 /* Action Palette */
-.action-palette {
-  background-color: #fff;
-  padding: 15px;
-  border-radius: 8px;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-}
-
-.action-palette h3 {
-  margin-top: 0;
-  margin-bottom: 10px;
-  color: #333;
-}
-
-.action-list {
+/* Around line 170 */
+.action-palette-outer-container {
+  flex: 1;
   display: flex;
-  flex-wrap: wrap;
-  gap: 10px;
+  flex-direction: column;
+  /* overflow: hidden; */ /* Keep/Add this */
+  min-height: 838px;
+
+  border-radius: 30px;
+  background-color: #f68e3e; /* Keep solid background color */
+  box-shadow: inset 3px 3px 5px rgba(0, 0, 0, 0.552),
+    inset -3px -3px 5px rgba(0, 0, 0, 0.552);
+
+  /* --- REMOVE Background Image Styles from here --- */
+  /* background-image: url("./designs/Design-elements-02.png"); */
+  /* background-size: 320px; */
+  /* background-position: center center; */
+  /* background-repeat: no-repeat; */
+  /* background-blend-mode: multiply; */
+  /* --- END REMOVE --- */
+
+  padding: 16px 16px; /* Keep this padding */
+
+  /* --- ADD These --- */
+  position: relative; /* Needed for pseudo-element */
+  overflow: hidden; /* To clip pseudo-element to border-radius */
+  z-index: 0; /* Establish stacking context */
+  /* --- END ADD --- */
 }
 
-/* Action Item */
-.action-item {
-  border: 1px dashed #ccc;
+/* --- ADD THIS NEW RULE --- */
+.action-palette-outer-container::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: -1; /* Behind content */
+
+  /* Apply background image properties here */
+  background-image: url("./designs/Design-elements-02.png");
+  background-size: 580px;
+  background-position: center center;
+  background-repeat: no-repeat;
+  background-blend-mode: multiply; /* Keep blend mode if desired */
+
+  /* --- SET DESIRED OPACITY HERE --- */
+  opacity: 0.35; /* Example: 30% opacity. Adjust as needed (0.0 to 1.0) */
+  /* --- END OPACITY --- */
+
+  border-radius: inherit; /* Match parent's border-radius */
+}
+
+.palette-title {
+  text-align: center; /* Center the "ICONS" text */
+  margin-top: 0; /* Remove default browser margin */
+  margin-bottom: 15px; /* Space between title and the inner palette */
+  font-size: 2.5em; /* Adjust title size as needed */
+  color: #f9db92; /* Adjust title color as needed */
+  font-weight: 600;
+  /* --- ADD --- */
+  flex-shrink: 0; /* Prevent title from shrinking */
+  /* --- END ADD --- */
+}
+
+.action-palette {
+  /* --- ADD --- */
+  flex-grow: 1; /* Allow palette to take remaining space in outer container */
+  overflow: hidden; /* Allow scrolling within the palette if needed */
+  min-height: 0; /* Allow shrinking */
+  /* --- END ADD --- */
+
+  /* Optional: Set a fixed height or min-height if desired */
+  /* min-height: 300px; */
+  display: flex;
+  flex-direction: column; /* Stack category nav, list, pagination */
+  background-color: #f9db92;
+  border: 1px solid #000000;
+  border-radius: 30px;
   padding: 10px;
-  border-radius: 5px;
-  cursor: grab;
-  text-align: center;
-  background-color: #f9f9f9;
-  transition: background-color 0.2s ease;
-  min-width: 60px; /* Ensure minimum width */
 }
 
-.action-item:hover {
+.category-navigation {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 10px;
+  padding-bottom: 5px;
+  border-bottom: 1px solid #000000;
+}
+
+.category-title {
+  margin: 20px 10px;
+  font-size: 2.1em;
+  font-weight: bold;
+  text-align: center;
+  flex-grow: 1;
+}
+
+.category-arrow,
+.pagination-arrow {
+  /* Shared styles for arrow buttons */
+  background: none;
+  border: 1px solid #000000;
+  padding: 2px 8px;
+  font-size: 1.2em;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.category-arrow {
+  border-radius: 7px; /* Rounded corners for category arrows */
+  margin-left: 40px;
+}
+
+.category-arrow-next {
+  margin-left: 0;
+  margin-right: 37px;
+}
+
+.pagination-arrow {
+  /* Specific styles for pagination arrows */
+  margin-left: 140px; /* Space between arrows */
+  border-radius: 100%;
+}
+
+.pagination-arrow-next {
+  margin-left: 0;
+  margin-right: 140px;
+}
+
+.category-arrow:hover:not(:disabled),
+.pagination-arrow:hover:not(:disabled) {
   background-color: #eee;
 }
 
-.action-item span {
-  font-size: 1.5em; /* Icon size */
-  display: block;
+.category-arrow:disabled,
+.pagination-arrow:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* --- UPDATED Action List Styling --- */
+.action-list.fixed-grid {
+  /* Target the list when it's the fixed grid */
+  display: grid;
+  grid-template-columns: repeat(2, 1fr); /* Keep 2 columns */
+  grid-template-rows: repeat(
+    3,
+    180px /* Or 200px if action-item height changes */
+  ); /* 3 rows */
+  gap: 0px; /* Spacing between action items */
+  margin-left: 10px; /* Existing style */
+  margin-bottom: 30px; /* Reduced space before pagination */
+
+  margin-right: 10px;
+  /* --- ADD THESE LINES FOR CENTERING ITEMS --- */
+  justify-items: center; /* Center grid items horizontally within their cell */
+  align-items: center; /* Center grid items vertically within their cell */
+  /* --- END ADD --- */
+
+  align-content: start; /* Align content to the top if fewer than 6 items */
+  flex-shrink: 0; /* Prevent grid itself from shrinking if content fits */
+}
+
+/* Style for placeholder divs to maintain grid structure */
+.action-item-placeholder {
+  background-color: #f9db92; /* Slightly different background */
+  /* Ensure placeholder also respects the height */
+}
+
+/* --- Action Item Styling (mostly unchanged, ensure it fits 80px height) --- */
+.action-item {
+  background-color: #f9db92;
+  border: 1px solid #000000;
+  border-radius: 30px;
+  padding: 5px;
+  text-align: center;
+  cursor: grab;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center; /* Center content vertically */
+  box-shadow: 1px 1px 5px rgba(0, 0, 0, 0.552),
+    -1px -1px 5px rgba(0, 0, 0, 0.552);
+  transition: box-shadow 0.2s ease;
+  overflow: hidden; /* Prevent content spilling out */
+  height: 150px; /* Make item fill the grid cell height (80px) */
+  width: 150px;
+  box-sizing: border-box; /* Include padding/border in height */
 }
 
 .action-item p {
-  margin: 5px 0 0;
-  font-size: 0.8em;
-  color: #555;
+  font-size: 1.1em; /* May need adjustment based on 80px height */
+  margin: 0;
+  line-height: 1.2;
+
+  font-weight: 700;
+  color: #333;
+  /* Optional text overflow handling */
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  width: 90%; /* Ensure text takes width for ellipsis */
+  overflow: hidden;
 }
 
-/* Recipe Grid */
+.action-item .icon-wrapper {
+  width: 60px; /* Keep icon size consistent */
+  height: 60px;
+  margin-bottom: 4px;
+}
+
+.action-item .svg-icon {
+  max-width: 100%;
+  max-height: 100%;
+  object-fit: contain;
+  display: block;
+}
+
+.no-actions-message {
+  grid-column: 1 / -1; /* Span across all columns */
+  grid-row: 1 / -1; /* Span across all rows */
+  text-align: center;
+  color: #888;
+  padding: 20px;
+  align-self: center; /* Center message vertically */
+  justify-self: center; /* Center message horizontally */
+}
+
+/* --- NEW Pagination Controls Styling --- */
+.pagination-controls {
+  display: flex;
+  justify-content: space-between; /* Pushes arrows to ends */
+  align-items: center;
+  padding-top: 5px; /* Space above controls */
+  border-top: 1px solid #000000; /* Separator line */
+}
+
+.page-indicator {
+  font-size: 0.9em;
+  color: #000000;
+  margin: 0 10px; /* Space around the text */
+}
+
+/* --- ADD Outer Container for Recipe Grid --- */
+.recipe-grid-title > h2 {
+  /* Target the direct h2 child */
+  text-align: center; /* Center the text */
+  margin: 0; /* Remove default top margin if needed */
+}
+
+.cooking {
+  /* Target the direct h2 child */
+  font-size: 1.5em; /* Adjust size as needed */
+}
+
+.recipe-grid-outer-container {
+  flex-grow: 1;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  max-width: 950px;
+  padding: 15px;
+  background-color: #f68e3e;
+  border: 1px solid #000000;
+  border-radius: 30px;
+  margin-bottom: 20px;
+  box-shadow: inset 3px 3px 5px rgba(0, 0, 0, 0.552),
+    inset -3px -3px 5px rgba(0, 0, 0, 0.552);
+}
+.recipe-grid-title {
+  text-align: center; /* Center the title text */
+  margin-bottom: 15px; /* Space between title and grid */
+  font-size: 2.4em; /* Adjust size as needed */
+  color: #f9db92; /* Adjust color as needed */
+  max-width: 838px;
+  /* margin-left: 45px; */ /* Consider margin: 0 auto 15px auto; for centering */
+  margin: 0 auto 15px auto; /* Center horizontally if max-width applies */
+  border: 1px solid #000000;
+  box-shadow: inset 3px 3px 5px rgba(0, 0, 0, 0.552),
+    inset -3px -3px 5px rgba(0, 0, 0, 0.552);
+
+  /* --- REMOVE Background Image Styles from here --- */
+  /* background-image: url("./designs/Design-elements-01.png"); */
+  /* background-size: 1900px; */
+  /* background-position: center center; */
+  /* background-repeat: no-repeat; */
+  /* background-blend-mode: multiply; */
+  /* --- END REMOVE --- */
+
+  background-color: #f68e3e; /* Keep solid background color */
+  padding: 6px 26px 6px 26px; /* ADD padding so text isn't at the very edge */
+  border-radius: 30px; /* Optional: Add rounded corners */
+  text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.6); /* Optional: Add shadow for readability */
+
+  /* --- ADD These --- */
+  overflow: hidden; /* To clip pseudo-element to border-radius */
+  position: relative; /* Needed for z-index */
+  z-index: 1; /* Ensure title is above grid */
+  /* --- END ADD --- */
+}
+
+/* --- ADD THIS NEW RULE --- */
+.recipe-grid-title::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: -1; /* Behind content */
+
+  /* Apply background image properties here */
+  background-image: url("./designs/Design-elements-01.png");
+  background-size: 1100px; /* Or 'contain', '100% 100%', etc. */
+  background-position: center center;
+  background-repeat: no-repeat;
+  background-blend-mode: multiply; /* Optional: Blend with the background color */
+
+  /* --- SET DESIRED OPACITY HERE --- */
+  opacity: 0.7; /* Example: 40% opacity. Adjust as needed (0.0 to 1.0) */
+  /* --- END OPACITY --- */
+
+  border-radius: inherit; /* Match parent's border-radius */
+}
+/* --- END ADDED RULE --- *
+
+/* --- ADJUST Recipe Grid --- */
 .recipe-grid {
   display: grid;
   grid-template-columns: repeat(5, 1fr);
   grid-template-rows: repeat(5, 1fr);
-  gap: 10px;
-  width: 100%; /* Adjust as needed */
-  max-width: 600px; /* Example max width */
+  gap: 45px;
+  width: 100%; /* Grid takes full width *of its new container* */
+  max-width: 750px; /* Max width of the grid itself remains */
   aspect-ratio: 1 / 1; /* Maintain square aspect ratio */
-  background-color: #e0e0e0;
-  padding: 10px;
-  border-radius: 8px;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-  margin-bottom: 20px;
+  background-color: #f9db92; /* Background *between* squares */
+  padding: 50px; /* Padding *inside* the grid border, around squares */
+  border-radius: 30px; /* Inner radius for the grid area */
+  border: 1px solid #000000; /* Keep inner border defining grid */
+  box-shadow: inset 3px 3px 5px rgba(0, 0, 0, 0.552),
+    inset -3px -3px 5px rgba(0, 0, 0, 0.552);
+  margin: 0 auto; /* Center the grid horizontally within the outer container if it's wider */
+  z-index: 0; /* Keep z-index below title */
+  padding-top: 90px;
+
+  /* --- ADD THIS LINE --- */
+  margin-top: -75px; /* Pulls the grid up underneath the title. Adjust value as needed. */
+  /* --- END ADD --- */
+
+  /* Ensure position relative if needed for other absolute children, though not strictly for margin overlap */
+  position: relative;
 }
 
 /* Grid Square */
 .grid-square {
-  background-color: #fff;
-  border: 1px solid #ccc;
-  border-radius: 4px;
+  background-color: #f3c35b;
+  border: 1px solid #000000;
+  box-shadow: inset 1px 1px 5px rgba(0, 0, 0, 0.552),
+    inset -1px -1px 5px rgba(0, 0, 0, 0.552);
+  border-radius: 15px;
   display: flex;
   justify-content: center;
   align-items: center;
   position: relative; /* Needed for positioning elements inside */
   min-height: 80px; /* Ensure squares have a minimum size */
   transition: background-color 0.2s ease;
+  overflow: visible !important;
 }
 
-.grid-square.over {
-  background-color: #d3e3fd; /* Highlight when dragging over */
+.grid-square.over.empty {
+  background-color: #f9db92; /* Highlight when dragging over */
   border-style: dashed;
 }
 
 .grid-square.empty {
-  background-color: #f0f0f0;
-  border-style: dashed;
+  background-color: #f3c35b;
+  border: 1px solid #000000;
+  box-shadow: inset 1px 1px 5px rgba(0, 0, 0, 0.552),
+    inset -1px -1px 5px rgba(0, 0, 0, 0.552);
 }
 
 /* Placed Action */
@@ -145,6 +1183,11 @@ body {
   height: 100%;
   box-sizing: border-box; /* Include padding in size */
   position: relative; /* For positioning the plus button */
+  cursor: pointer; /* <-- ADD THIS for visual feedback */
+  overflow: visible !important; /* Make absolutely sure overflow is visible */
+}
+.placed-action.dragging {
+  z-index: 9999;
 }
 
 /* Placed Action */
@@ -158,6 +1201,7 @@ body {
   width: 100%;
   height: 100%;
   box-sizing: border-box;
+
   position: relative; /* Still relative for its own children if needed */
   /* Remove overflow hidden if it was ever added */
 }
@@ -175,62 +1219,56 @@ body {
   width: calc(100% - 10px);
   font-size: 0.8em;
   text-align: center;
-  border: 1px solid #eee;
+  border: 1px solid #000000;
+  border-radius: 5px;
   padding: 3px;
   /* margin-bottom: 5px; */ /* Removed, handled by flex gap or direct style */
   box-sizing: border-box;
-  background-color: #fff; /* Ensure it has background */
+  background-color: #f3c35b; /* Ensure it has background */
   z-index: 1; /* Above icon potentially */
 }
 
-/* --- NEW Mini Boxes Container Styling --- */
+/* --- REMOVE OR COMMENT OUT Styles for the old container --- */
+/*
 .mini-boxes-container {
   position: absolute;
   top: 50%;
   right: 0;
   transform: translate(50%, -50%);
-  background-color: rgba(240, 240, 240, 0.95);
-  border: 1px solid #bbb;
-  padding: 8px;
-  border-radius: 6px;
-  box-shadow: 2px 2px 6px rgba(0, 0, 0, 0.2);
-  z-index: 10;
   display: flex;
   flex-direction: column;
-  gap: 5px;
-  align-items: stretch;
-  width: 100px; /* Make container narrower */
-  max-height: 150px; /* Adjust height if needed */
-  overflow-y: auto;
-  overflow-x: hidden;
-  user-select: none;
-  -webkit-user-select: none;
-  -moz-user-select: none;
-  -ms-user-select: none;
+  gap: 2px;
+  background-color: rgba(255, 255, 255, 0.9);
+  padding: 4px;
+  border-radius: 4px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+  z-index: 10;
+  pointer-events: auto;
 }
 
-/* --- ADJUSTED Add Mini Box Button Styling --- */
-.add-mini-box-button {
-  /* Remove absolute positioning */
-  /* position: absolute; */
-  /* bottom: 2px; */
-  /* right: 2px; */
 
-  /* Standard button styling */
+/* --- ADJUSTED Add Mini Box Button Styling --- */
+/* .add-mini-box-button {
+   Remove absolute positioning 
+   position: absolute; 
+   bottom: 2px; 
+   right: 2px; 
+
+   Standard button styling 
   background-color: #4caf50;
   color: white;
   border: none;
-  border-radius: 4px; /* Can be square or round */
-  /* width: 18px; */ /* Let width be determined by padding */
-  /* height: 18px; */
-  padding: 3px 6px; /* Adjust padding */
+  border-radius: 4px; 
+   width: 18px; 
+   height: 18px;
+  padding: 3px 6px;
   font-size: 14px;
-  /* line-height: 16px; */
+   line-height: 16px; 
   cursor: pointer;
   text-align: center;
-  margin-top: 5px; /* Add some space above it if needed */
-  align-self: center; /* Center button within the flex container */
-  /* z-index: 10; */ /* No longer needed here, handled by container */
+  margin-top: 5px; 
+  align-self: center; 
+   z-index: 10; 
 
   background-color: #4caf50;
   color: white;
@@ -242,75 +1280,169 @@ body {
   text-align: center;
   margin-top: 5px;
   align-self: center;
+} */
+
+/* --- ADD Styles for the new '+' button on PlacedAction --- */
+.placed-action .reveal-mini-box-button {
+  position: absolute;
+  bottom: 3px;
+  right: 3px;
+  width: 20px;
+  height: 20px;
+  font-size: 14px;
+  line-height: 18px; /* Center '+' vertically */
+  text-align: center;
+  padding: 0;
+  border-radius: 50%;
+  background-color: #f3c35b;
+  border: 1px solid #000000;
+  color: #333;
+  cursor: pointer;
+  z-index: 5; /* Ensure it's above other content but below drag overlay */
+  transition: background-color 0.2s ease;
 }
+
+.placed-action .reveal-mini-box-button:hover {
+  background-color: #f9db92;
+}
+
+/* --- ADJUSTED Mini-Box Container Positioning --- */
+
+/* Box 1: Right (Center) - Stays the same */
+.placed-action .mini-box-container-right {
+  position: absolute;
+  top: 50%;
+  left: 112%;
+  transform: translateY(-50%);
+  margin-left: -10px; /* Overlap */
+  z-index: 10;
+  pointer-events: auto;
+  /* Other base styles */
+  display: flex;
+  gap: 3px;
+  padding: 0;
+  background-color: transparent;
+  border-radius: 0;
+  box-shadow: none;
+}
+
+/* Box 2: Above Box 1 */
+.placed-action .mini-box-container-top {
+  position: absolute;
+  bottom: 50%; /* Align bottom edge to the parent's vertical center */
+  left: 112%; /* Align left edge to the parent's right edge */
+  transform: none; /* Reset transform */
+  margin-left: -10px; /* Pull back slightly to overlap (same as right box) */
+  /* --- INCREASED MARGIN --- */
+  /* Pushes this box UP from the center line */
+  /* Calculation: (approx height of middle box / 2) + gap */
+  /* (45px / 2) + 3px = 22.5px + 3px = 25.5px -> Use 26px */
+  margin-bottom: 26px;
+
+  /* Base styles */
+  z-index: 10;
+  pointer-events: auto;
+  display: flex;
+}
+
+/* Box 3: Below Box 1 */
+.placed-action .mini-box-container-bottom {
+  position: absolute;
+  top: 50%; /* Align top edge to the parent's vertical center */
+  left: 112%; /* Align left edge to the parent's right edge */
+  transform: none; /* Reset transform */
+  margin-left: -10px; /* Pull back slightly to overlap (same as right box) */
+  /* --- INCREASED MARGIN --- */
+  /* Pushes this box DOWN from the center line */
+  /* Calculation: (approx height of middle box / 2) + gap */
+  /* (45px / 2) + 3px = 22.5px + 3px = 25.5px -> Use 26px */
+  margin-top: 26px;
+
+  /* Base styles */
+  z-index: 10;
+  pointer-events: auto;
+  display: flex;
+}
+
+/* --- End Mini-Box Container Positioning --- */
 
 .add-mini-box-button:hover {
   background-color: #45a049;
 }
 
-/* Mini Box (Individual) */
+/* --- Styles for the MiniBox itself (apply universally) --- */
 .mini-box {
+  border: 1px solid #000000;
+  background-color: #f3c35b;
+  padding: 4px 6px;
+  min-height: 35px;
+  min-width: 40px;
   display: flex;
   align-items: center;
-  justify-content: space-between; /* Space out content and button */
-  border: 1px dashed #ccc; /* Dashed border for empty slots */
-  border-radius: 4px;
-  padding: 4px;
-  background-color: #fff;
-  min-height: 30px; /* Ensure a minimum height */
-  transition: background-color 0.2s ease, border-color 0.2s ease;
+  justify-content: center; /* Center content */
+  border-radius: 3px;
+  position: relative;
+  box-sizing: border-box;
+  cursor: pointer; /* Keep pointer cursor */
+  box-shadow: inset 1px 1px 5px rgba(0, 0, 0, 0.263),
+    inset -1px -1px 5px rgba(0, 0, 0, 0.263);
 }
 
 .mini-box.empty {
-  /* Optional: different background for empty */
-  background-color: #f8f8f8;
+  background-color: #f3c35b; /* Lighter background when empty */
 }
 
-.mini-box:not(.empty) {
-  border-style: solid; /* Solid border when filled */
-  border-color: #bbb;
+.mini-box.empty .mini-box-placeholder {
+  color: #999;
+  font-size: 0.7em;
+  text-align: center;
+  width: 100%;
 }
+
+/* .mini-box:not(.empty) {
+  border-style: solid; 
+  border-color: #bbb;
+} */
 
 /* Highlight when dragging over */
 .mini-box.over {
-  background-color: #d3e3fd;
-  border-color: #9ecaed;
+  border-color: dodgerblue;
   border-style: solid;
+  background-color: #e0f0ff;
 }
 
 .mini-box-content {
-  flex-grow: 1; /* Take available space */
-  text-align: center; /* Center icon or placeholder */
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+  height: 100%;
 }
 
 .mini-box-icon {
-  font-size: 1.2em; /* Adjust icon size */
-  cursor: default; /* Indicate non-interactive icon */
+  font-size: 1.1em;
 }
 
-.mini-box-placeholder {
+/* .mini-box-placeholder {
   font-size: 0.7em;
   color: #888;
   font-style: italic;
-}
+} */
 
-.mini-box-delete-button {
-  background: #ff4d4d;
-  color: white;
+/* .mini-box-delete-button {
+  background: none;
   border: none;
-  border-radius: 3px;
+  color: #aaa;
   cursor: pointer;
-  font-size: 0.9em; /* Make slightly larger */
-  padding: 1px 4px;
+  font-size: 1.3em;
   line-height: 1;
-  margin-left: 4px; /* Space between content and button */
-  opacity: 0.6; /* Make slightly transparent until hover */
-  transition: opacity 0.2s ease;
+  padding: 0 2px;
+  margin-left: 4px; 
 }
 
-.mini-box:hover .mini-box-delete-button {
-  opacity: 1; /* Fully visible on hover */
-}
+.mini-box-delete-button:hover {
+  color: #f00;
+} */
 
 .mini-box input {
   flex-grow: 1;
@@ -321,63 +1453,215 @@ body {
   /* margin-right: 3px; */ /* Use gap instead */
 }
 
-.mini-box button {
+/* .mini-box button {
   background: #ff4d4d;
   color: white;
   border: none;
   border-radius: 3px;
   cursor: pointer;
   font-size: 0.8em;
-  padding: 2px 5px; /* Slightly adjust padding */
-  line-height: 1; /* Ensure text fits */
-}
+  padding: 2px 5px; 
+  line-height: 1; 
+} */
 
 /* Drag Overlay */
 .drag-overlay {
-  opacity: 0.8;
+  opacity: 0.7;
   cursor: grabbing;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
   z-index: 9999; /* Ensure it's on top */
 }
 
-/* Tooltip (Simple browser default) */
-[title] {
-  cursor: help;
+.drag-overlay p {
+  font-size: 1.1em;
+  margin: 0;
+  line-height: 1.2;
+  font-weight: 700;
+  color: #333;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  width: 90%; /* Ensure text takes width for ellipsis */
+  overflow: hidden;
 }
 
-/* Buttons */
-.action-buttons {
-  margin-top: 20px;
+.drag-overlay .icon-wrapper {
+  width: 30px; /* Match action item icon size */
+  height: 30px;
+  margin-bottom: 4px;
+  /* Ensure flex properties if not inherited */
+  display: inline-flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.drag-overlay .svg-icon {
+  max-width: 100%;
+  max-height: 100%;
+  object-fit: contain;
+  display: block;
+}
+
+/* Style for the Notes button */
+.notes-button {
+  background-color: #f7a541;
+  border: 2px solid #000000;
+  color: #f9db92;
+
+  /* --- ADJUST PADDING TO RESIZE BUTTON --- */
+  /* Example: Make button TALLER and WIDER */
+  /* padding: 10px 30px; */
+
+  /* Example: Make button SHORTER (closer to icon size) and keep current width */
+  /* padding: 1px 20px; */
+
+  /* Example: Make button NARROWER and keep current height */
+  /* padding: 3px 10px; */
+
+  /* CURRENT PADDING (from previous step): */
+  padding: 0px 45px; /* Shorter and Narrower */
+
+  /* --- END ADJUST --- */
+
+  border-radius: 30px; /* Keep consistent radius */
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+  box-shadow: inset 1px 1px 5px rgba(0, 0, 0, 0.263),
+    inset -1px -1px 5px rgba(0, 0, 0, 0.263);
+
+  /* Keep flexbox for centering the icon */
   display: flex;
-  gap: 10px;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+}
+
+/* Keep icon size fixed */
+.notes-icon {
+  width: 45px;
+  height: 45px;
+}
+
+.notes-button:hover {
+  background-color: #f3c35b;
+}
+
+/* Styling for the Notes Modal Content */
+.notes-modal-content {
+  width: 40%;
+  max-width: 600px; /* Adjust as needed */
+  /* Inherits general modal styles, add specifics if needed */
+}
+
+.notes-textarea {
+  width: 100%;
+  margin-top: 15px;
+  padding: 10px;
+  background-color: #f9db92;
+  border: 1px solid #000000;
+  border-radius: 8px;
+  font-size: 1rem;
+  font-family: sans-serif; /* Or your preferred font */
+  box-sizing: border-box; /* Include padding in width */
+  resize: vertical; /* Allow vertical resizing */
+}
+
+/* Ensure action buttons layout accommodates the new button */
+.action-buttons {
+  display: flex;
+  justify-content: center; /* Or space-around, space-between */
+  gap: 20px; /* Add space between buttons */
+  margin-top: 20px;
+  flex-wrap: wrap; /* Allow buttons to wrap on smaller screens */
+}
+
+/* Inherited Modal Styles (ensure these exist from SummaryModal) */
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.6);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
+
+.modal-content {
+  background-color: #fff;
+  padding: 25px;
+  border-radius: 15px;
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+  position: relative;
+  max-height: 90vh; /* Limit height */
+  overflow-y: auto; /* Add scroll if content overflows */
+}
+
+.modal-close-button {
+  position: absolute;
+  top: 10px;
+  right: 15px;
+  background: none;
+  border: none;
+  font-size: 1.8rem;
+  cursor: pointer;
+  color: #888;
+}
+.modal-close-button:hover {
+  color: #333;
 }
 
 .action-buttons button {
-  padding: 10px 20px;
-  font-size: 1em;
-  border: none;
-  border-radius: 5px;
+  font-size: 1.7em;
+  font-family: "MyFont", sans-serif;
+  border-radius: 30px;
   cursor: pointer;
   transition: background-color 0.2s ease;
+  box-shadow: inset 3px 3px 5px rgba(0, 0, 0, 0.552),
+    inset -3px -3px 5px rgba(0, 0, 0, 0.552);
 }
 
 .serve-button {
-  background-color: #2196f3;
-  color: white;
+  padding: 10px 20px;
+  background-color: #f7a541;
+  border: 2px solid #000000;
+  color: #f9db92;
+  box-shadow: inset 1px 1px 5px rgba(0, 0, 0, 0.263),
+    inset -1px -1px 5px rgba(0, 0, 0, 0.263);
 }
 
+.serve-icon {
+  padding-top: 10px;
+  width: 320px;
+}
+
+.print-icon {
+  padding-top: 10px;
+  width: 320px;
+}
 .serve-button:hover {
-  background-color: #1976d2;
+  background-color: #f3c35b;
 }
 
 .print-button {
-  background-color: #9e9e9e;
-  color: white;
+  padding: 10px 20px;
+  background-color: #f7a541;
+  border: 2px solid #000000;
+  color: #f9db92;
+  box-shadow: inset 1px 1px 5px rgba(0, 0, 0, 0.263),
+    inset -1px -1px 5px rgba(0, 0, 0, 0.263);
 }
 
 .print-button:hover {
-  background-color: #757575;
+  background-color: #f3c35b;
 }
+
+/* --- ADD Default style to hide print notes section --- */
+.print-notes-section {
+  display: none; /* Hidden by default */
+}
+/* --- END ADD --- */
 
 /* Summary Modal */
 .modal-overlay {
@@ -394,13 +1678,14 @@ body {
 }
 
 .modal-content {
-  background-color: #fff;
+  background-color: #f68e3e;
   padding: 30px;
   border-radius: 8px;
   max-width: 80%;
   max-height: 80%;
   overflow-y: auto;
-  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+  box-shadow: inset 3px 3px 5px rgba(0, 0, 0, 0.552),
+    inset -3px -3px 5px rgba(0, 0, 0, 0.552);
   position: relative;
 }
 
@@ -412,7 +1697,7 @@ body {
   border: none;
   font-size: 1.5em;
   cursor: pointer;
-  color: #888;
+  color: #000000;
 }
 .modal-close-button:hover {
   color: #333;
@@ -420,7 +1705,7 @@ body {
 
 .modal-content h2 {
   margin-top: 0;
-  color: #333;
+  color: #f9db92;
 }
 
 .summary-text {
@@ -437,7 +1722,7 @@ body {
 
 .qr-code-container p {
   margin-bottom: 10px;
-  color: #666;
+  color: #f9db92;
 }
 
 /* Print Styles */
@@ -448,8 +1733,17 @@ body {
   }
   .app-container {
     flex-direction: column; /* Stack elements for printing */
+    /* --- ADDED: Reset print-specific container styles --- */
+    max-width: none;
+    margin: 0;
+    padding: 0;
+    border-radius: 0;
+    box-shadow: none;
+    background: none;
+    /* --- END ADD --- */
   }
   .left-panel,
+  .info-side-panel,
   .action-buttons,
   .modal-overlay,
   .no-print {
@@ -459,42 +1753,167 @@ body {
   .right-panel {
     flex: none; /* Reset flex */
     width: 100%;
+    /* --- ADD: Ensure no extra padding/margin interferes --- */
+    padding: 0;
+    margin: 0;
+    box-sizing: border-box; /* Be explicit */
   }
+
+  /* --- ADD THESE RULES FOR THE TITLE IN PRINT --- */
+  .recipe-grid-title {
+    /* Significantly smaller font size for print */
+    text-shadow: none; /* Remove text shadow */
+    padding: 5px 10px; /* Reduce padding */
+    margin-bottom: 10px; /* Reduce space below title */
+    max-width: 700px; /* Ensure it doesn't exceed page width */
+    text-align: center; /* Keep centered */
+  }
+
+  .cooking-icon {
+    max-width: 630px;
+  }
+  /* --- END ADDED RULES --- */
+
   .recipe-grid {
     box-shadow: none;
-    border: 1px solid #ccc;
-    max-width: 100%;
-    page-break-inside: avoid; /* Try to keep grid on one page */
+
+    max-width: 100%; /* Keep this */
+    page-break-inside: avoid;
+
+    /* --- ADD/OVERRIDE these properties --- */
+    width: auto; /* Ensure it tries to use full width */
+    height: 680px;
+
+    aspect-ratio: 1 / 1; /* Allow it to be non-square */
+
+    margin: 0 auto; /* Center if needed, or just margin: 0; */
+    box-sizing: border-box; /* Be explicit */
+    /* Optional: Adjust min-height if rows become too small */
+    /* grid-template-rows: repeat(5, minmax(80px, auto)); */
+
+    grid-template-columns: repeat(5, 1fr);
+    grid-template-rows: repeat(5, 1fr);
+    padding-top: 70px;
   }
   .grid-square {
-    background-color: #fff;
-    border: 1px solid #ccc;
-    border-radius: 4px;
+    /* background-color: #fff !important; */ /* Causes white background */
     display: flex; /* Keep flex for centering empty state text */
     justify-content: center;
     align-items: center;
     position: relative; /* CRUCIAL: Parent for absolute positioning */
-    min-height: 80px;
-    transition: background-color 0.2s ease;
+    /* min-height: 80px; */
+    transition: none;
     overflow: visible; /* Allow absolutely positioned children to show outside */
+    box-sizing: border-box; /* Be explicit */
+    overflow: visible !important;
   }
-  /* Hide the floating mini-box container during print */
-  .mini-boxes-container {
+  .placed-action {
+    /* ... other placed-action print styles ... */
+    /* --- ADD THIS --- */
+    position: relative; /* Crucial for absolute positioning of mini-boxes */
+    /* --- END ADD --- */
+    border: none;
+    box-shadow: none;
+    background-color: transparent;
+  }
+
+  /* --- Style Print Containers by Position --- */
+  .placed-action .mini-box-container-right,
+  .placed-action .mini-box-container-top,
+  .placed-action .mini-box-container-bottom {
+    display: flex;
+    position: absolute;
+    transform: none;
+    z-index: 5;
+    background-color: transparent;
+    box-shadow: none;
+    padding: 0;
+    gap: 2px;
+    border: none;
+    margin: 0;
+  }
+
+  /* --- VERIFY/ADJUST THESE RULES --- */
+  /* Box 1: Right (Center) - Print */
+  .placed-action .mini-box-container-right {
+    top: 50%;
+    transform: translateY(-50%);
+    left: 100%;
+    margin-left: 5px; /* Adjust for print gap/overlap */
+  }
+
+  /* Box 2: Above Box 1 - Print */
+  .placed-action .mini-box-container-top {
+    bottom: 50%; /* Align bottom to parent vertical center */
+    left: 100%; /* Align left to parent right edge */
+    transform: none;
+    margin-left: 5px; /* Align horizontally */
+    /* This value pushes it UP from the center line */
+    margin-bottom: 20px; /* Adjust if needed for print spacing */
+  }
+
+  /* Box 3: Below Box 1 - Print */
+  .placed-action .mini-box-container-bottom {
+    top: 50%; /* Align top to parent vertical center */
+    left: 100%; /* Align left to parent right edge */
+    transform: none;
+    margin-left: 5px; /* Align horizontally */
+    /* This value pushes it DOWN from the center line */
+    margin-top: 20px; /* Adjust if needed for print spacing */
+  }
+  /* --- End Print Container Styles --- */
+
+  /* Hide the '+' button on placed actions */
+  .placed-action .reveal-mini-box-button {
     display: none !important;
   }
+
+  .placed-action .label-input {
+    border: none; /* Make inputs look like text */
+    background-color: transparent;
+    padding: 1px; /* Minimal padding */
+    width: 95%; /* Adjust width slightly if needed */
+  }
+
+  /* Ensure icons are visible */
+  .placed-action .icon {
+    display: block; /* Ensure it's displayed */
+  }
+
+  /* Hide placeholders in empty squares */
+  .grid-square.empty .empty-placeholder {
+    display: none;
+  }
+
   /* Hide mini-box delete button in print */
   .mini-box-delete-button {
     display: none !important;
   }
 
-  /* Optional: Style the mini-box content for print if needed */
+  /* --- Adjust MiniBox itself for Print --- */
   .mini-box {
-    border: 1px solid #eee; /* Lighter border for print */
-    padding: 2px;
+    padding: 3px 5px;
+    min-height: 28px;
+    min-width: 32px;
+    line-height: 1.2;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-sizing: border-box;
+    box-shadow: none; /* No shadow in print */
   }
+
   .mini-box-placeholder {
-    display: none; /* Don't print placeholders */
+    display: none;
   }
+
+  .mini-box-icon {
+    /* --- INCREASE Icon Size --- */
+    font-size: 1.4em; /* Increased from 0.9em, closer to live view */
+    display: inline-block;
+    vertical-align: middle;
+  }
+  /* --- End Mini-Box Adjustments --- */
 
   /* Ensure the original add button is also hidden if separate */
   .add-mini-box-button {
@@ -509,4 +1928,43 @@ body {
   .mini-box button {
     display: none; /* Hide mini-box delete button */
   }
+
+  /* --- Styles for Print-Only Notes Section --- */
+  .print-notes-section {
+    display: block !important; /* <<< THIS IS APPLYING ALWAYS */
+    /* page-break-before: always; */
+    margin-top: 30pt;
+    background-color: #f9db92;
+    border: 1pt solid #000000;
+    box-shadow: inset 3px 3px 5px rgba(0, 0, 0, 0.552),
+      inset -3px -3px 5px rgba(0, 0, 0, 0.552);
+    padding: 10pt;
+    width: 100%;
+
+    box-sizing: border-box;
+    border-radius: 20px;
+  }
+
+  .print-notes-section h2 {
+    font-family: "MyFont", sans-serif;
+    font-size: 20pt;
+    color: black;
+    text-align: center;
+    margin-bottom: 15pt;
+    font-weight: 900;
+  }
+
+  .print-notes-content {
+    font-family: sans-serif;
+    font-size: 10pt;
+    color: black;
+    white-space: pre-wrap;
+    word-wrap: break-word;
+    text-align: left;
+    border: 1pt solid #020202;
+    padding: 8pt;
+    background-color: #f9db92;
+    border-radius: 20px;
+  }
+  /* --- End Print-Only Notes Section Styles --- */
 }

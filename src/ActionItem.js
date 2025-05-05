@@ -1,3 +1,4 @@
+// src/ActionItem.js
 import React from "react";
 import { useDraggable } from "@dnd-kit/core";
 import { CSS } from "@dnd-kit/utilities";
@@ -6,7 +7,7 @@ function ActionItem({ action }) {
   const { attributes, listeners, setNodeRef, transform, isDragging } =
     useDraggable({
       id: action.id,
-      data: { action }, // Pass the action data
+      data: { type: "palette-item", action }, // Ensure type is set for clarity
     });
 
   const style = {
@@ -14,6 +15,9 @@ function ActionItem({ action }) {
     opacity: isDragging ? 0.5 : 1,
     touchAction: "none", // Recommended for compatibility
   };
+
+  // Get the SVG component from the action object
+  const IconComponent = action.icon;
 
   return (
     <div
@@ -24,7 +28,12 @@ function ActionItem({ action }) {
       className="action-item"
       title={`${action.name}: ${action.description}`} // Tooltip
     >
-      <span>{action.icon}</span>
+      {/* Render the SVG component if it exists */}
+      {IconComponent && (
+        <span className="icon-wrapper">
+          <IconComponent className="svg-icon action-palette-icon" />
+        </span>
+      )}
       <p>{action.name}</p>
     </div>
   );
