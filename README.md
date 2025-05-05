@@ -1,4 +1,4 @@
-# Recipe Builder UI
+# Cooking Notations UI
 
 A React-based web application that allows users to visually create cooking recipes by dragging and dropping actions onto a grid. It includes features for adding related sub-actions (mini-boxes), editing labels, adding notes, and generating a shareable PDF document with a QR code.
 
